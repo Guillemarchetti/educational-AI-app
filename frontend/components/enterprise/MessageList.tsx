@@ -73,19 +73,10 @@ export function MessageList({ messages, isProcessing, messagesEndRef }: MessageL
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.4 }}
           >
-            {message.sender === 'ai' && (
-              <motion.div 
-                className="w-10 h-10 rounded-xl genie-gradient flex items-center justify-center flex-shrink-0 shadow-genie"
-                whileHover={{ scale: 1.05 }}
-              >
-                <Sparkles className="w-5 h-5 text-white" />
-              </motion.div>
-            )}
-            
             <div
-              className={`max-w-xs lg:max-w-2xl px-6 py-4 rounded-2xl relative group ${
+              className={`max-w-xs lg:max-w-2xl px-6 py-4 rounded-2xl relative group text-sm ${
                 message.sender === 'user'
-                  ? 'bg-genie-600 text-white ml-auto shadow-lg'
+                  ? 'bg-[#2563eb22] text-white ml-auto shadow-lg'
                   : 'enterprise-card text-slate-100 shadow-xl'
               }`}
             >
@@ -158,15 +149,6 @@ export function MessageList({ messages, isProcessing, messagesEndRef }: MessageL
                 )}
               </div>
             </div>
-
-            {message.sender === 'user' && (
-              <motion.div 
-                className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 via-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0"
-                whileHover={{ scale: 1.05 }}
-              >
-                <User className="w-5 h-5 text-white" />
-              </motion.div>
-            )}
           </motion.div>
         ))}
 
