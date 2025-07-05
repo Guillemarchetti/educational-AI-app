@@ -1,0 +1,80 @@
+# ========================================
+# CONFIGURACIÓN DE SERVICIOS IA - EJEMPLO
+# ========================================
+# Copia este archivo como .env y configura tus API keys
+
+# OpenAI Configuration
+OPENAI_API_KEY=sk-your-openai-key-here
+OPENAI_MODEL=gpt-4-turbo
+OPENAI_MAX_TOKENS=1500
+OPENAI_TEMPERATURE=0.7
+
+# Anthropic (Claude) Configuration
+ANTHROPIC_API_KEY=your-claude-key-here
+CLAUDE_MODEL=claude-3-sonnet-20240229
+CLAUDE_MAX_TOKENS=1500
+
+# ========================================
+# CONFIGURACIÓN RAG Y EMBEDDINGS
+# ========================================
+
+# Embedding Configuration
+EMBEDDING_MODEL=all-MiniLM-L6-v2
+EMBEDDING_DIMENSION=384
+CHROMA_PERSIST_DIRECTORY=./chroma_db
+
+# RAG Configuration
+RAG_MAX_CONTEXT_LENGTH=4000
+RAG_MAX_DOCUMENTS=10
+RAG_CHUNK_SIZE=500
+RAG_CHUNK_OVERLAP=50
+
+# ========================================
+# CONFIGURACIÓN DE AGENTES
+# ========================================
+
+# Agent Configuration
+AGENT_RESPONSE_TIMEOUT=30
+AGENT_MAX_MEMORY_MESSAGES=20
+AGENT_DEFAULT_TEMPERATURE=0.7
+
+# Redis Configuration (para memoria conversacional)
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_PASSWORD=
+
+# ========================================
+# CONFIGURACIÓN DJANGO EXISTENTE
+# ========================================
+
+# Django Configuration
+SECRET_KEY=django-insecure-default-key-change-in-production
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Database
+DATABASE_URL=sqlite:///db.sqlite3
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+
+# ========================================
+# CONFIGURACIÓN DE LOGGING
+# ========================================
+
+# Logging Configuration
+LOG_LEVEL=INFO
+LOG_FILE=logs/agents.log
+
+# ========================================
+# CONFIGURACIÓN DE SEGURIDAD
+# ========================================
+
+# Rate Limiting
+RATE_LIMIT_REQUESTS_PER_MINUTE=60
+RATE_LIMIT_BURST=10
+
+# Input Validation
+MAX_INPUT_LENGTH=5000
+MAX_FILE_SIZE_MB=10 

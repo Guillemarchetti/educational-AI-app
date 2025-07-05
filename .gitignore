@@ -1,0 +1,82 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+*.sqlite
+*.pyc
+*.pyo
+*.pyd
+
+# Media and uploads
+/media/
+/uploads/
+
+# Static files
+/staticfiles/
+/static/
+
+# Local env files
+.env
+.env.*
+
+# VSCode and IDEs
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Node modules
+frontend/node_modules/
+
+# Next.js build output
+frontend/.next/
+frontend/out/
+
+# Dependency lock files (optional, keep if you want reproducible builds)
+# frontend/package-lock.json
+# frontend/yarn.lock
+
+# Python virtual environments
+backend/venv/
+venv/
+ENV/
+
+# MacOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Logs
+logs/
+*.log
+
+# Test and coverage
+htmlcov/
+.coverage
+.tox/
+.nox/
+.pytest_cache/
+
+# Misc
+*.bak
+*.swp
+*.tmp
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Build scripts
+scripts/*.sh~ 
