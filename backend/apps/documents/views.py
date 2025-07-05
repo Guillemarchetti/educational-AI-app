@@ -14,6 +14,7 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 import mimetypes
+from django.contrib.auth.models import User
 
 from .models import Document
 
@@ -137,9 +138,15 @@ def upload_document(request):
             ContentFile(uploaded_file.read())
         )
         
+        # Asignar usuario (autenticado o default)
+        if hasattr(request, 'user') and getattr(request.user, 'is_authenticated', False):
+            user = request.user
+        else:
+            user, _ = User.objects.get_or_create(username='default-user', defaults={'password': 'default'})
+        
         # Crear registro en base de datos
         document = Document.objects.create(
-            user=request.user if request.user.is_authenticated else None,
+            user=user,
             title=uploaded_file.name,
             file_path=default_storage.path(file_path),
             file_size=uploaded_file.size,
