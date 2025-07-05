@@ -28,7 +28,6 @@ interface SidebarProps {
 const menuItems = [
   { icon: Home, label: 'Inicio', id: 'dashboard', category: 'main' },
   { icon: MessageSquare, label: 'Chat AI', id: 'chat', category: 'main' },
-  { icon: Gamepad2, label: 'Crear Contenido', id: 'content_creator', category: 'main' },
   { icon: FileText, label: 'Documentos', id: 'documents', category: 'content' },
   { icon: BookOpen, label: 'Estructura', id: 'structure', category: 'content' },
   { icon: Library, label: 'Biblioteca', id: 'library', category: 'content' },

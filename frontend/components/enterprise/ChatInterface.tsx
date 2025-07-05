@@ -6,7 +6,6 @@ import { ChatHeader } from './ChatHeader'
 import { MessageList } from './MessageList'
 import { ChatInput } from './ChatInput'
 import { WelcomeScreen } from './WelcomeScreen'
-import { ContextDisplay } from './ContextDisplay'
 
 // Definimos la interfaz Message aquí mismo para que el componente sea autocontenido
 export interface Message {
@@ -184,7 +183,6 @@ export function ChatInterface({
           )}
         </AnimatePresence>
       </div>
-      <ContextDisplay contextText={contextText} onRemoveContext={onRemoveContext} />
       <ChatInput onSendMessage={handleSendMessage} isProcessing={isProcessing} />
     </div>
   )

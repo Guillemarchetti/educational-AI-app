@@ -12,7 +12,6 @@ import { FileExplorer } from '@/components/enterprise/FileExplorer'
 import { PdfViewer } from '@/components/enterprise/PdfViewer'
 import { DocumentStructure } from '@/components/enterprise/DocumentStructure'
 import { Sidebar } from '@/components/enterprise/Sidebar'
-import { ContentCreator } from '@/components/enterprise/ContentCreator'
 
 // Esta interfaz debe coincidir con la de FileExplorer
 interface FileNode {
@@ -119,11 +118,7 @@ export default function EnterpriseChatPage() {
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
             <Panel defaultSize={45} minSize={30}>
               <PdfViewer 
-                selectedFile={selectedFile} 
-                onTextSelect={handleTextSelect}
-                selectedText={selectedText}
-                onContextAdd={handleContextAdd}
-                onClearSelection={handleClearSelection}
+                selectedFile={selectedFile}
               />
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
@@ -176,19 +171,10 @@ export default function EnterpriseChatPage() {
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
             <Panel defaultSize={70} minSize={50}>
               <PdfViewer 
-                selectedFile={selectedFile} 
-                onTextSelect={handleTextSelect}
-                selectedText={selectedText}
-                onContextAdd={handleContextAdd}
-                onClearSelection={handleClearSelection}
+                selectedFile={selectedFile}
               />
             </Panel>
           </PanelGroup>
-        );
-      
-      case 'content_creator':
-        return (
-          <ContentCreator />
         );
       
       default:
