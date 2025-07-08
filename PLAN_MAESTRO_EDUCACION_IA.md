@@ -369,8 +369,8 @@ def spaced_repetition_schedule(concept, user_performance):
 ### 📅 **FASE 1: FUNDAMENTOS (Semana 1-2)**
 - [ ] Selector de imágenes básico
 - [ ] Prompts recomendados simples
-- [ ] Chat IA mejorado
-- [ ] Interfaz responsive
+- [X] Chat IA mejorado
+- [X] Interfaz responsive
 
 ### 📅 **FASE 2: GAMIFICACIÓN (Semana 3-4)**
 - [ ] Sistema de puntuación
