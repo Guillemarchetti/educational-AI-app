@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import dynamic from 'next/dynamic'
 import {
   Panel,
   PanelGroup,
@@ -9,9 +10,13 @@ import {
 
 import { ChatInterface } from '@/components/enterprise/ChatInterface'
 import { FileExplorer } from '@/components/enterprise/FileExplorer'
-import { PdfViewer } from '@/components/enterprise/PdfViewer'
 import { DocumentStructure } from '@/components/enterprise/DocumentStructure'
 import { Sidebar } from '@/components/enterprise/Sidebar'
+
+const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
+  ssr: false,
+  loading: () => <div className="h-full flex items-center justify-center bg-enterprise-900 text-slate-500"><p>Cargando visor PDF...</p></div>
+})
 
 // Esta interfaz debe coincidir con la de FileExplorer
 interface FileNode {
