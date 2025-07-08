@@ -200,6 +200,47 @@ Por favor, responde como {self.get_agent_name()} considerando todo el contexto p
             self.logger.error(f"Error procesando consulta con OpenAI: {e}")
             return f"Lo siento, hubo un error procesando tu consulta: {str(e)}"
     
+    def process_image_with_openai(self, prompt: str, image_data: str, context: Dict[str, Any]) -> str:
+        """
+        Procesar imagen usando OpenAI GPT-4 Vision.
+        """
+        if not self.openai_client:
+            return "Lo siento, el servicio de OpenAI no está disponible en este momento."
+        
+        try:
+            self.logger.info(f"Procesando imagen con OpenAI Vision")
+            
+            # Usar GPT-4 Vision para análisis de imágenes
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4o",  # Modelo con capacidades de visión
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": image_data
+                                }
+                            }
+                        ]
+                    }
+                ],
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                timeout=self.timeout
+            )
+            
+            return response.choices[0].message.content
+            
+        except Exception as e:
+            self.logger.error(f"Error procesando imagen con OpenAI: {e}")
+            return f"Lo siento, hubo un error procesando tu imagen: {str(e)}"
+    
     def process_query_with_claude(self, query: str, context: Dict[str, Any]) -> str:
         """
         Procesar consulta usando Claude de Anthropic.
@@ -234,7 +275,7 @@ Por favor, responde como {self.get_agent_name()} considerando todo el contexto p
     def process_query(self, query: str, context: Dict[str, Any]) -> str:
         """
         Método principal para procesar consultas.
-        Intenta OpenAI primero, luego Claude como fallback.
+        Usa OpenAI exclusivamente.
         """
         start_time = datetime.now()
         
@@ -246,23 +287,15 @@ Por favor, responde como {self.get_agent_name()} considerando todo el contexto p
         if len(query) > max_length:
             return f"La consulta es demasiado larga. Máximo {max_length} caracteres."
         
-        # Intentar con OpenAI primero
+        # Usar OpenAI exclusivamente
         if self.openai_client:
             response = self.process_query_with_openai(query, context)
-            if not response.startswith("Lo siento"):
-                processing_time = (datetime.now() - start_time).total_seconds()
-                self.logger.info(f"Consulta procesada exitosamente en {processing_time:.2f}s")
-                return response
-        
-        # Fallback a Claude
-        if self.claude_client:
-            response = self.process_query_with_claude(query, context)
             processing_time = (datetime.now() - start_time).total_seconds()
-            self.logger.info(f"Consulta procesada con Claude en {processing_time:.2f}s")
+            self.logger.info(f"Consulta procesada exitosamente en {processing_time:.2f}s")
             return response
         
-        # Si ninguno está disponible
-        return "Lo siento, los servicios de IA no están disponibles en este momento. Por favor, configura las API keys en el archivo .env."
+        # Si OpenAI no está disponible
+        return "Lo siento, el servicio de OpenAI no está disponible en este momento. Por favor, configura la API key de OpenAI en el archivo .env."
     
     def get_capabilities(self) -> Dict[str, Any]:
         """
@@ -282,9 +315,57 @@ Por favor, responde como {self.get_agent_name()} considerando todo el contexto p
         Verificar el estado de salud del servicio.
         """
         return {
+            'status': 'healthy',
+            'timestamp': datetime.now().isoformat(),
+            'openai_available': self.openai_client is not None,
+            'claude_available': self.claude_client is not None,
             'agent_name': self.get_agent_name(),
-            'status': 'healthy' if (self.openai_client or self.claude_client) else 'unhealthy',
-            'openai_configured': self.openai_client is not None,
-            'claude_configured': self.claude_client is not None,
-            'timestamp': datetime.now().isoformat()
+            'capabilities': self.get_capabilities()
+        }
+
+
+class AIService(BaseAIService):
+    """
+    Servicio de IA general para análisis y procesamiento de consultas.
+    """
+    
+    def get_system_prompt(self) -> str:
+        """
+        Prompt del sistema para el servicio de IA general.
+        """
+        return """
+        Eres un asistente de IA educativo especializado en análisis de contenido.
+        
+        Tu función principal es:
+        1. Analizar imágenes y contenido educativo
+        2. Proporcionar explicaciones claras y detalladas
+        3. Adaptar tu lenguaje al nivel educativo apropiado
+        4. Ser preciso y útil en tus respuestas
+        
+        Características de tu personalidad:
+        - Educativo y paciente
+        - Claro y conciso
+        - Motivador y positivo
+        - Adaptable al nivel del estudiante
+        
+        Siempre responde en español y estructura tus respuestas de manera clara.
+        """
+    
+    def get_agent_name(self) -> str:
+        """
+        Nombre del agente de IA general.
+        """
+        return "Asistente de IA General"
+    
+    def get_capabilities(self) -> Dict[str, Any]:
+        """
+        Capacidades del servicio de IA general.
+        """
+        return {
+            'image_analysis': True,
+            'text_processing': True,
+            'educational_content': True,
+            'multilingual': False,
+            'real_time': True,
+            'supported_formats': ['text', 'image', 'pdf_extract']
         } 

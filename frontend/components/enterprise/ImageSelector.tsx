@@ -14,66 +14,6 @@ export function ImageSelector({ selectedFile, onAddImageContext, isSelectionMode
   const [capturedImages, setCapturedImages] = useState<Array<{id: string, imageData: string, timestamp: Date}>>([])
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const handleImageCapture = async (imageData: string, coordinates: { x: number, y: number, width: number, height: number }) => {
-    setIsProcessing(true)
-    
-    try {
-      // Generar ID único para la imagen
-      const imageId = `img_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-      
-      // Agregar a la lista de imágenes capturadas
-      const newImage = {
-        id: imageId,
-        imageData,
-        timestamp: new Date()
-      }
-      setCapturedImages(prev => [...prev, newImage])
-      
-      // Enviar imagen al backend para análisis
-      const response = await fetch('http://localhost:8000/api/agents/analyze-image/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          image_data: imageData,
-          context: `Imagen seleccionada del PDF: ${selectedFile?.name}`,
-          filename: selectedFile?.name,
-          x: coordinates.x,
-          y: coordinates.y,
-          width: coordinates.width,
-          height: coordinates.height
-        })
-      })
-      
-      if (!response.ok) {
-        throw new Error('Error al analizar la imagen')
-      }
-      
-      const result = await response.json()
-      
-      // Crear descripción con el análisis de IA
-      const description = `🖼️ ANÁLISIS DE IMAGEN:\n\n${result.analysis}\n\n📊 Info técnica: ${result.image_info?.size || 'N/A'}`
-      
-      // Agregar al contexto del chat con el análisis completo
-      onAddImageContext(imageData, description)
-      
-      // Desactivar modo selección después de capturar
-      onToggleSelectionMode()
-      
-    } catch (error) {
-      console.error('Error processing captured image:', error)
-      
-      // Fallback: agregar imagen sin análisis detallado
-      const fallbackDescription = `Área seleccionada del PDF "${selectedFile?.name}" - Coordenadas: ${Math.round(coordinates.x)}, ${Math.round(coordinates.y)} - Tamaño: ${Math.round(coordinates.width)}x${Math.round(coordinates.height)}px\n\n⚠️ Error al analizar con IA. Describe qué ves en la imagen para obtener ayuda.`
-      onAddImageContext(imageData, fallbackDescription)
-      onToggleSelectionMode()
-      
-    } finally {
-      setIsProcessing(false)
-    }
-  }
-
   const handleClearImages = () => {
     setCapturedImages([])
   }
@@ -100,12 +40,12 @@ export function ImageSelector({ selectedFile, onAddImageContext, isSelectionMode
             disabled={isProcessing}
             className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
               isSelectionMode 
-                ? 'bg-blue-600 text-white' 
+                ? 'bg-blue-600 text-white hover:bg-blue-700' 
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
             } ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isSelectionMode ? <Scissors size={16} /> : <MousePointer size={16} />}
-            {isSelectionMode ? 'Seleccionando' : 'Activar Selección'}
+            {isSelectionMode ? 'Desactivar' : 'Activar Selección'}
           </button>
         </div>
       </header>
@@ -118,9 +58,10 @@ export function ImageSelector({ selectedFile, onAddImageContext, isSelectionMode
           </h4>
           <ol className="text-sm text-gray-300 space-y-2">
             <li>1. Haz clic en "Activar Selección" arriba</li>
-            <li>2. En el PDF, arrastra para seleccionar el área que quieres analizar</li>
-            <li>3. La selección se agregará automáticamente al contexto del chat</li>
-            <li>4. Pregunta a la IA sobre esa área específica</li>
+            <li>2. En el PDF, arrastra el mouse para seleccionar el área que quieres analizar</li>
+            <li>3. Suelta el mouse para capturar la imagen</li>
+            <li>4. La selección se procesará automáticamente y se agregará al contexto del chat</li>
+            <li>5. Pregunta a la IA sobre esa área específica</li>
           </ol>
         </div>
 
@@ -134,13 +75,18 @@ export function ImageSelector({ selectedFile, onAddImageContext, isSelectionMode
             <li>• "Explica esta fórmula paso a paso"</li>
             <li>• "¿Cómo funciona este proceso?"</li>
             <li>• "Dame ejemplos de este concepto"</li>
+            <li>• "¿Qué significa esta imagen?"</li>
           </ul>
         </div>
 
         {isSelectionMode && (
           <div className="mb-4 p-4 bg-green-900/20 border border-green-800/50 rounded-lg">
-            <p className="text-green-300 text-sm font-medium">
+            <p className="text-green-300 text-sm font-medium flex items-center gap-2">
+              <Square size={16} />
               ✨ Modo de selección activo. Ve al PDF y arrastra para seleccionar un área.
+            </p>
+            <p className="text-green-200 text-xs mt-1">
+              Verás un cursor en forma de cruz y podrás dibujar un rectángulo sobre el contenido.
             </p>
           </div>
         )}

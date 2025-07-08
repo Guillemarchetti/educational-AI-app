@@ -52,6 +52,8 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
     setPageNumber(1);
     setScale(1.0);
     setError(null);
+    setSelectionRect(null);
+    setCurrentSelection(null);
   }, [selectedFile]);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
@@ -74,6 +76,8 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
     const rect = canvasRef.current.getBoundingClientRect();
     const startX = e.clientX - rect.left;
     const startY = e.clientY - rect.top;
+    
+    console.log('Mouse down at:', { startX, startY });
     
     setIsSelecting(true);
     setSelectionRect({
@@ -101,6 +105,8 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
   const handleMouseUp = () => {
     if (!isSelecting || !selectionRect) return;
     
+    console.log('Mouse up, selection:', selectionRect);
+    
     setIsSelecting(false);
     setCurrentSelection(selectionRect);
     
@@ -112,6 +118,8 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
     if (!pageRef.current || !onImageSelection) return;
     
     try {
+      console.log('Capturing area:', rect);
+      
       // Crear un canvas temporal para capturar el área
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -119,7 +127,10 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
       
       // Obtener el elemento canvas del PDF
       const pdfCanvas = pageRef.current.querySelector('canvas');
-      if (!pdfCanvas) return;
+      if (!pdfCanvas) {
+        console.error('No se encontró el canvas del PDF');
+        return;
+      }
       
       // Calcular las coordenadas reales en el PDF
       const pdfRect = pdfCanvas.getBoundingClientRect();
@@ -131,6 +142,14 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
       const width = Math.abs(rect.endX - rect.startX) * scaleX;
       const height = Math.abs(rect.endY - rect.startY) * scaleY;
       
+      console.log('Calculated coordinates:', { x, y, width, height });
+      
+      // Verificar que las dimensiones sean válidas
+      if (width < 10 || height < 10) {
+        console.warn('Área seleccionada muy pequeña');
+        return;
+      }
+      
       // Configurar el canvas temporal
       canvas.width = width;
       canvas.height = height;
@@ -140,6 +159,8 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
       
       // Convertir a base64
       const imageData = canvas.toDataURL('image/png');
+      
+      console.log('Image captured successfully');
       
       // Llamar al callback con la imagen
       onImageSelection(imageData, { x, y, width, height });
@@ -155,7 +176,7 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
 
   // Dibujar el rectángulo de selección
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current || !isSelectionMode) return;
     
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -171,37 +192,131 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
       const width = Math.abs(selectionRect.endX - selectionRect.startX);
       const height = Math.abs(selectionRect.endY - selectionRect.startY);
       
+      console.log('Drawing selection rectangle:', { x, y, width, height });
+      
+      // Configurar estilo del rectángulo
       ctx.strokeStyle = '#3b82f6';
       ctx.lineWidth = 2;
       ctx.setLineDash([5, 5]);
       ctx.strokeRect(x, y, width, height);
       
+      // Fondo semitransparente
       ctx.fillStyle = 'rgba(59, 130, 246, 0.1)';
       ctx.fillRect(x, y, width, height);
     }
-  }, [selectionRect]);
+  }, [selectionRect, isSelectionMode]);
 
   // Actualizar el tamaño del canvas cuando cambie el PDF
   useEffect(() => {
-    if (!canvasRef.current || !pageRef.current) return;
+    if (!canvasRef.current || !pageRef.current || !isSelectionMode) return;
     
     const updateCanvasSize = () => {
-      const pdfCanvas = pageRef.current?.querySelector('canvas');
-      if (pdfCanvas && canvasRef.current) {
-        const rect = pdfCanvas.getBoundingClientRect();
-        canvasRef.current.width = rect.width;
-        canvasRef.current.height = rect.height;
-        canvasRef.current.style.width = `${rect.width}px`;
-        canvasRef.current.style.height = `${rect.height}px`;
+      const pdfDiv = pageRef.current?.querySelector('.react-pdf__Page');
+      if (pdfDiv && canvasRef.current) {
+        const rect = pdfDiv.getBoundingClientRect();
+        const containerRect = pageRef.current?.getBoundingClientRect();
+        
+        if (containerRect) {
+          // Calcular posición relativa al contenedor
+          const offsetX = rect.left - containerRect.left;
+          const offsetY = rect.top - containerRect.top;
+          
+          canvasRef.current.width = rect.width;
+          canvasRef.current.height = rect.height;
+          canvasRef.current.style.width = `${rect.width}px`;
+          canvasRef.current.style.height = `${rect.height}px`;
+          canvasRef.current.style.position = 'absolute';
+          canvasRef.current.style.top = `${offsetY}px`;
+          canvasRef.current.style.left = `${offsetX}px`;
+          
+          console.log('Canvas positioned:', { 
+            width: rect.width, 
+            height: rect.height, 
+            offsetX, 
+            offsetY,
+            pdfRect: rect,
+            containerRect
+          });
+        }
       }
     };
     
-    // Actualizar inmediatamente y cuando cambie el tamaño
-    updateCanvasSize();
+    // Observar cambios en el tamaño del PDF
+    const observer = new ResizeObserver(() => {
+      setTimeout(updateCanvasSize, 50);
+    });
+    
+    const pdfDiv = pageRef.current?.querySelector('.react-pdf__Page');
+    if (pdfDiv) {
+      observer.observe(pdfDiv);
+    }
+    
+    // Actualizar inmediatamente con un pequeño delay
+    setTimeout(updateCanvasSize, 200);
+    
+    // Actualizar cuando cambie el tamaño de la ventana
     window.addEventListener('resize', updateCanvasSize);
     
-    return () => window.removeEventListener('resize', updateCanvasSize);
-  }, [pageNumber, scale]);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateCanvasSize);
+    };
+  }, [pageNumber, scale, selectedFile, isSelectionMode]);
+
+  // Agregar un efecto para forzar la actualización cuando se active el modo selección
+  useEffect(() => {
+    if (isSelectionMode && canvasRef.current && pageRef.current) {
+      const timer = setTimeout(() => {
+        const pdfDiv = pageRef.current?.querySelector('.react-pdf__Page');
+        if (pdfDiv && canvasRef.current) {
+          const rect = pdfDiv.getBoundingClientRect();
+          const containerRect = pageRef.current?.getBoundingClientRect();
+          
+          if (containerRect) {
+            const offsetX = rect.left - containerRect.left;
+            const offsetY = rect.top - containerRect.top;
+            
+            canvasRef.current.width = rect.width;
+            canvasRef.current.height = rect.height;
+            canvasRef.current.style.width = `${rect.width}px`;
+            canvasRef.current.style.height = `${rect.height}px`;
+            canvasRef.current.style.position = 'absolute';
+            canvasRef.current.style.top = `${offsetY}px`;
+            canvasRef.current.style.left = `${offsetX}px`;
+            
+            console.log('Canvas repositioned on selection mode activation');
+          }
+        }
+      }, 100);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isSelectionMode]);
+
+  // Efecto para aplicar cursor crosshair a todos los elementos del PDF
+  useEffect(() => {
+    if (isSelectionMode) {
+      const style = document.createElement('style');
+      style.id = 'pdf-crosshair-cursor';
+      style.textContent = `
+        .react-pdf__Page,
+        .react-pdf__Page__textLayer,
+        .react-pdf__Page__textLayer > span,
+        .react-pdf__Page__annotationLayer,
+        .react-pdf__Page canvas {
+          cursor: crosshair !important;
+        }
+      `;
+      document.head.appendChild(style);
+      
+      return () => {
+        const existingStyle = document.getElementById('pdf-crosshair-cursor');
+        if (existingStyle) {
+          existingStyle.remove();
+        }
+      };
+    }
+  }, [isSelectionMode]);
 
   if (!selectedFile) {
     return (
@@ -219,7 +334,8 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
         <div className="flex items-center gap-3">
           <h3 className="font-semibold text-sm truncate">{selectedFile.name}</h3>
           {isSelectionMode && (
-            <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
+            <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded flex items-center gap-1">
+              <Square size={12} />
               Modo Selección
             </span>
           )}
@@ -236,8 +352,15 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
           </div>
         )}
       </header>
+      
       <div className="flex-1 overflow-auto p-4 flex justify-center relative" ref={containerRef}>
-        <div className="relative" ref={pageRef}>
+        <div 
+          className={`relative ${isSelectionMode ? 'cursor-crosshair' : ''}`} 
+          ref={pageRef}
+          style={{
+            cursor: isSelectionMode ? 'crosshair' : 'default'
+          }}
+        >
           <Document
             file={selectedFile.url}
             onLoadSuccess={onDocumentLoadSuccess}
@@ -260,6 +383,7 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
               scale={scale}
               renderTextLayer={true}
               renderAnnotationLayer={true}
+              className={isSelectionMode ? 'cursor-crosshair' : ''}
             />
           </Document>
           
@@ -267,16 +391,33 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
           {isSelectionMode && (
             <canvas
               ref={canvasRef}
-              className="absolute top-0 left-0 pointer-events-auto cursor-crosshair"
-              style={{ zIndex: 10 }}
+              className="absolute pointer-events-auto cursor-crosshair"
+              style={{ 
+                zIndex: 10,
+                border: '2px dashed rgba(59, 130, 246, 0.5)',
+                cursor: 'crosshair'
+              }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
-              onMouseLeave={() => setIsSelecting(false)}
+              onMouseLeave={() => {
+                setIsSelecting(false);
+                setSelectionRect(null);
+              }}
             />
           )}
         </div>
       </div>
+      
+      {/* Indicador visual cuando está en modo selección */}
+      {isSelectionMode && (
+        <div className="absolute top-16 right-4 bg-blue-600 text-white px-3 py-2 rounded-lg shadow-lg z-20">
+          <div className="flex items-center gap-2 text-sm">
+            <Square size={16} />
+            Arrastra para seleccionar un área
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

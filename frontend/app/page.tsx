@@ -13,6 +13,7 @@ import { FileExplorer } from '@/components/enterprise/FileExplorer'
 import { DocumentStructure } from '@/components/enterprise/DocumentStructure'
 import { Sidebar } from '@/components/enterprise/Sidebar'
 import { ImageSelector } from '@/components/enterprise/ImageSelector'
+import { ContextDisplay } from '@/components/enterprise/ContextDisplay'
 
 const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
   ssr: false,
@@ -93,8 +94,57 @@ export default function EnterpriseChatPage() {
 
   const handleImageSelection = (imageData: string, coordinates: { x: number, y: number, width: number, height: number }) => {
     // Esta función se llama cuando se captura una imagen del PDF
-    const description = `Área seleccionada del PDF "${selectedFile?.name}" - Coordenadas: ${Math.round(coordinates.x)}, ${Math.round(coordinates.y)} - Tamaño: ${Math.round(coordinates.width)}x${Math.round(coordinates.height)}px`
-    handleImageContextAdd(imageData, description)
+    console.log('Image selection received:', { coordinates, imageDataLength: imageData.length });
+    
+    // Procesar la imagen con análisis de IA
+    processImageWithAI(imageData, coordinates);
+  }
+
+  const processImageWithAI = async (imageData: string, coordinates: { x: number, y: number, width: number, height: number }) => {
+    try {
+      console.log('Processing image with AI...');
+      
+      // Enviar imagen al backend para análisis
+      const response = await fetch('http://localhost:8000/api/agents/analyze-image/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          image_data: imageData,
+          context: `Imagen seleccionada del PDF: ${selectedFile?.name}`,
+          filename: selectedFile?.name,
+          x: coordinates.x,
+          y: coordinates.y,
+          width: coordinates.width,
+          height: coordinates.height
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Error al analizar la imagen');
+      }
+      
+      const result = await response.json();
+      console.log('AI analysis result:', result);
+      
+      // Crear descripción con el análisis de IA
+      const description = `🖼️ ANÁLISIS DE IMAGEN:\n\n${result.analysis}\n\n📊 Info técnica: ${result.image_info?.size || 'N/A'}`;
+      
+      // Agregar al contexto del chat con el análisis completo
+      handleImageContextAdd(imageData, description);
+      
+      // Desactivar modo selección después de capturar
+      setIsImageSelectionMode(false);
+      
+    } catch (error) {
+      console.error('Error processing captured image:', error);
+      
+      // Fallback: agregar imagen sin análisis detallado
+      const fallbackDescription = `Área seleccionada del PDF "${selectedFile?.name}" - Coordenadas: ${Math.round(coordinates.x)}, ${Math.round(coordinates.y)} - Tamaño: ${Math.round(coordinates.width)}x${Math.round(coordinates.height)}px\n\n⚠️ Error al analizar con IA. Describe qué ves en la imagen para obtener ayuda.`;
+      handleImageContextAdd(imageData, fallbackDescription);
+      setIsImageSelectionMode(false);
+    }
   }
 
   const handleRemoveContext = (index: number) => {
@@ -165,7 +215,7 @@ export default function EnterpriseChatPage() {
               <FileExplorer onSelectFile={setSelectedFile} />
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={45} minSize={30}>
+            <Panel defaultSize={30} minSize={25}>
               <PdfViewer 
                 selectedFile={selectedFile}
                 isSelectionMode={isImageSelectionMode}
@@ -173,12 +223,19 @@ export default function EnterpriseChatPage() {
               />
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={35} minSize={25}>
+            <Panel defaultSize={25} minSize={20}>
               <ImageSelector 
                 selectedFile={selectedFile}
                 onAddImageContext={handleImageContextAdd}
                 isSelectionMode={isImageSelectionMode}
                 onToggleSelectionMode={handleToggleImageSelection}
+              />
+            </Panel>
+            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+            <Panel defaultSize={25} minSize={20}>
+              <ContextDisplay 
+                contextText={contextText}
+                onRemoveContext={handleRemoveContext}
               />
             </Panel>
           </PanelGroup>

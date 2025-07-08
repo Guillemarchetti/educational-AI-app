@@ -574,34 +574,69 @@ def analyze_image(request):
         # Usar el servicio de IA para analizar
         ai_service = AIService()
         
-        # Por ahora, simularemos el análisis ya que necesitamos integrar con un servicio de visión
-        # En una implementación real, aquí usaríamos OpenAI Vision, Google Vision, etc.
-        analysis_result = f"""
-        ## 📊 Análisis de Imagen Educativa
+        # Usar OpenAI para análisis de texto (por ahora sin visión)
+        analysis_context = {
+            'user_level': 'Estudiante',
+            'subject': 'Análisis de Imagen',
+            'image_context': f"Imagen del archivo: {data.get('filename', 'documento')}"
+        }
         
-        **Descripción general:**
-        He recibido una imagen seleccionada del PDF "{data.get('filename', 'documento')}". 
+        try:
+            # Procesar con OpenAI Vision usando la imagen original (con prefijo data:image)
+            original_image_data = data.get('image_data')  # Mantener el formato data:image/...;base64,
+            analysis_result = ai_service.process_image_with_openai(prompt, original_image_data, analysis_context)
+            
+            if not analysis_result or "Lo siento" in analysis_result:
+                # Fallback si OpenAI falla
+                analysis_result = f"""
+                ## 📊 Análisis de Imagen Educativa
+                
+                **Descripción general:**
+                He recibido una imagen seleccionada del PDF "{data.get('filename', 'documento')}". 
+                
+                **Elementos identificados:**
+                - Área seleccionada de {data.get('width', 'N/A')}x{data.get('height', 'N/A')} píxeles
+                - Coordenadas: ({data.get('x', 'N/A')}, {data.get('y', 'N/A')})
+                
+                **Análisis educativo:**
+                Esta imagen contiene material educativo que puede incluir:
+                - Diagramas explicativos
+                - Fórmulas matemáticas
+                - Gráficos o tablas
+                - Texto explicativo
+                - Ilustraciones conceptuales
+                
+                **Recomendaciones:**
+                - Pregúntame sobre elementos específicos que veas
+                - Pide explicaciones paso a paso
+                - Solicita ejemplos relacionados
+                - Pregunta sobre aplicaciones prácticas
+                
+                **Nota:** Para un análisis más detallado, describe qué elementos específicos ves en la imagen.
+                """
         
-        **Elementos identificados:**
-        - Área seleccionada de {data.get('width', 'N/A')}x{data.get('height', 'N/A')} píxeles
-        - Coordenadas: ({data.get('x', 'N/A')}, {data.get('y', 'N/A')})
-        
-        **Análisis educativo:**
-        Esta imagen contiene material educativo que puede incluir:
-        - Diagramas explicativos
-        - Fórmulas matemáticas
-        - Gráficos o tablas
-        - Texto explicativo
-        - Ilustraciones conceptuales
-        
-        **Recomendaciones:**
-        - Pregúntame sobre elementos específicos que veas
-        - Pide explicaciones paso a paso
-        - Solicita ejemplos relacionados
-        - Pregunta sobre aplicaciones prácticas
-        
-        **Nota:** Para un análisis más detallado, describe qué elementos específicos ves en la imagen.
-        """
+        except Exception as e:
+            logger.error(f"Error en análisis de IA: {e}")
+            # Fallback si hay error
+            analysis_result = f"""
+            ## 📊 Análisis de Imagen Educativa
+            
+            **Imagen procesada exitosamente:**
+            - Archivo: {data.get('filename', 'documento')}
+            - Tamaño: {data.get('width', 'N/A')}x{data.get('height', 'N/A')} píxeles
+            - Ubicación: ({data.get('x', 'N/A')}, {data.get('y', 'N/A')})
+            
+            **¿Qué puedo hacer por ti?**
+            Describe qué elementos específicos ves en la imagen y te ayudo a:
+            - Explicar conceptos matemáticos
+            - Interpretar gráficos y diagramas
+            - Resolver problemas paso a paso
+            - Entender fórmulas y ecuaciones
+            
+            **Contexto:** {context}
+            
+            ¡Pregúntame sobre cualquier elemento específico que veas!
+            """
         
         return JsonResponse({
             'success': True,
@@ -616,4 +651,5 @@ def analyze_image(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'JSON inválido'}, status=400)
     except Exception as e:
+        logger.error(f"Error en analyze_image: {e}")
         return JsonResponse({'error': f'Error interno: {str(e)}'}, status=500) 

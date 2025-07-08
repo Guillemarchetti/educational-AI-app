@@ -68,6 +68,15 @@ function start_backend() {
     else
         echo -e "${YELLOW}⚠️  No se encontró entorno virtual${NC}"
     fi
+    
+    # Cargar variables de entorno del archivo .env
+    if [ -f ".env" ]; then
+        export $(cat .env | xargs)
+        echo "   - Variables de entorno cargadas desde .env"
+    else
+        echo -e "${YELLOW}⚠️  Archivo .env no encontrado${NC}"
+    fi
+    
     if [[ "$OS_TYPE" == "Linux" || "$OS_TYPE" == "Darwin" ]]; then
         nohup python3 manage.py runserver 8000 > ../logs/backend.log 2>&1 &
     else
