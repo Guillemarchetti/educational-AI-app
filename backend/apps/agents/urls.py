@@ -18,6 +18,9 @@ urlpatterns = [
     # Content Creator específico
     path('content-creator/', views.ContentCreatorAPIView.as_view(), name='content_creator'),
     
+    # Análisis de imágenes
+    path('analyze-image/', views.analyze_image, name='analyze_image'),
+    
     # Utilidades
     path('upload-file/', views.upload_file, name='upload_file'),
     path('health/', views.health_check, name='health_check'),

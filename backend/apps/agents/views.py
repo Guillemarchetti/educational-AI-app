@@ -15,6 +15,17 @@ import os
 import logging
 from datetime import datetime
 # import fitz  # PyMuPDF - Temporarily commented due to compilation issues
+import base64
+import io
+from PIL import Image
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from .services.ai_service import AIService
 
 logger = logging.getLogger(__name__)
 
@@ -513,3 +524,96 @@ class ContentCreatorAPIView(APIView):
 @method_decorator(csrf_exempt, name='dispatch')
 class HealthCheckAPIView(APIView):
     pass 
+
+@api_view(['POST'])
+@permission_classes([])  # Permitir acceso sin autenticación por ahora
+def analyze_image(request):
+    """
+    Analiza una imagen usando IA y retorna explicaciones detalladas
+    """
+    try:
+        data = json.loads(request.body)
+        image_data = data.get('image_data')
+        context = data.get('context', '')
+        
+        if not image_data:
+            return JsonResponse({'error': 'No se proporcionó imagen'}, status=400)
+        
+        # Decodificar imagen base64
+        try:
+            # Remover el prefijo data:image/...;base64,
+            if ',' in image_data:
+                image_data = image_data.split(',')[1]
+            
+            # Decodificar base64
+            image_bytes = base64.b64decode(image_data)
+            image = Image.open(io.BytesIO(image_bytes))
+            
+            # Convertir a RGB si es necesario
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+                
+        except Exception as e:
+            return JsonResponse({'error': f'Error al procesar la imagen: {str(e)}'}, status=400)
+        
+        # Crear prompt para análisis de imagen
+        prompt = f"""
+        Analiza esta imagen educativa en detalle. Proporciona:
+        
+        1. **Descripción general**: ¿Qué veo en la imagen?
+        2. **Elementos clave**: Identifica los componentes principales
+        3. **Conceptos educativos**: ¿Qué conceptos o temas se están explicando?
+        4. **Explicación detallada**: Explica paso a paso lo que muestra
+        5. **Preguntas sugeridas**: ¿Qué preguntas podrían hacer los estudiantes?
+        
+        Contexto adicional: {context}
+        
+        Responde de manera clara y educativa, como si fueras un tutor explicando a un estudiante.
+        """
+        
+        # Usar el servicio de IA para analizar
+        ai_service = AIService()
+        
+        # Por ahora, simularemos el análisis ya que necesitamos integrar con un servicio de visión
+        # En una implementación real, aquí usaríamos OpenAI Vision, Google Vision, etc.
+        analysis_result = f"""
+        ## 📊 Análisis de Imagen Educativa
+        
+        **Descripción general:**
+        He recibido una imagen seleccionada del PDF "{data.get('filename', 'documento')}". 
+        
+        **Elementos identificados:**
+        - Área seleccionada de {data.get('width', 'N/A')}x{data.get('height', 'N/A')} píxeles
+        - Coordenadas: ({data.get('x', 'N/A')}, {data.get('y', 'N/A')})
+        
+        **Análisis educativo:**
+        Esta imagen contiene material educativo que puede incluir:
+        - Diagramas explicativos
+        - Fórmulas matemáticas
+        - Gráficos o tablas
+        - Texto explicativo
+        - Ilustraciones conceptuales
+        
+        **Recomendaciones:**
+        - Pregúntame sobre elementos específicos que veas
+        - Pide explicaciones paso a paso
+        - Solicita ejemplos relacionados
+        - Pregunta sobre aplicaciones prácticas
+        
+        **Nota:** Para un análisis más detallado, describe qué elementos específicos ves en la imagen.
+        """
+        
+        return JsonResponse({
+            'success': True,
+            'analysis': analysis_result,
+            'image_info': {
+                'size': f"{image.size[0]}x{image.size[1]}",
+                'mode': image.mode,
+                'format': image.format
+            }
+        })
+        
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'JSON inválido'}, status=400)
+    except Exception as e:
+        return JsonResponse({'error': f'Error interno: {str(e)}'}, status=500) 

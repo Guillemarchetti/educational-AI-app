@@ -33,6 +33,7 @@ export default function EnterpriseChatPage() {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
   const [currentSection, setCurrentSection] = useState('chat')
+  const [isImageSelectionMode, setIsImageSelectionMode] = useState(false)
 
   const handleTextSelect = (text: string) => {
     setSelectedText(text);
@@ -85,6 +86,16 @@ export default function EnterpriseChatPage() {
     const imageContext = `🖼️ IMAGEN SELECCIONADA: ${description}\n📄 Archivo: ${selectedFile?.name}\n🔍 Analiza esta imagen y explícame lo que ves.`;
     handleContextAdd(imageContext);
   };
+
+  const handleToggleImageSelection = () => {
+    setIsImageSelectionMode(!isImageSelectionMode)
+  }
+
+  const handleImageSelection = (imageData: string, coordinates: { x: number, y: number, width: number, height: number }) => {
+    // Esta función se llama cuando se captura una imagen del PDF
+    const description = `Área seleccionada del PDF "${selectedFile?.name}" - Coordenadas: ${Math.round(coordinates.x)}, ${Math.round(coordinates.y)} - Tamaño: ${Math.round(coordinates.width)}x${Math.round(coordinates.height)}px`
+    handleImageContextAdd(imageData, description)
+  }
 
   const handleRemoveContext = (index: number) => {
     setContextText(prev => prev.filter((_, i) => i !== index));
@@ -157,6 +168,8 @@ export default function EnterpriseChatPage() {
             <Panel defaultSize={45} minSize={30}>
               <PdfViewer 
                 selectedFile={selectedFile}
+                isSelectionMode={isImageSelectionMode}
+                onImageSelection={handleImageSelection}
               />
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
@@ -164,6 +177,8 @@ export default function EnterpriseChatPage() {
               <ImageSelector 
                 selectedFile={selectedFile}
                 onAddImageContext={handleImageContextAdd}
+                isSelectionMode={isImageSelectionMode}
+                onToggleSelectionMode={handleToggleImageSelection}
               />
             </Panel>
           </PanelGroup>
