@@ -1,68 +1,95 @@
 'use client'
 
-import React, { useState } from 'react'
-import { UploadCloud } from 'lucide-react'
+import React, { useState, useRef } from 'react'
+import { Square, MousePointer, Scissors, MessageSquare } from 'lucide-react'
 
-export function ImageSelector() {
-  const [image, setImage] = useState<string | null>(null)
-  const [fileName, setFileName] = useState<string>('')
+interface ImageSelectorProps {
+  selectedFile: any
+  onAddImageContext: (imageData: string, description: string) => void
+}
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setImage(reader.result as string)
-        setFileName(file.name)
-      }
-      reader.readAsDataURL(file)
-    }
+export function ImageSelector({ selectedFile, onAddImageContext }: ImageSelectorProps) {
+  const [isSelecting, setIsSelecting] = useState(false)
+  const [selectionMode, setSelectionMode] = useState<'pointer' | 'select'>('pointer')
+
+  const handleToggleSelection = () => {
+    setIsSelecting(!isSelecting)
+    setSelectionMode(isSelecting ? 'pointer' : 'select')
   }
 
-  const handleUpload = async () => {
-    // La lógica para subir al backend se implementará aquí
-    if (!image) return
-    console.log('Subiendo imagen:', fileName)
-    alert('La funcionalidad de análisis de imagen aún no está implementada.')
+  const handleAddToContext = () => {
+    // Esta función se llamará cuando se haga una selección en el PDF
+    const mockImageData = "data:image/png;base64,mock-image-data"
+    const description = "Área seleccionada del PDF"
+    onAddImageContext(mockImageData, description)
+    setIsSelecting(false)
+    setSelectionMode('pointer')
+  }
+
+  if (!selectedFile) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center bg-enterprise-900 text-slate-500">
+        <Square size={48} className="mb-4" />
+        <h2 className="text-lg font-semibold">Selector de Área PDF</h2>
+        <p className="text-sm">Abre un documento PDF para seleccionar áreas específicas</p>
+      </div>
+    )
   }
 
   return (
-    <div className="h-full flex flex-col items-center justify-center bg-enterprise-900 text-slate-500 p-8">
-      <div className="w-full max-w-lg text-center">
-        <h2 className="text-xl font-semibold text-white mb-4">Selector de Imágenes</h2>
-        <p className="mb-6">Carga una imagen para que la IA la analice. Puedes subir diagramas, capturas de pantalla de ejercicios, etc.</p>
-        
-        <div className="border-2 border-dashed border-gray-600 rounded-xl p-8 cursor-pointer hover:border-blue-500 hover:bg-gray-800/20 transition-all">
-          <input
-            type="file"
-            id="imageUpload"
-            className="hidden"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
-          <label htmlFor="imageUpload" className="cursor-pointer w-full">
-            {image ? (
-              <div className="relative">
-                <img src={image} alt="Vista previa" className="max-h-64 mx-auto rounded-lg" />
-                <p className="text-sm mt-2 text-white truncate">{fileName}</p>
-              </div>
-            ) : (
-              <div className="flex flex-col items-center">
-                <UploadCloud size={48} className="mb-4 text-gray-500" />
-                <p className="font-semibold text-white">Haz clic para subir o arrastra una imagen</p>
-                <p className="text-xs text-gray-400 mt-1">PNG, JPG, GIF hasta 10MB</p>
-              </div>
-            )}
-          </label>
+    <div className="h-full flex flex-col bg-gray-800/20 text-white">
+      <header className="flex items-center justify-between p-4 bg-enterprise-900 border-b border-enterprise-800/50">
+        <div className="flex items-center gap-3">
+          <h3 className="font-semibold text-sm">Herramientas de Selección</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleToggleSelection}
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+              isSelecting 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            {isSelecting ? <Scissors size={16} /> : <MousePointer size={16} />}
+            {isSelecting ? 'Seleccionando' : 'Activar Selección'}
+          </button>
+        </div>
+      </header>
+
+      <div className="flex-1 p-4">
+        <div className="bg-gray-800/30 rounded-lg p-6 mb-4">
+          <h4 className="font-semibold mb-2 flex items-center gap-2">
+            <Square size={20} />
+            Cómo usar el selector:
+          </h4>
+          <ol className="text-sm text-gray-300 space-y-2">
+            <li>1. Haz clic en "Activar Selección" arriba</li>
+            <li>2. En el PDF, arrastra para seleccionar el área que quieres analizar</li>
+            <li>3. La selección se agregará automáticamente al contexto del chat</li>
+            <li>4. Pregunta a la IA sobre esa área específica</li>
+          </ol>
         </div>
 
-        {image && (
-          <button
-            onClick={handleUpload}
-            className="mt-6 w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Analizar con IA
-          </button>
+        <div className="bg-blue-900/20 border border-blue-800/50 rounded-lg p-4">
+          <h4 className="font-semibold mb-2 flex items-center gap-2 text-blue-300">
+            <MessageSquare size={16} />
+            Ejemplos de preguntas:
+          </h4>
+          <ul className="text-sm text-blue-200 space-y-1">
+            <li>• "¿Qué representa este diagrama?"</li>
+            <li>• "Explica esta fórmula paso a paso"</li>
+            <li>• "¿Cómo funciona este proceso?"</li>
+            <li>• "Dame ejemplos de este concepto"</li>
+          </ul>
+        </div>
+
+        {isSelecting && (
+          <div className="mt-4 p-4 bg-green-900/20 border border-green-800/50 rounded-lg">
+            <p className="text-green-300 text-sm font-medium">
+              ✨ Modo de selección activo. Ve al PDF y arrastra para seleccionar un área.
+            </p>
+          </div>
         )}
       </div>
     </div>

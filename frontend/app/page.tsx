@@ -80,6 +80,12 @@ export default function EnterpriseChatPage() {
     }
   };
 
+  const handleImageContextAdd = (imageData: string, description: string) => {
+    console.log('Adding image context:', { imageData, description })
+    const imageContext = `🖼️ IMAGEN SELECCIONADA: ${description}\n📄 Archivo: ${selectedFile?.name}\n🔍 Analiza esta imagen y explícame lo que ves.`;
+    handleContextAdd(imageContext);
+  };
+
   const handleRemoveContext = (index: number) => {
     setContextText(prev => prev.filter((_, i) => i !== index));
   }
@@ -142,7 +148,26 @@ export default function EnterpriseChatPage() {
         );
       
       case 'images':
-        return <ImageSelector />;
+        return (
+          <PanelGroup key="images-panels" direction="horizontal">
+            <Panel defaultSize={20} minSize={15}>
+              <FileExplorer onSelectFile={setSelectedFile} />
+            </Panel>
+            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+            <Panel defaultSize={45} minSize={30}>
+              <PdfViewer 
+                selectedFile={selectedFile}
+              />
+            </Panel>
+            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+            <Panel defaultSize={35} minSize={25}>
+              <ImageSelector 
+                selectedFile={selectedFile}
+                onAddImageContext={handleImageContextAdd}
+              />
+            </Panel>
+          </PanelGroup>
+        );
 
       case 'structure':
         return (

@@ -367,7 +367,7 @@ def spaced_repetition_schedule(concept, user_performance):
 ## 🚀 ROADMAP DE IMPLEMENTACIÓN
 
 ### 📅 **FASE 1: FUNDAMENTOS (Semana 1-2)**
-- [ ] Selector de imágenes básico
+- [X] Selector de imágenes básico
 - [ ] Prompts recomendados simples
 - [X] Chat IA mejorado
 - [X] Interfaz responsive
