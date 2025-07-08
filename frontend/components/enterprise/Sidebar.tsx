@@ -17,6 +17,7 @@ import {
   BarChart3,
   GraduationCap,
   Library,
+  Image as ImageIcon,
   Gamepad2
 } from 'lucide-react'
 
@@ -28,6 +29,7 @@ interface SidebarProps {
 const menuItems = [
   { icon: Home, label: 'Inicio', id: 'dashboard', category: 'main' },
   { icon: MessageSquare, label: 'Chat AI', id: 'chat', category: 'main' },
+  { icon: ImageIcon, label: 'Imágenes', id: 'images', category: 'content' },
   { icon: FileText, label: 'Documentos', id: 'documents', category: 'content' },
   { icon: BookOpen, label: 'Estructura', id: 'structure', category: 'content' },
   { icon: Library, label: 'Biblioteca', id: 'library', category: 'content' },

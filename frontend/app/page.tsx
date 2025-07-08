@@ -12,6 +12,7 @@ import { ChatInterface } from '@/components/enterprise/ChatInterface'
 import { FileExplorer } from '@/components/enterprise/FileExplorer'
 import { DocumentStructure } from '@/components/enterprise/DocumentStructure'
 import { Sidebar } from '@/components/enterprise/Sidebar'
+import { ImageSelector } from '@/components/enterprise/ImageSelector'
 
 const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
   ssr: false,
@@ -140,6 +141,9 @@ export default function EnterpriseChatPage() {
           </PanelGroup>
         );
       
+      case 'images':
+        return <ImageSelector />;
+
       case 'structure':
         return (
           <PanelGroup key="structure-panels" direction="horizontal">
