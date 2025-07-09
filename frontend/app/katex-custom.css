@@ -1,0 +1,240 @@
+/* Estilos personalizados para KaTeX en tema dark */
+
+/* Override KaTeX default styles for dark theme */
+.katex {
+  color: #e2e8f0 !important; /* text-slate-200 */
+  font-size: 1em;
+}
+
+.katex-display {
+  margin: 1em 0;
+  text-align: center;
+}
+
+.katex-display > .katex {
+  display: inline-block;
+  text-align: center;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5em 0;
+}
+
+/* Estilos para ecuaciones inline */
+.katex .mathnormal {
+  color: #e2e8f0 !important;
+}
+
+/* Estilos para símbolos matemáticos */
+.katex .mord {
+  color: #e2e8f0 !important;
+}
+
+.katex .mbin {
+  color: #e2e8f0 !important;
+}
+
+.katex .mrel {
+  color: #e2e8f0 !important;
+}
+
+.katex .mopen {
+  color: #e2e8f0 !important;
+}
+
+.katex .mclose {
+  color: #e2e8f0 !important;
+}
+
+.katex .mpunct {
+  color: #e2e8f0 !important;
+}
+
+.katex .minner {
+  color: #e2e8f0 !important;
+}
+
+/* Estilos para fracciones */
+.katex .frac-line {
+  border-bottom-color: #e2e8f0 !important;
+}
+
+/* Estilos para raíces */
+.katex .sqrt-line {
+  border-top-color: #e2e8f0 !important;
+}
+
+/* Estilos para delimitadores */
+.katex .delimsizing {
+  color: #e2e8f0 !important;
+}
+
+/* Estilos para operadores */
+.katex .mop {
+  color: #e2e8f0 !important;
+}
+
+/* Estilos para funciones */
+.katex .mord.text {
+  color: #e2e8f0 !important;
+}
+
+/* Estilos para subíndices y superíndices */
+.katex .msupsub {
+  color: #e2e8f0 !important;
+}
+
+/* Estilos para matrices */
+.katex .array {
+  color: #e2e8f0 !important;
+}
+
+/* Estilos para casos */
+.katex .cases {
+  color: #e2e8f0 !important;
+}
+
+/* Estilos para alineación */
+.katex .align {
+  color: #e2e8f0 !important;
+}
+
+/* Estilos para ecuaciones con etiquetas */
+.katex .tag {
+  color: #94a3b8 !important; /* text-slate-400 */
+  font-size: 0.8em;
+}
+
+/* Estilos para errores de renderizado */
+.katex-error {
+  color: #ef4444 !important; /* text-red-500 */
+  background-color: rgba(239, 68, 68, 0.1);
+  padding: 0.25em 0.5em;
+  border-radius: 0.25em;
+  font-family: monospace;
+}
+
+/* Estilos para contenedores de ecuaciones */
+.equation-container {
+  background-color: rgba(30, 41, 59, 0.3); /* bg-slate-800/30 */
+  border: 1px solid rgba(51, 65, 85, 0.5); /* border-slate-700/50 */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+/* Estilos para ecuaciones numeradas */
+.equation-numbered {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.equation-numbered .katex-display {
+  flex: 1;
+  margin: 0;
+}
+
+.equation-numbered .equation-label {
+  color: #94a3b8; /* text-slate-400 */
+  font-size: 0.875rem;
+  font-weight: 500;
+  min-width: 3rem;
+  text-align: right;
+}
+
+/* Estilos para ecuaciones inline */
+.inline-equation {
+  display: inline;
+  vertical-align: middle;
+}
+
+/* Estilos para bloques de código con matemáticas */
+.code-math {
+  background-color: rgba(15, 23, 42, 0.8); /* bg-slate-900/80 */
+  border: 1px solid rgba(51, 65, 85, 0.5); /* border-slate-700/50 */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+  overflow-x: auto;
+}
+
+/* Estilos para tablas con matemáticas */
+.math-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.math-table th,
+.math-table td {
+  border: 1px solid rgba(51, 65, 85, 0.5); /* border-slate-700/50 */
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.math-table th {
+  background-color: rgba(30, 41, 59, 0.5); /* bg-slate-800/50 */
+  font-weight: 600;
+}
+
+/* Estilos para listas con matemáticas */
+.math-list {
+  list-style: none;
+  padding: 0;
+}
+
+.math-list li {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  background-color: rgba(30, 41, 59, 0.2); /* bg-slate-800/20 */
+  border-radius: 0.25rem;
+  border-left: 3px solid #3b82f6; /* border-blue-500 */
+}
+
+/* Estilos para definiciones matemáticas */
+.math-definition {
+  background-color: rgba(59, 130, 246, 0.1); /* bg-blue-500/10 */
+  border: 1px solid rgba(59, 130, 246, 0.3); /* border-blue-500/30 */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.math-definition .definition-label {
+  color: #3b82f6; /* text-blue-500 */
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Estilos para teoremas */
+.math-theorem {
+  background-color: rgba(34, 197, 94, 0.1); /* bg-green-500/10 */
+  border: 1px solid rgba(34, 197, 94, 0.3); /* border-green-500/30 */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.math-theorem .theorem-label {
+  color: #22c55e; /* text-green-500 */
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Estilos para ejemplos */
+.math-example {
+  background-color: rgba(245, 158, 11, 0.1); /* bg-orange-500/10 */
+  border: 1px solid rgba(245, 158, 11, 0.3); /* border-orange-500/30 */
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.math-example .example-label {
+  color: #f59e0b; /* text-orange-500 */
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+} 

@@ -5,6 +5,9 @@ import { motion } from 'framer-motion'
 import { Sparkles, User, Copy, ThumbsUp, ThumbsDown } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import remarkMath from 'remark-math'
+import rehypeKatex from 'rehype-katex'
+import 'katex/dist/katex.min.css'
 
 // Local Message interface
 interface Message {
@@ -38,7 +41,7 @@ export function MessageList({ messages, isProcessing, messagesEndRef, onPromptCl
   function extractSuggestedPrompts(text: string): string[] {
     const match = text.match(/### Preguntas sugeridas[\s\S]*?([0-9]+\..+)/)
     if (!match) return []
-    // Extraer cada línea que empieza con número punto
+    // Extraer cada línea que empiece con número punto
     return match[1]
       .split(/\n+/)
       .map(line => line.replace(/^\d+\.\s*/, '').trim())
@@ -49,6 +52,48 @@ export function MessageList({ messages, isProcessing, messagesEndRef, onPromptCl
   function removeSuggestedPromptsSection(text: string): string {
     return text.replace(/### Preguntas sugeridas[\s\S]*/, '').trim()
   }
+
+  // Componente personalizado para renderizar código
+  const CodeBlock = ({ children, className, ...props }: any) => {
+    const match = /language-(\w+)/.exec(className || '')
+    const language = match ? match[1] : ''
+    
+    return (
+      <div className="relative group">
+        <pre className={`${className} bg-enterprise-900/80 border border-enterprise-700/50 rounded-lg p-4 overflow-x-auto`}>
+          <code {...props}>{children}</code>
+        </pre>
+        {language && (
+          <div className="absolute top-2 right-2">
+            <span className="text-xs bg-enterprise-800/80 text-slate-400 px-2 py-1 rounded">
+              {language}
+            </span>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Componente personalizado para renderizar enlaces
+  const Link = ({ href, children }: any) => (
+    <a 
+      href={href} 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="text-sky-400 hover:text-sky-300 underline"
+    >
+      {children}
+    </a>
+  )
+
+  // Componente personalizado para renderizar tablas
+  const Table = ({ children }: any) => (
+    <div className="overflow-x-auto">
+      <table className="min-w-full border-collapse border border-enterprise-700/50">
+        {children}
+      </table>
+    </div>
+  )
 
   const TypingIndicator = () => (
     <motion.div 
@@ -110,7 +155,84 @@ export function MessageList({ messages, isProcessing, messagesEndRef, onPromptCl
                 {/* Message Content */}
                 <div className="space-y-3">
                   <div className="prose prose-sm prose-invert max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    <ReactMarkdown 
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                      components={{
+                        a: Link,
+                        table: Table,
+                        th: ({ children, ...props }: any) => (
+                          <th className="border border-enterprise-700/50 bg-enterprise-800/50 px-3 py-2 text-left font-medium" {...props}>
+                            {children}
+                          </th>
+                        ),
+                        td: ({ children, ...props }: any) => (
+                          <td className="border border-enterprise-700/50 px-3 py-2" {...props}>
+                            {children}
+                          </td>
+                        ),
+                        blockquote: ({ children, ...props }: any) => (
+                          <blockquote className="border-l-4 border-sky-500/50 pl-4 italic bg-enterprise-800/30 py-2" {...props}>
+                            {children}
+                          </blockquote>
+                        ),
+                        ul: ({ children, ...props }: any) => (
+                          <ul className="list-disc list-inside space-y-1" {...props}>
+                            {children}
+                          </ul>
+                        ),
+                        ol: ({ children, ...props }: any) => (
+                          <ol className="list-decimal list-inside space-y-1" {...props}>
+                            {children}
+                          </ol>
+                        ),
+                        li: ({ children, ...props }: any) => (
+                          <li className="text-slate-200" {...props}>
+                            {children}
+                          </li>
+                        ),
+                        h1: ({ children, ...props }: any) => (
+                          <h1 className="text-xl font-bold text-white mb-3" {...props}>
+                            {children}
+                          </h1>
+                        ),
+                        h2: ({ children, ...props }: any) => (
+                          <h2 className="text-lg font-semibold text-white mb-2" {...props}>
+                            {children}
+                          </h2>
+                        ),
+                        h3: ({ children, ...props }: any) => (
+                          <h3 className="text-base font-medium text-sky-300 mb-2" {...props}>
+                            {children}
+                          </h3>
+                        ),
+                        p: ({ children, ...props }: any) => (
+                          <p className="text-slate-200 leading-relaxed" {...props}>
+                            {children}
+                          </p>
+                        ),
+                        strong: ({ children, ...props }: any) => (
+                          <strong className="font-semibold text-white" {...props}>
+                            {children}
+                          </strong>
+                        ),
+                        em: ({ children, ...props }: any) => (
+                          <em className="italic text-slate-300" {...props}>
+                            {children}
+                          </em>
+                        ),
+                        code: ({ children, className, ...props }: any) => {
+                          if (className) {
+                            return <CodeBlock className={className} {...props}>{children}</CodeBlock>
+                          }
+                          return (
+                            <code className="bg-enterprise-800/50 text-sky-300 px-1 py-0.5 rounded text-sm" {...props}>
+                              {children}
+                            </code>
+                          )
+                        }
+                      }}
+                    >
                       {mainText}
                     </ReactMarkdown>
                   </div>
@@ -200,15 +322,13 @@ export function MessageList({ messages, isProcessing, messagesEndRef, onPromptCl
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
           >
-            <div className="w-10 h-10 rounded-xl genie-gradient flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
             <div className="enterprise-card px-6 py-4 rounded-2xl">
               <TypingIndicator />
             </div>
           </motion.div>
         )}
 
+        {/* Scroll to bottom reference */}
         <div ref={messagesEndRef} />
       </div>
     </div>

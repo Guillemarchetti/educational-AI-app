@@ -2,6 +2,7 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import './katex-custom.css'
 
 // Polyfill for Promise.withResolvers (Node.js 18 compatibility)
 if (typeof Promise.withResolvers === 'undefined') {
