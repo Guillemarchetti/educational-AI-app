@@ -5,15 +5,15 @@ import './globals.css'
 
 // Polyfill for Promise.withResolvers (Node.js 18 compatibility)
 if (typeof Promise.withResolvers === 'undefined') {
-  Promise.withResolvers = function() {
-    let resolve: (value: any) => void;
+  Promise.withResolvers = function<T>() {
+    let resolve: (value: T) => void;
     let reject: (reason?: any) => void;
-    const promise = new Promise((res, rej) => {
+    const promise = new Promise<T>((res, rej) => {
       resolve = res;
       reject = rej;
     });
     return { promise, resolve: resolve!, reject: reject! };
-  };
+  } as typeof Promise.withResolvers;
 }
 
 const inter = Inter({ 

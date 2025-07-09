@@ -28,13 +28,15 @@ interface FileNode {
 }
 
 export default function EnterpriseChatPage() {
-  const [selectedFile, setSelectedFile] = useState<FileNode | null>(null)
-  const [selectedText, setSelectedText] = useState<string>('')
-  const [contextText, setContextText] = useState<string[]>([])
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
-  const [isExtracting, setIsExtracting] = useState(false);
   const [currentSection, setCurrentSection] = useState('chat')
+  const [selectedFile, setSelectedFile] = useState<{ name: string; url: string; id?: string } | null>(null)
+  const [contextText, setContextText] = useState<string[]>([])
+  const [isDraggingOver, setIsDraggingOver] = useState(false)
+  const [isExtracting, setIsExtracting] = useState(false)
   const [isImageSelectionMode, setIsImageSelectionMode] = useState(false)
+  const [documentStructure, setDocumentStructure] = useState<any>(null)
+  const [structureLoading, setStructureLoading] = useState(false)
+  const [selectedText, setSelectedText] = useState<string>('')
 
   const handleTextSelect = (text: string) => {
     setSelectedText(text);
@@ -171,6 +173,9 @@ export default function EnterpriseChatPage() {
       const fileContext = `Contexto del archivo "${file.name}":\n\n${data.text}`;
       handleContextAdd(fileContext);
 
+      // Cargar estructura del documento si está disponible
+      await loadDocumentStructure(file.name);
+
     } catch (error) {
       console.error("Error en extracción de texto:", error);
       // Aquí podrías mostrar una notificación al usuario
@@ -179,6 +184,29 @@ export default function EnterpriseChatPage() {
     } finally {
       setIsExtracting(false);
     }
+  };
+
+  const loadDocumentStructure = async (filename: string) => {
+    setStructureLoading(true);
+    try {
+      // Buscar el documento por nombre
+      const response = await fetch(`http://localhost:8000/api/documents/structure/${filename}/`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setDocumentStructure(data);
+      } else {
+        console.log('Document structure not available yet');
+      }
+    } catch (error) {
+      console.error('Error loading document structure:', error);
+    } finally {
+      setStructureLoading(false);
+    }
+  };
+
+  const handleStructureContextSelect = (context: string, title: string) => {
+    handleContextAdd(context);
   };
 
   const renderMainContent = () => {
@@ -245,8 +273,9 @@ export default function EnterpriseChatPage() {
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
             <Panel defaultSize={35} minSize={25}>
               <DocumentStructure 
-                selectedDocumentId={selectedFile?.id || ''} 
-                onAddToContext={handleStructureContextAdd}
+                structureData={documentStructure?.structure_data}
+                onSelectContext={handleStructureContextSelect}
+                selectedFile={selectedFile}
               />
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
@@ -293,7 +322,10 @@ export default function EnterpriseChatPage() {
 
   return (
     <main className="flex h-screen w-full bg-gray-950 text-white overflow-hidden">
-      <Sidebar currentSection={currentSection} setCurrentSection={setCurrentSection} className="h-full overflow-y-auto" />
+      <Sidebar 
+        currentSection={currentSection} 
+        setCurrentSection={setCurrentSection}
+      />
       <div className="flex-1 h-full overflow-hidden">
         {renderMainContent()}
       </div>

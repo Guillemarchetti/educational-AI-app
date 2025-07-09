@@ -240,3 +240,38 @@ def extract_text(request):
     except Exception as e:
         logger.error(f"Error in extract_text: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500) 
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def get_document_structure(request, document_id):
+    """Obtiene la estructura analizada de un documento específico"""
+    try:
+        document = Document.objects.get(id=document_id)
+        
+        if not document.structure_analyzed:
+            return JsonResponse({
+                'error': 'Document structure not analyzed yet',
+                'document_id': str(document.id),
+                'structure_analyzed': False
+            }, status=404)
+        
+        # Obtener estructura desde la base de datos
+        structure_data = document.structure_data or {}
+        
+        return JsonResponse({
+            'document_id': str(document.id),
+            'document_title': document.title,
+            'structure_analyzed': document.structure_analyzed,
+            'structure_data': structure_data,
+            'analysis_metadata': structure_data.get('analysis_metadata', {}),
+            'hierarchy': structure_data.get('hierarchy', {
+                'units': [],
+                'orphaned_elements': []
+            })
+        })
+        
+    except Document.DoesNotExist:
+        return JsonResponse({'error': 'Document not found'}, status=404)
+    except Exception as e:
+        logger.error(f"Error getting document structure: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500) 

@@ -82,46 +82,41 @@ export interface AIAgent {
 }
 
 // Educational AI Agents with Heroicons
-const aiAgents = [
+const aiAgents: AIAgent[] = [
   {
     id: 'tutor',
     name: 'Tutor Virtual',
     description: 'Aprendizaje personalizado y adaptativo',
-    icon: AcademicCapIcon,
-    color: 'student',
-    capabilities: ['Explicaciones personalizadas', 'Ejercicios adaptativos', 'Seguimiento de progreso']
+    type: 'tutor',
+    active: true
   },
   {
     id: 'evaluador',
     name: 'Evaluador',
     description: 'Evaluación y seguimiento académico',
-    icon: ClipboardDocumentListIcon,
-    color: 'teacher',
-    capabilities: ['Evaluaciones automáticas', 'Análisis de desempeño', 'Retroalimentación detallada']
+    type: 'evaluator',
+    active: true
   },
   {
     id: 'consejero',
     name: 'Consejero',
     description: 'Orientación académica y personal',
-    icon: HeartIcon,
-    color: 'director',
-    capabilities: ['Orientación vocacional', 'Apoyo emocional', 'Desarrollo personal']
+    type: 'counselor',
+    active: true
   },
   {
     id: 'planificador',
     name: 'Planificador',
     description: 'Diseño curricular y planificación',
-    icon: PresentationChartLineIcon,
-    color: 'minister',
-    capabilities: ['Planes de estudio', 'Cronogramas', 'Recursos educativos']
+    type: 'curriculum',
+    active: true
   },
   {
     id: 'analitico',
     name: 'Analítico',
     description: 'Análisis de datos educativos',
-    icon: ChartBarIcon,
-    color: 'student',
-    capabilities: ['Métricas de aprendizaje', 'Tendencias educativas', 'Informes detallados']
+    type: 'analytics',
+    active: true
   }
 ]
 
@@ -160,14 +155,14 @@ const capabilities = [
 export default function MinisterioEducacionPage() {
   const [selectedAgent, setSelectedAgent] = useState('tutor')
   const [message, setMessage] = useState('')
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [isTyping, setIsTyping] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [userRole, setUserRole] = useState('student')
   const [userGrade, setUserGrade] = useState('5to')
   const [showWelcomeModal, setShowWelcomeModal] = useState(true)
-  const messagesEndRef = useRef(null)
-  const textareaRef = useRef(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // User profile - This would come from authentication in real app
   const [userProfile] = useState<UserProfile>({
@@ -308,7 +303,7 @@ export default function MinisterioEducacionPage() {
 ¿Te interesa revisar algún aspecto específico del rendimiento académico?`
     }
 
-    return agentResponses[agent?.type || 'tutor'] || agentResponses.tutor
+    return agentResponses[agent?.type as keyof typeof agentResponses || 'tutor'] || agentResponses.tutor
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -368,22 +363,32 @@ export default function MinisterioEducacionPage() {
             Agentes AI
           </div>
           
-          {aiAgents.map((agent) => (
-            <div
-              key={agent.id}
-              className={`edu-agent-item ${selectedAgent === agent.id ? 'active' : ''}`}
-              onClick={() => setSelectedAgent(agent.id)}
-            >
-              <div className={`edu-agent-icon ${agent.color} w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0`}>
-                <agent.icon className="w-4 h-4 text-white" />
+          {aiAgents.map((agent) => {
+            const agentConfig = {
+              tutor: { icon: AcademicCapIcon, color: 'student' },
+              evaluator: { icon: ClipboardDocumentListIcon, color: 'teacher' },
+              counselor: { icon: HeartIcon, color: 'director' },
+              curriculum: { icon: PresentationChartLineIcon, color: 'minister' },
+              analytics: { icon: ChartBarIcon, color: 'student' }
+            }[agent.type] || { icon: AcademicCapIcon, color: 'student' }
+            
+            return (
+              <div
+                key={agent.id}
+                className={`edu-agent-item ${selectedAgent === agent.id ? 'active' : ''}`}
+                onClick={() => setSelectedAgent(agent.id)}
+              >
+                <div className={`edu-agent-icon ${agentConfig.color} w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0`}>
+                  <agentConfig.icon className="w-4 h-4 text-white" />
+                </div>
+                <div className="edu-agent-info">
+                  <div className="edu-agent-name">{agent.name}</div>
+                  <div className="edu-agent-description">{agent.description}</div>
+                </div>
+                <div className="edu-agent-status"></div>
               </div>
-              <div className="edu-agent-info">
-                <div className="edu-agent-name">{agent.name}</div>
-                <div className="edu-agent-description">{agent.description}</div>
-              </div>
-              <div className="edu-agent-status"></div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* Progress Section for Students */}

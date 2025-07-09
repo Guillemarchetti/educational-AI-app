@@ -181,7 +181,7 @@ export default function MinisterioEducacionChat() {
 
       const aiResponse = {
         id: Date.now() + 1,
-        text: responses[selectedAgent] || 'Estoy aquí para ayudarte con tus estudios. ¿En qué puedo asistirte hoy?',
+        text: (responses as any)[selectedAgent] || 'Estoy aquí para ayudarte con tus estudios. ¿En qué puedo asistirte hoy?',
         sender: 'assistant',
         timestamp: new Date().toLocaleTimeString(),
         agent: selectedAgent,
@@ -193,7 +193,7 @@ export default function MinisterioEducacionChat() {
     }, 1500)
   }
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSendMessage()

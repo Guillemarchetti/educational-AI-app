@@ -28,40 +28,87 @@ class DocumentStructureAnalyzer:
     """Analizador principal de estructura de documentos"""
     
     def __init__(self):
-        # Patrones para detectar diferentes tipos de elementos
+        # Patrones mejorados para detectar diferentes tipos de elementos
         self.patterns = {
             'unit': [
+                # Patrones principales
                 r'(?:UNIDAD|Unidad|UNIT|Unit)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
                 r'(?:MÓDULO|Módulo|MODULE|Module)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
                 r'(?:CAPÍTULO|Capítulo|CHAPTER|Chapter)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                # Patrones adicionales para diferentes formatos
+                r'(?:PARTE|Parte|PART|Part)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                r'(?:BLOQUE|Bloque|BLOCK|Block)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                r'(?:SECCIÓN PRINCIPAL|Sección Principal)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                # Patrones con formato especial
+                r'^(\d+)\s*[-–—]\s*(.+?)(?:\n|$)',  # 1 - Título
+                r'^(\d+)\s*[\.]\s*(.+?)(?:\n|$)',   # 1. Título
+                r'^([IVX]+)\s*[-–—]\s*(.+?)(?:\n|$)',  # I - Título
             ],
             'module': [
+                # Patrones principales
                 r'(?:MÓDULO|Módulo|MODULE|Module)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
                 r'(?:SECCIÓN|Sección|SECTION|Section)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
                 r'(?:TEMA|Tema|TOPIC|Topic)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                # Patrones adicionales
+                r'(?:SUBMÓDULO|Submódulo|SUBMODULE|Submodule)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                r'(?:APARTADO|Apartado|SECTION|Section)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                r'(?:CONTENIDO|Contenido|CONTENT|Content)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                # Patrones con formato especial
+                r'^(\d+\.\d+)\s*(.+?)(?:\n|$)',  # 1.1 Título
+                r'^(\d+\.\d+\.\d+)\s*(.+?)(?:\n|$)',  # 1.1.1 Título
+                r'^([a-z]\.\d+)\s*(.+?)(?:\n|$)',  # a.1 Título
             ],
             'class': [
+                # Patrones principales
                 r'(?:CLASE|Clase|CLASS|Class)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
                 r'(?:LECCIÓN|Lección|LESSON|Lesson)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
                 r'(?:ACTIVIDAD|Actividad|ACTIVITY|Activity)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                # Patrones adicionales
+                r'(?:EJERCICIO|Ejercicio|EXERCISE|Exercise)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                r'(?:PRÁCTICA|Práctica|PRACTICE|Practice)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                r'(?:TALLER|Taller|WORKSHOP|Workshop)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                r'(?:EVALUACIÓN|Evaluación|EVALUATION|Evaluation)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                # Patrones con formato especial
+                r'^(\d+\.\d+\.\d+\.\d+)\s*(.+?)(?:\n|$)',  # 1.1.1.1 Título
+                r'^([a-z]\))\s*(.+?)(?:\n|$)',  # a) Título
+                r'^([A-Z]\))\s*(.+?)(?:\n|$)',  # A) Título
             ],
             'section': [
+                # Patrones de secciones menores
                 r'(\d+\.)\s*(.+?)(?:\n|$)',
                 r'(\d+\.\d+\.?)\s*(.+?)(?:\n|$)',
                 r'([a-z]\))\s*(.+?)(?:\n|$)',
+                r'([A-Z]\))\s*(.+?)(?:\n|$)',
+                # Patrones adicionales
+                r'(?:SUBSECCIÓN|Subsección|SUBSECTION|Subsection)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                r'(?:PUNTO|Punto|POINT|Point)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
+                r'(?:ITEM|Item|ÍTEM|Ítem)\s+(\d+|[IVX]+)[\s\.:]\s*(.+?)(?:\n|$)',
             ]
         }
         
-        # Patrones de tabla de contenidos
+        # Patrones mejorados de tabla de contenidos
         self.toc_patterns = [
             r'(?:ÍNDICE|Índice|CONTENIDO|Contenido|TABLE OF CONTENTS|Contents)',
             r'(?:TABLA DE CONTENIDOS|Tabla de Contenidos)',
+            r'(?:SUMARIO|Sumario|SUMMARY|Summary)',
+            r'(?:CONTENIDOS|Contenidos|CONTENTS|Contents)',
+            r'(?:ESTRUCTURA|Estructura|STRUCTURE|Structure)',
         ]
         
-        # Palabras clave que indican inicio de contenido real
+        # Palabras clave mejoradas que indican inicio de contenido real
         self.content_indicators = [
             'introducción', 'introduction', 'objetivos', 'objectives',
-            'aprendizajes esperados', 'expected learning', 'competencias'
+            'aprendizajes esperados', 'expected learning', 'competencias',
+            'metodología', 'methodology', 'desarrollo', 'development',
+            'conclusión', 'conclusion', 'resumen', 'summary',
+            'bibliografía', 'bibliography', 'referencias', 'references'
+        ]
+        
+        # Patrones de formato especial para detectar títulos
+        self.title_indicators = [
+            r'^[A-Z][A-Z\s]+$',  # TÍTULOS EN MAYÚSCULAS
+            r'^[A-Z][a-z\s]+[A-Z][A-Z\s]+$',  # Títulos Con Palabras Mayúsculas
+            r'^[A-Z][a-z\s]+:$',  # Títulos que terminan en :
         ]
 
     def analyze_pdf_structure(self, pdf_file_path: str) -> Dict:
@@ -128,7 +175,7 @@ class DocumentStructureAnalyzer:
         return pages_text
 
     def _detect_structure_elements(self, pages_text: List[str]) -> List[StructureElement]:
-        """Detecta elementos de estructura en el texto"""
+        """Detecta elementos de estructura en el texto con patrones mejorados"""
         elements = []
         element_counter = 0
         
@@ -140,20 +187,23 @@ class DocumentStructureAnalyzer:
                 if not line or len(line) < 3:
                     continue
                 
-                # Detectar cada tipo de elemento
+                # Detectar cada tipo de elemento con patrones mejorados
                 for element_type, patterns in self.patterns.items():
                     for pattern in patterns:
                         match = re.search(pattern, line, re.IGNORECASE)
                         if match:
                             element_counter += 1
                             
-                            # Extraer número y título
+                            # Extraer número y título con mejor manejo
                             if len(match.groups()) >= 2:
                                 number = match.group(1)
                                 title = match.group(2).strip()
                             else:
                                 number = ""
                                 title = match.group(1).strip() if match.groups() else line
+                            
+                            # Limpiar y mejorar el título
+                            title = self._clean_title(title)
                             
                             # Crear elemento
                             element = StructureElement(
@@ -173,12 +223,67 @@ class DocumentStructureAnalyzer:
                     
                     if any(re.search(p, line, re.IGNORECASE) for p in patterns):
                         break  # Solo el primer tipo que coincida
+                
+                # Detección adicional de títulos por formato
+                if not any(e.page_number == page_num + 1 and e.line_number == line_num for e in elements):
+                    detected_type = self._detect_title_by_format(line)
+                    if detected_type:
+                        element_counter += 1
+                        element = StructureElement(
+                            element_type=detected_type,
+                            title=line.strip(),
+                            level=self._determine_level(detected_type),
+                            page_number=page_num + 1,
+                            line_number=line_num,
+                            element_id=f"{detected_type}_{element_counter}",
+                            content_preview=self._extract_content_preview(
+                                pages_text, page_num, line_num
+                            )
+                        )
+                        elements.append(element)
         
         # Filtrar y limpiar elementos
         elements = self._filter_and_clean_elements(elements)
         
         logger.info(f"Detected {len(elements)} structure elements")
         return elements
+
+    def _clean_title(self, title: str) -> str:
+        """Limpia y mejora el título del elemento"""
+        # Remover caracteres especiales al inicio y final
+        title = re.sub(r'^[^\w\s]+', '', title)
+        title = re.sub(r'[^\w\s]+$', '', title)
+        
+        # Normalizar espacios
+        title = re.sub(r'\s+', ' ', title).strip()
+        
+        # Capitalizar primera letra si es necesario
+        if title and title[0].islower():
+            title = title[0].upper() + title[1:]
+        
+        return title
+
+    def _detect_title_by_format(self, line: str) -> Optional[str]:
+        """Detecta títulos por formato especial"""
+        line = line.strip()
+        
+        # Verificar si es un título en mayúsculas
+        if re.match(r'^[A-Z][A-Z\s]{3,}$', line):
+            return 'unit'
+        
+        # Verificar si es un título con palabras mayúsculas
+        if re.match(r'^[A-Z][a-z\s]+[A-Z][A-Z\s]+$', line):
+            return 'module'
+        
+        # Verificar si termina en dos puntos
+        if re.match(r'^[A-Z][a-z\s]+:$', line):
+            return 'class'
+        
+        # Verificar si es una línea corta con formato de título
+        if len(line) < 100 and re.match(r'^[A-Z][a-z\s]+$', line):
+            return 'section'
+        
+        return None
 
     def _determine_level(self, element_type: str) -> int:
         """Determina el nivel jerárquico del elemento"""
