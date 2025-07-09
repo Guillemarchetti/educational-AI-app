@@ -223,7 +223,8 @@ export function ChatInterface({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="h-full"
+              className="flex-1 min-h-0 overflow-y-auto relative"
+              style={{ maxHeight: '100%' }}
             >
               <MessageList
                 messages={messages}

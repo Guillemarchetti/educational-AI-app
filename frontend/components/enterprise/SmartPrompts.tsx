@@ -147,22 +147,18 @@ export function SmartPrompts({
     setTimeout(() => setSelectedCategory(null), 2000)
   }
 
-  if (context.length === 0 && !isExpanded) {
+  if (!isExpanded) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="p-4"
-      >
+      <div className="flex justify-end">
         <button
           onClick={() => setIsExpanded(true)}
-          className="flex items-center gap-2 text-slate-400 hover:text-sky-400 transition-colors"
+          className="flex items-center gap-2 text-slate-400 hover:text-sky-400 transition-colors text-sm"
         >
           <Lightbulb className="w-4 h-4" />
-          <span className="text-sm">Ver prompts recomendados</span>
+          <span>Ver prompts recomendados</span>
           <ChevronRight className="w-4 h-4" />
         </button>
-      </motion.div>
+      </div>
     )
   }
 
@@ -181,7 +177,7 @@ export function SmartPrompts({
               Prompts Inteligentes
             </h3>
           </div>
-          {!isExpanded && (
+          {isExpanded && (
             <button
               onClick={() => setIsExpanded(false)}
               className="text-xs text-slate-500 hover:text-slate-400"

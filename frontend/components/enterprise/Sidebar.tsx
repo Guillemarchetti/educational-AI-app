@@ -54,7 +54,7 @@ export function Sidebar({ currentSection, setCurrentSection }: SidebarProps) {
   return (
     <>
       <motion.aside 
-        className="w-20 bg-gray-900/50 backdrop-blur-xl border-r border-gray-800/50 flex flex-col items-center py-6 relative"
+        className="w-20 h-full overflow-y-auto bg-gray-900/50 backdrop-blur-xl border-r border-gray-800/50 flex flex-col items-center py-6 relative"
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}

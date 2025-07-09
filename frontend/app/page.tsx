@@ -292,9 +292,9 @@ export default function EnterpriseChatPage() {
   };
 
   return (
-    <main className="flex h-screen w-full bg-gray-950 text-white">
-      <Sidebar currentSection={currentSection} setCurrentSection={setCurrentSection} />
-      <div className="flex-1">
+    <main className="flex h-screen w-full bg-gray-950 text-white overflow-hidden">
+      <Sidebar currentSection={currentSection} setCurrentSection={setCurrentSection} className="h-full overflow-y-auto" />
+      <div className="flex-1 h-full overflow-hidden">
         {renderMainContent()}
       </div>
     </main>

@@ -23,14 +23,31 @@ interface MessageListProps {
   messages: Message[]
   isProcessing: boolean
   messagesEndRef: React.RefObject<HTMLDivElement>
+  onPromptClick?: (prompt: string) => void
 }
 
-export function MessageList({ messages, isProcessing, messagesEndRef }: MessageListProps) {
+export function MessageList({ messages, isProcessing, messagesEndRef, onPromptClick }: MessageListProps) {
   const formatTime = (timestamp: Date) => {
     return new Date(timestamp).toLocaleTimeString([], { 
       hour: '2-digit', 
       minute: '2-digit' 
     })
+  }
+
+  // Extrae preguntas sugeridas de la respuesta de IA
+  function extractSuggestedPrompts(text: string): string[] {
+    const match = text.match(/### Preguntas sugeridas[\s\S]*?([0-9]+\..+)/)
+    if (!match) return []
+    // Extraer cada línea que empieza con número punto
+    return match[1]
+      .split(/\n+/)
+      .map(line => line.replace(/^\d+\.\s*/, '').trim())
+      .filter(Boolean)
+  }
+
+  // Elimina la sección de preguntas sugeridas del texto
+  function removeSuggestedPromptsSection(text: string): string {
+    return text.replace(/### Preguntas sugeridas[\s\S]*/, '').trim()
   }
 
   const TypingIndicator = () => (
@@ -63,94 +80,117 @@ export function MessageList({ messages, isProcessing, messagesEndRef }: MessageL
     <div className="flex-1 flex flex-col min-h-0 p-6">
       {/* Chat History Area with Scroll */}
       <div className="flex-1 overflow-y-auto enterprise-scrollbar space-y-6 pr-2" style={{ maxHeight: 'calc(100vh - 350px)' }}>
-        {messages.map((message, index) => (
-          <motion.div
-            key={message.id}
-            className={`flex space-x-4 message-bubble ${
-              message.sender === 'user' ? 'justify-end' : 'justify-start'
-            }`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.1, duration: 0.4 }}
-          >
-            <div
-              className={`max-w-xs lg:max-w-2xl px-6 py-4 rounded-2xl relative group text-sm ${
-                message.sender === 'user'
-                  ? 'bg-[#2563eb22] text-white ml-auto shadow-lg'
-                  : 'enterprise-card text-slate-100 shadow-xl'
+        {messages.map((message, index) => {
+          // Si es mensaje de IA, extraer prompts sugeridos
+          let prompts: string[] = []
+          let mainText = message.text
+          if (message.sender === 'ai') {
+            prompts = extractSuggestedPrompts(message.text)
+            if (prompts.length > 0) {
+              mainText = removeSuggestedPromptsSection(message.text)
+            }
+          }
+          return (
+            <motion.div
+              key={message.id}
+              className={`flex space-x-4 message-bubble ${
+                message.sender === 'user' ? 'justify-end' : 'justify-start'
               }`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1, duration: 0.4 }}
             >
-              {/* Message Content */}
-              <div className="space-y-3">
-                <div className="prose prose-sm prose-invert max-w-none">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {message.text}
-                  </ReactMarkdown>
-                </div>
-                
-                {/* Metadata for AI messages */}
-                {message.sender === 'ai' && message.metadata && (
-                  <motion.div 
-                    className="border-t border-enterprise-700/50 pt-3 mt-3"
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center space-x-4">
-                        <div className="text-slate-400">
-                          Confidence: 
-                          <span className="text-green-400 ml-1">
-                            {Math.round((message.metadata.confidence || 0) * 100)}%
-                          </span>
-                        </div>
-                        {message.metadata.sources && (
-                          <div className="text-slate-500">
-                            Sources: {message.metadata.sources.length}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-              </div>
-
-              {/* Timestamp */}
-              <div className={`text-xs mt-3 flex items-center justify-between ${
-                message.sender === 'user' ? 'text-blue-100' : 'text-slate-400'
-              }`}>
-                <span>{formatTime(message.timestamp)}</span>
-                
-                {/* Action buttons for AI messages */}
-                {message.sender === 'ai' && (
-                  <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <motion.button
-                      className="p-1 hover:bg-enterprise-700/50 rounded"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <Copy className="w-3 h-3" />
-                    </motion.button>
-                    <motion.button
-                      className="p-1 hover:bg-enterprise-700/50 rounded"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <ThumbsUp className="w-3 h-3" />
-                    </motion.button>
-                    <motion.button
-                      className="p-1 hover:bg-enterprise-700/50 rounded"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                    >
-                      <ThumbsDown className="w-3 h-3" />
-                    </motion.button>
+              <div
+                className={`max-w-xs lg:max-w-2xl px-6 py-4 rounded-2xl relative group text-sm ${
+                  message.sender === 'user'
+                    ? 'bg-[#2563eb22] text-white ml-auto shadow-lg'
+                    : 'enterprise-card text-slate-100 shadow-xl'
+                }`}
+              >
+                {/* Message Content */}
+                <div className="space-y-3">
+                  <div className="prose prose-sm prose-invert max-w-none">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {mainText}
+                    </ReactMarkdown>
                   </div>
-                )}
+                  {/* Prompts sugeridos como botones */}
+                  {message.sender === 'ai' && prompts.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {prompts.map((prompt, i) => (
+                        <button
+                          key={i}
+                          className="px-3 py-1 rounded-lg bg-enterprise-800/70 hover:bg-enterprise-700/80 text-xs text-sky-300 border border-enterprise-700/50 transition-colors"
+                          onClick={() => onPromptClick && onPromptClick(prompt)}
+                        >
+                          {prompt}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {/* Metadata for AI messages */}
+                  {message.sender === 'ai' && message.metadata && (
+                    <motion.div 
+                      className="border-t border-enterprise-700/50 pt-3 mt-3"
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ delay: 0.3 }}
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center space-x-4">
+                          <div className="text-slate-400">
+                            Confidence: 
+                            <span className="text-green-400 ml-1">
+                              {Math.round((message.metadata.confidence || 0) * 100)}%
+                            </span>
+                          </div>
+                          {message.metadata.sources && (
+                            <div className="text-slate-500">
+                              Sources: {message.metadata.sources.length}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+
+                {/* Timestamp */}
+                <div className={`text-xs mt-3 flex items-center justify-between ${
+                  message.sender === 'user' ? 'text-blue-100' : 'text-slate-400'
+                }`}>
+                  <span>{formatTime(message.timestamp)}</span>
+                  {/* Action buttons for AI messages */}
+                  {message.sender === 'ai' && (
+                    <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <motion.button
+                        className="p-1 hover:bg-enterprise-700/50 rounded"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <Copy className="w-3 h-3" />
+                      </motion.button>
+                      <motion.button
+                        className="p-1 hover:bg-enterprise-700/50 rounded"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <ThumbsUp className="w-3 h-3" />
+                      </motion.button>
+                      <motion.button
+                        className="p-1 hover:bg-enterprise-700/50 rounded"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        <ThumbsDown className="w-3 h-3" />
+                      </motion.button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </motion.div>
-        ))}
+            </motion.div>
+          )
+        })}
 
         {/* Typing Indicator */}
         {isProcessing && (
