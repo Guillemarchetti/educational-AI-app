@@ -49,6 +49,7 @@ export function QuizSystem({ context, onClose, onSendMessage, selectedFile }: Qu
   const [showResults, setShowResults] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
   const [timeRemaining, setTimeRemaining] = useState<number>(0)
+  const [showErrorSummary, setShowErrorSummary] = useState(false)
 
   // Generar quiz basado en el contexto
   const generateQuiz = async () => {
@@ -195,6 +196,65 @@ export function QuizSystem({ context, onClose, onSendMessage, selectedFile }: Qu
     setShowResults(false)
     setSelectedAnswer(null)
     setTimeRemaining(0)
+  }
+
+  // Generar mensaje de refuerzo basado en errores
+  const generateReinforcementMessage = () => {
+    if (!quizSession) return ""
+
+    const wrongAnswers = quizSession.answers.map((answer, index) => {
+      const question = quizSession.questions[index]
+      const isCorrect = answer === question.correctAnswer
+      return {
+        question: question.question,
+        userAnswer: question.options[answer],
+        correctAnswer: question.options[question.correctAnswer],
+        explanation: question.explanation,
+        isCorrect
+      }
+    }).filter(item => !item.isCorrect)
+
+    if (wrongAnswers.length === 0) {
+      return "¡Excelente! No necesitas refuerzo, has respondido todo correctamente. ¿Te gustaría que profundice en algún concepto específico del tema?"
+    }
+
+    const reinforcementPrompt = `Necesito refuerzo en los siguientes conceptos que fallé en el quiz:
+
+${wrongAnswers.map((item, index) => `
+**Pregunta ${index + 1}:** ${item.question}
+**Mi respuesta:** ${item.userAnswer} ❌
+**Respuesta correcta:** ${item.correctAnswer} ✅
+**Explicación:** ${item.explanation}
+
+`).join('')}
+
+Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios prácticos para reforzar mi aprendizaje.`
+
+    return reinforcementPrompt
+  }
+
+  // Enviar refuerzo al chat
+  const sendReinforcementToChat = () => {
+    const reinforcementMessage = generateReinforcementMessage()
+    onSendMessage(reinforcementMessage)
+    onClose()
+  }
+
+  // Obtener errores del quiz
+  const getQuizErrors = () => {
+    if (!quizSession) return []
+    
+    return quizSession.answers.map((answer, index) => {
+      const question = quizSession.questions[index]
+      const isCorrect = answer === question.correctAnswer
+      return {
+        question: question.question,
+        userAnswer: question.options[answer],
+        correctAnswer: question.options[question.correctAnswer],
+        explanation: question.explanation,
+        isCorrect
+      }
+    }).filter(item => !item.isCorrect)
   }
 
   // Timer effect
@@ -527,15 +587,86 @@ export function QuizSystem({ context, onClose, onSendMessage, selectedFile }: Qu
                     <RotateCcw className="w-4 h-4 inline mr-2" />
                     Nuevo Quiz
                   </button>
+                  {getQuizErrors().length > 0 && (
+                    <button
+                      onClick={() => setShowErrorSummary(true)}
+                      className="px-6 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold transition-colors"
+                    >
+                      <BookOpen className="w-4 h-4 inline mr-2" />
+                      Ver Errores ({getQuizErrors().length})
+                    </button>
+                  )}
                   <button
-                    onClick={() => {
-                      onSendMessage("Genera un resumen de los conceptos que necesito repasar basado en mi rendimiento en el quiz")
-                      onClose()
-                    }}
+                    onClick={sendReinforcementToChat}
                     className="px-6 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-colors"
                   >
                     <Brain className="w-4 h-4 inline mr-2" />
                     Repasar Conceptos
+                  </button>
+                </div>
+              </motion.div>
+            )}
+
+            {showErrorSummary && quizSession && (
+              <motion.div
+                key="error-summary"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center"
+              >
+                <div className="mb-6">
+                  <XCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Resumen de Errores
+                  </h3>
+                  <p className="text-slate-400">
+                    Conceptos que necesitas reforzar
+                  </p>
+                </div>
+
+                {/* Lista de errores */}
+                <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
+                  {getQuizErrors().map((error, index) => (
+                    <div key={index} className="p-4 bg-enterprise-800/50 rounded-lg border border-red-500/30">
+                      <h4 className="font-semibold text-white mb-2">
+                        Pregunta {index + 1}
+                      </h4>
+                      <p className="text-slate-300 mb-3">{error.question}</p>
+                      
+                      <div className="space-y-2 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-red-400">❌ Tu respuesta:</span>
+                          <span className="text-slate-300">{error.userAnswer}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-green-400">✅ Respuesta correcta:</span>
+                          <span className="text-slate-300">{error.correctAnswer}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 p-3 bg-enterprise-900/50 rounded border-l-4 border-blue-500">
+                        <p className="text-blue-300 text-sm">
+                          <strong>Explicación:</strong> {error.explanation}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Botones de acción */}
+                <div className="flex gap-3 justify-center">
+                  <button
+                    onClick={() => setShowErrorSummary(false)}
+                    className="px-6 py-2 rounded-lg bg-enterprise-700 hover:bg-enterprise-600 text-white font-semibold transition-colors"
+                  >
+                    Volver a Resultados
+                  </button>
+                  <button
+                    onClick={sendReinforcementToChat}
+                    className="px-6 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-colors"
+                  >
+                    <Brain className="w-4 h-4 inline mr-2" />
+                    Enviar Refuerzo al Chat
                   </button>
                 </div>
               </motion.div>

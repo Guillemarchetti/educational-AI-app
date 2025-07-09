@@ -2,14 +2,15 @@
 
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Trophy, Brain } from 'lucide-react'
+import { Trophy, Brain, Trash2 } from 'lucide-react'
 
 interface ChatHeaderProps {
   onToggleProgress?: () => void
   onToggleQuiz?: () => void
+  onClearContext?: () => void
 }
 
-export function ChatHeader({ onToggleProgress, onToggleQuiz }: ChatHeaderProps) {
+export function ChatHeader({ onToggleProgress, onToggleQuiz, onClearContext }: ChatHeaderProps) {
   return (
     <motion.header 
       className="border-b border-enterprise-800/50 bg-enterprise-900/30 p-4 flex-shrink-0"
@@ -22,6 +23,15 @@ export function ChatHeader({ onToggleProgress, onToggleQuiz }: ChatHeaderProps) 
           Asistente de Chat
         </h2>
         <div className="flex items-center gap-2">
+          {onClearContext && (
+            <button
+              onClick={onClearContext}
+              className="p-2 rounded-lg bg-enterprise-800/50 hover:bg-enterprise-700/50 transition-colors border border-enterprise-700/50"
+              title="Limpiar contexto"
+            >
+              <Trash2 className="w-4 h-4 text-red-400" />
+            </button>
+          )}
           {onToggleQuiz && (
             <button
               onClick={onToggleQuiz}

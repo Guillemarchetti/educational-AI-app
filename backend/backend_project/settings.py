@@ -166,7 +166,7 @@ CSRF_EXEMPT_URLS = [
 
 # OpenAI Configuration
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4')
+OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-4o-mini')
 
 # RAG System Configuration
 RAG_MAX_CONTEXT_LENGTH = int(os.getenv('RAG_MAX_CONTEXT_LENGTH', '4000'))

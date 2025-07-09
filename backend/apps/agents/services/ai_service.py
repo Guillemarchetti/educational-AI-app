@@ -165,7 +165,7 @@ Por favor, responde como {self.get_agent_name()} considerando todo el contexto p
     
     def process_query_with_openai(self, query: str, context: Dict[str, Any]) -> str:
         """
-        Procesar consulta usando OpenAI GPT.
+        Procesar consulta usando OpenAI GPT-4o-mini (más económico).
         """
         if not self.openai_client:
             return "Lo siento, el servicio de OpenAI no está disponible en este momento."
@@ -180,11 +180,11 @@ Por favor, responde como {self.get_agent_name()} considerando todo el contexto p
             if total_tokens > 3000:  # Dejar espacio para la respuesta
                 context_prompt = self.truncate_to_token_limit(context_prompt, 2000)
             
-            self.logger.info(f"Procesando consulta con OpenAI - Tokens: {total_tokens}")
+            self.logger.info(f"Procesando consulta con OpenAI GPT-4o-mini - Tokens: {total_tokens}")
             
-            # Llamada a OpenAI
+            # Llamada a OpenAI usando gpt-4o-mini (más económico)
             response = self.openai_client.chat.completions.create(
-                model=os.getenv('OPENAI_MODEL', 'gpt-4-turbo'),
+                model="gpt-4o-mini",  # Modelo más económico para consultas de texto
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": context_prompt}
@@ -202,15 +202,16 @@ Por favor, responde como {self.get_agent_name()} considerando todo el contexto p
     
     def process_image_with_openai(self, prompt: str, image_data: str, context: Dict[str, Any]) -> str:
         """
-        Procesar imagen usando OpenAI GPT-4 Vision.
+        Procesar imagen usando OpenAI GPT-4o Vision (específicamente para análisis de imágenes).
+        Este método usa gpt-4o que tiene capacidades de visión, a diferencia de gpt-4o-mini.
         """
         if not self.openai_client:
             return "Lo siento, el servicio de OpenAI no está disponible en este momento."
         
         try:
-            self.logger.info(f"Procesando imagen con OpenAI Vision")
+            self.logger.info(f"Procesando imagen con OpenAI GPT-4o Vision")
             
-            # Usar GPT-4 Vision para análisis de imágenes
+            # Usar GPT-4o Vision para análisis de imágenes (más costoso pero necesario para visión)
             response = self.openai_client.chat.completions.create(
                 model="gpt-4o",  # Modelo con capacidades de visión
                 messages=[

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { ChatHeader } from './ChatHeader'
 import { MessageList } from './MessageList'
 import { ChatInput } from './ChatInput'
-import { WelcomeScreen } from './WelcomeScreen'
+
 import { ContextDisplay } from './ContextDisplay'
 import { SmartPrompts } from './SmartPrompts'
 import { ProgressTracker } from './ProgressTracker'
@@ -51,7 +51,19 @@ export function ChatInterface({
   const [showProgress, setShowProgress] = useState(false)
   const [showQuiz, setShowQuiz] = useState(false)
   const [isContextOpen, setIsContextOpen] = useState(true)
+  const [persistentContext, setPersistentContext] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Mantener contexto persistente actualizado
+  useEffect(() => {
+    setPersistentContext(prev => {
+      // Solo agregar nuevo contexto que no esté ya en persistentContext
+      const newItems = contextText.filter(item => !prev.includes(item))
+      const updatedContext = [...prev, ...newItems]
+      // Mantener solo los últimos 15 elementos para evitar sobrecarga
+      return updatedContext.slice(-15)
+    })
+  }, [contextText])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -73,7 +85,9 @@ export function ChatInterface({
     setMessages(prev => [...prev, userMessage])
     setIsProcessing(true)
 
-    const contextString = contextText.join('\n\n---\n\n');
+    // Usar contexto persistente + contexto actual
+    const allContext = [...persistentContext, ...contextText]
+    const contextString = allContext.join('\n\n---\n\n');
 
     try {
       const response = await fetch('http://localhost:8000/api/agents/chat/', {
@@ -82,7 +96,7 @@ export function ChatInterface({
         body: JSON.stringify({
           message: messageText,
           userId: 'demo-user', // Hardcoded por ahora
-          context: contextString, // Enviamos el contexto
+          context: contextString, // Enviamos todo el contexto
         }),
       })
 
@@ -101,8 +115,8 @@ export function ChatInterface({
       }
       setMessages(prev => [...prev, aiMessage])
       
-      // Limpiar contexto después del envío
-      contextText.forEach((_, index) => onRemoveContext(index));
+      // NO limpiar contexto después del envío - mantener memoria
+      // contextText.forEach((_, index) => onRemoveContext(index));
 
     } catch (error) {
       console.error('Error al contactar al agente de IA:', error)
@@ -143,6 +157,13 @@ export function ChatInterface({
       console.error("Error al procesar el archivo soltado:", error);
     }
   };
+
+  // Limpiar contexto persistente
+  const clearPersistentContext = () => {
+    setPersistentContext([])
+    // También limpiar contexto actual
+    contextText.forEach((_, index) => onRemoveContext(index))
+  }
   
   return (
     <div 
@@ -164,10 +185,11 @@ export function ChatInterface({
       <ChatHeader 
         onToggleProgress={() => setShowProgress(!showProgress)}
         onToggleQuiz={() => setShowQuiz(!showQuiz)}
+        onClearContext={clearPersistentContext}
       />
       
       {/* Mostrar contexto si hay alguno */}
-      {contextText.length > 0 && (
+      {(contextText.length > 0 || persistentContext.length > 0) && (
         <div className="border-b border-enterprise-800/50">
           {/* Acordeón de contexto */}
           <button
@@ -176,7 +198,7 @@ export function ChatInterface({
           >
             {isContextOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             <span className="font-medium text-slate-200 text-sm">Contexto Agregado</span>
-            <span className="ml-2 text-xs text-slate-400">({contextText.length})</span>
+            <span className="ml-2 text-xs text-slate-400">({contextText.length} + {persistentContext.length} persistente)</span>
             <span className="flex-1" />
             <span className="text-xs text-slate-500">{isContextOpen ? 'Ocultar' : 'Mostrar'}</span>
           </button>
@@ -188,7 +210,10 @@ export function ChatInterface({
             }}
           >
             {isContextOpen && (
-              <ContextDisplay contextText={contextText} onRemoveContext={onRemoveContext} />
+              <ContextDisplay 
+                contextText={[...persistentContext, ...contextText]} 
+                onRemoveContext={onRemoveContext} 
+              />
             )}
           </div>
         </div>
@@ -204,36 +229,11 @@ export function ChatInterface({
       />
       
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
-        <AnimatePresence mode="wait">
-          {messages.length === 0 ? (
-            <motion.div
-              key="welcome"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.5 }}
-              className="h-full"
-            >
-              <WelcomeScreen onSendMessage={handleSendMessage} />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="messages"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="flex-1 min-h-0 overflow-y-auto relative"
-              style={{ maxHeight: '100%' }}
-            >
-              <MessageList
-                messages={messages}
-                isProcessing={isProcessing}
-                messagesEndRef={messagesEndRef}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <MessageList
+          messages={messages}
+          isProcessing={isProcessing}
+          messagesEndRef={messagesEndRef}
+        />
       </div>
       <ChatInput onSendMessage={handleSendMessage} isProcessing={isProcessing} />
       
