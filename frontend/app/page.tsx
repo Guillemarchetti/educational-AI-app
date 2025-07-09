@@ -83,8 +83,9 @@ export default function EnterpriseChatPage() {
   };
 
   const handleImageContextAdd = (imageData: string, description: string) => {
-    console.log('Adding image context:', { imageData, description })
-    const imageContext = `🖼️ IMAGEN SELECCIONADA: ${description}\n📄 Archivo: ${selectedFile?.name}\n🔍 Analiza esta imagen y explícame lo que ves.`;
+    console.log('Adding image context:', { imageDataLength: imageData.length, description })
+    // Solo incluir la descripción del análisis, no la imagen base64 completa
+    const imageContext = `🖼️ ANÁLISIS DE IMAGEN:\n\n${description}\n\n📄 Archivo: ${selectedFile?.name}`;
     handleContextAdd(imageContext);
   };
 
@@ -203,6 +204,7 @@ export default function EnterpriseChatPage() {
                 setIsDraggingOver={setIsDraggingOver}
                 onFileDrop={handleFileDrop}
                 isExtracting={isExtracting}
+                selectedFile={selectedFile}
               />
             </Panel>
           </PanelGroup>
@@ -215,7 +217,7 @@ export default function EnterpriseChatPage() {
               <FileExplorer onSelectFile={setSelectedFile} />
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={30} minSize={25}>
+            <Panel defaultSize={50} minSize={35}>
               <PdfViewer 
                 selectedFile={selectedFile}
                 isSelectionMode={isImageSelectionMode}
@@ -223,19 +225,12 @@ export default function EnterpriseChatPage() {
               />
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={25} minSize={20}>
+            <Panel defaultSize={30} minSize={25}>
               <ImageSelector 
                 selectedFile={selectedFile}
                 onAddImageContext={handleImageContextAdd}
                 isSelectionMode={isImageSelectionMode}
                 onToggleSelectionMode={handleToggleImageSelection}
-              />
-            </Panel>
-            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={25} minSize={20}>
-              <ContextDisplay 
-                contextText={contextText}
-                onRemoveContext={handleRemoveContext}
               />
             </Panel>
           </PanelGroup>
@@ -263,6 +258,7 @@ export default function EnterpriseChatPage() {
                 setIsDraggingOver={setIsDraggingOver}
                 onFileDrop={handleFileDrop}
                 isExtracting={isExtracting}
+                selectedFile={selectedFile}
               />
             </Panel>
           </PanelGroup>

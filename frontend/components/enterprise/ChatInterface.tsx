@@ -7,6 +7,9 @@ import { MessageList } from './MessageList'
 import { ChatInput } from './ChatInput'
 import { WelcomeScreen } from './WelcomeScreen'
 import { ContextDisplay } from './ContextDisplay'
+import { SmartPrompts } from './SmartPrompts'
+import { ProgressTracker } from './ProgressTracker'
+import { QuizSystem } from './QuizSystem'
 
 // Definimos la interfaz Message aquí mismo para que el componente sea autocontenido
 export interface Message {
@@ -30,6 +33,7 @@ interface ChatInterfaceProps {
   setIsDraggingOver: (isDragging: boolean) => void;
   onFileDrop: (file: FileNode) => void;
   isExtracting: boolean;
+  selectedFile?: { name: string; url: string; id?: string } | null;
 }
 
 export function ChatInterface({ 
@@ -39,9 +43,12 @@ export function ChatInterface({
   setIsDraggingOver,
   onFileDrop,
   isExtracting,
+  selectedFile,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
+  const [showProgress, setShowProgress] = useState(false)
+  const [showQuiz, setShowQuiz] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -152,7 +159,10 @@ export function ChatInterface({
           <p className="text-xl font-semibold text-white">Extrayendo texto del PDF...</p>
         </div>
       )}
-      <ChatHeader />
+      <ChatHeader 
+        onToggleProgress={() => setShowProgress(!showProgress)}
+        onToggleQuiz={() => setShowQuiz(!showQuiz)}
+      />
       
       {/* Mostrar contexto si hay alguno */}
       {contextText.length > 0 && (
@@ -160,6 +170,15 @@ export function ChatInterface({
           <ContextDisplay contextText={contextText} onRemoveContext={onRemoveContext} />
         </div>
       )}
+      
+      {/* Smart Prompts */}
+      <SmartPrompts 
+        context={contextText}
+        onPromptSelect={handleSendMessage}
+        subject="general"
+        difficulty="intermediate"
+        learningStyle="visual"
+      />
       
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
         <AnimatePresence mode="wait">
@@ -193,6 +212,22 @@ export function ChatInterface({
         </AnimatePresence>
       </div>
       <ChatInput onSendMessage={handleSendMessage} isProcessing={isProcessing} />
+      
+      {/* Progress Tracker */}
+      <ProgressTracker 
+        isVisible={showProgress}
+        onToggle={() => setShowProgress(!showProgress)}
+      />
+      
+      {/* Quiz System */}
+      {showQuiz && (
+        <QuizSystem 
+          context={contextText}
+          onClose={() => setShowQuiz(false)}
+          onSendMessage={handleSendMessage}
+          selectedFile={selectedFile}
+        />
+      )}
     </div>
   )
 } 
