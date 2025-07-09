@@ -15,6 +15,7 @@ import { Sidebar } from '@/components/enterprise/Sidebar'
 import { ImageSelector } from '@/components/enterprise/ImageSelector'
 import { ContextDisplay } from '@/components/enterprise/ContextDisplay'
 import { KnowledgeMap } from '@/components/enterprise/KnowledgeMap'
+import { WelcomePage } from '@/components/enterprise/WelcomePage'
 
 const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
   ssr: false,
@@ -386,14 +387,7 @@ export default function EnterpriseChatPage() {
         );
       
       default:
-        return (
-          <div className="flex items-center justify-center h-full text-gray-400">
-            <div className="text-center">
-              <h2 className="text-2xl font-bold mb-4">Chat Agent AI</h2>
-              <p>Selecciona una sección del menú lateral</p>
-            </div>
-          </div>
-        );
+        return <WelcomePage />;
     }
   };
 
