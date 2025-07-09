@@ -1,0 +1,20 @@
+Explica esta ecuación matemática:
+
+La ecuación cuadrática es: $ax^2 + bx + c = 0$
+
+La solución es: $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$
+
+**Ejemplo:**
+Para la ecuación $x^2 - 5x + 6 = 0$:
+- $a = 1$
+- $b = -5$ 
+- $c = 6$
+
+Sustituyendo en la fórmula:
+$x = \frac{5 \pm \sqrt{25 - 24}}{2} = \frac{5 \pm 1}{2}$
+
+Por lo tanto:
+- $x_1 = 3$
+- $x_2 = 2$
+
+> **Nota**: Esta es la fórmula más importante en álgebra cuadrática. 
