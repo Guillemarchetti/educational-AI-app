@@ -191,7 +191,7 @@ export function SmartPrompts({
             <span className="ml-2 text-sm text-slate-400">Generando prompts inteligentes...</span>
           </div>
         ) : prompts.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-96 overflow-y-auto">
             <AnimatePresence>
               {prompts.map((prompt, index) => (
                 <motion.button
@@ -210,30 +210,33 @@ export function SmartPrompts({
                   onClick={() => handlePromptClick(prompt)}
                   className={`
                     p-3 rounded-lg border transition-all duration-200
-                    hover:scale-105 hover:shadow-lg
+                    hover:scale-105 hover:shadow-lg min-h-[80px] flex flex-col justify-between
                     ${getCategoryColor(prompt.category, prompt.contextual)}
                     ${selectedCategory === prompt.category ? 'ring-2 ring-sky-500/50' : ''}
                   `}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
+                  <div className="flex items-start gap-2 mb-2">
+                    <div className="flex-shrink-0 mt-0.5">
                       {getCategoryIcon(prompt.category)}
                     </div>
                     <div className="flex-1 text-left">
-                      <p className="text-xs font-medium mb-1">
+                      <p className="text-xs font-medium leading-tight line-clamp-3">
                         {prompt.text}
                       </p>
-                      <div className="flex items-center gap-2">
-                        {prompt.contextual && (
-                          <span className="text-xs bg-sky-500/20 text-sky-400 px-1.5 py-0.5 rounded">
-                            Contextual
-                          </span>
-                        )}
-                        <span className="text-xs opacity-70">
-                          {prompt.category}
-                        </span>
-                      </div>
                     </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 mt-auto">
+                    <div className="flex items-center gap-1">
+                      {prompt.contextual && (
+                        <span className="text-xs bg-sky-500/20 text-sky-400 px-1.5 py-0.5 rounded">
+                          Contextual
+                        </span>
+                      )}
+                      <span className="text-xs opacity-70 capitalize">
+                        {prompt.category}
+                      </span>
+                    </div>
+                    <div className="w-2 h-2 rounded-full bg-current opacity-60"></div>
                   </div>
                 </motion.button>
               ))}
