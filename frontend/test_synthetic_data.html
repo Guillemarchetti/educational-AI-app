@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Synthetic Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            background-color: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #2563eb;
+        }
+        .result {
+            background-color: #1f1f1f;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .error {
+            background-color: #dc2626;
+            color: white;
+        }
+        .success {
+            background-color: #059669;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Synthetic Knowledge Map Data</h1>
+    
+    <div class="test-section">
+        <h2>Test Endpoints</h2>
+        <button onclick="testRealEndpoint()">Test Real Endpoint</button>
+        <button onclick="testSyntheticEndpoint()">Test Synthetic Endpoint</button>
+        <button onclick="testBothEndpoints()">Test Both Endpoints</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Results</h2>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const DOCUMENT_ID = '5307fa5f-2b96-400c-a560-dc6122c5f1f5';
+        const BASE_URL = 'http://localhost:8000';
+
+        function addResult(title, data, isError = false) {
+            const resultsDiv = document.getElementById('results');
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${isError ? 'error' : 'success'}`;
+            resultDiv.innerHTML = `
+                <strong>${title}</strong>
+                <br>
+                ${JSON.stringify(data, null, 2)}
+            `;
+            resultsDiv.appendChild(resultDiv);
+        }
+
+        async function testEndpoint(endpoint, title) {
+            try {
+                console.log(`Testing ${title}...`);
+                const response = await fetch(`${BASE_URL}${endpoint}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                console.log(`${title} response status:`, response.status);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(`${title} data:`, data);
+                    addResult(`${title} - SUCCESS`, {
+                        status: response.status,
+                        success: data.success,
+                        nodes_count: data.knowledge_map?.nodes?.length || 0,
+                        statistics: data.knowledge_map?.statistics || null
+                    });
+                } else {
+                    const errorText = await response.text();
+                    console.error(`${title} error:`, errorText);
+                    addResult(`${title} - ERROR`, {
+                        status: response.status,
+                        error: errorText
+                    }, true);
+                }
+            } catch (error) {
+                console.error(`${title} exception:`, error);
+                addResult(`${title} - EXCEPTION`, {
+                    error: error.message
+                }, true);
+            }
+        }
+
+        async function testRealEndpoint() {
+            await testEndpoint(
+                `/api/agents/knowledge-map/${DOCUMENT_ID}/`,
+                'Real Knowledge Map'
+            );
+        }
+
+        async function testSyntheticEndpoint() {
+            await testEndpoint(
+                `/api/agents/knowledge-map/synthetic/${DOCUMENT_ID}/`,
+                'Synthetic Knowledge Map'
+            );
+        }
+
+        async function testBothEndpoints() {
+            await testRealEndpoint();
+            await testSyntheticEndpoint();
+        }
+
+        // Auto-test on load
+        window.addEventListener('load', () => {
+            console.log('🧪 Starting auto-test...');
+            testBothEndpoints();
+        });
+    </script>
+</body>
+</html> 

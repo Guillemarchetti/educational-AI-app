@@ -14,6 +14,7 @@ import { DocumentStructure } from '@/components/enterprise/DocumentStructure'
 import { Sidebar } from '@/components/enterprise/Sidebar'
 import { ImageSelector } from '@/components/enterprise/ImageSelector'
 import { ContextDisplay } from '@/components/enterprise/ContextDisplay'
+import { KnowledgeMap } from '@/components/enterprise/KnowledgeMap'
 
 const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
   ssr: false,
@@ -37,6 +38,7 @@ export default function EnterpriseChatPage() {
   const [documentStructure, setDocumentStructure] = useState<any>(null)
   const [structureLoading, setStructureLoading] = useState(false)
   const [selectedText, setSelectedText] = useState<string>('')
+  const [selectedKnowledgeNode, setSelectedKnowledgeNode] = useState<any>(null)
 
   const handleTextSelect = (text: string) => {
     setSelectedText(text);
@@ -209,6 +211,15 @@ export default function EnterpriseChatPage() {
     handleContextAdd(context);
   };
 
+  const handleKnowledgeNodeClick = (node: any) => {
+    console.log('Knowledge node clicked:', node)
+    setSelectedKnowledgeNode(node)
+    
+    // Agregar contexto del nodo seleccionado al chat
+    const nodeContext = `🧠 CONOCIMIENTO SELECCIONADO:\n\n📖 ${node.title}\n📊 Estado: ${node.status === 'objective' ? 'Objetivo' : node.status === 'well_learned' ? 'Bien Aprendido' : node.status === 'needs_reinforcement' ? 'Necesita Refuerzo' : 'No Aprendido'}\n📈 Progreso: ${node.progress}%\n${node.description ? `📝 ${node.description}` : ''}`
+    handleContextAdd(nodeContext)
+  }
+
   useEffect(() => {
     if (selectedFile && selectedFile.id) {
       loadDocumentStructure(selectedFile.id)
@@ -288,6 +299,64 @@ export default function EnterpriseChatPage() {
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
             <Panel defaultSize={40} minSize={30}>
+              <ChatInterface 
+                contextText={contextText}
+                onRemoveContext={handleRemoveContext}
+                isDraggingOver={isDraggingOver}
+                setIsDraggingOver={setIsDraggingOver}
+                onFileDrop={handleFileDrop}
+                isExtracting={isExtracting}
+                selectedFile={selectedFile}
+              />
+            </Panel>
+          </PanelGroup>
+        );
+
+      case 'analytics':
+        return (
+          <PanelGroup key="analytics-panels" direction="horizontal">
+            <Panel defaultSize={25} minSize={20}>
+              <FileExplorer onSelectFile={setSelectedFile} />
+            </Panel>
+            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+            <Panel defaultSize={50} minSize={35}>
+              <KnowledgeMap 
+                documentStructure={documentStructure}
+                selectedFile={selectedFile}
+                onNodeClick={handleKnowledgeNodeClick}
+              />
+            </Panel>
+            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+            <Panel defaultSize={25} minSize={20}>
+              <ChatInterface 
+                contextText={contextText}
+                onRemoveContext={handleRemoveContext}
+                isDraggingOver={isDraggingOver}
+                setIsDraggingOver={setIsDraggingOver}
+                onFileDrop={handleFileDrop}
+                isExtracting={isExtracting}
+                selectedFile={selectedFile}
+              />
+            </Panel>
+          </PanelGroup>
+        );
+
+      case 'knowledge-map':
+        return (
+          <PanelGroup key="knowledge-map-panels" direction="horizontal">
+            <Panel defaultSize={25} minSize={20}>
+              <FileExplorer onSelectFile={setSelectedFile} />
+            </Panel>
+            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+            <Panel defaultSize={50} minSize={35}>
+              <KnowledgeMap 
+                documentStructure={documentStructure}
+                selectedFile={selectedFile}
+                onNodeClick={handleKnowledgeNodeClick}
+              />
+            </Panel>
+            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+            <Panel defaultSize={25} minSize={20}>
               <ChatInterface 
                 contextText={contextText}
                 onRemoveContext={handleRemoveContext}

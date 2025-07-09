@@ -24,6 +24,14 @@ urlpatterns = [
     # Prompts inteligentes dinámicos
     path('smart-prompts/', views.generate_smart_prompts, name='generate_smart_prompts'),
     
+    # Mapa de Conocimientos
+    path('knowledge-map/<uuid:document_id>/', views.get_knowledge_map, name='get_knowledge_map'),
+    path('knowledge-map/synthetic/<uuid:document_id>/', views.get_synthetic_knowledge_map, name='get_synthetic_knowledge_map'),
+    path('knowledge-map/generate/', views.generate_knowledge_map, name='generate_knowledge_map'),
+    path('learning-analytics/<uuid:document_id>/', views.get_learning_analytics, name='get_learning_analytics'),
+    path('knowledge-node/update/', views.update_knowledge_node, name='update_knowledge_node'),
+    path('learning-session/record/', views.record_learning_session, name='record_learning_session'),
+    
     # Utilidades
     path('upload-file/', views.upload_file, name='upload_file'),
     path('health/', views.health_check, name='health_check'),

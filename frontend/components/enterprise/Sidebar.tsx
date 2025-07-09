@@ -18,7 +18,8 @@ import {
   GraduationCap,
   Library,
   Image as ImageIcon,
-  Gamepad2
+  Gamepad2,
+  Brain
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -32,6 +33,7 @@ const menuItems = [
   { icon: ImageIcon, label: 'Imágenes', id: 'images', category: 'content' },
   { icon: FileText, label: 'Documentos', id: 'documents', category: 'content' },
   { icon: BookOpen, label: 'Estructura', id: 'structure', category: 'content' },
+  { icon: Brain, label: 'Knowledge Map', id: 'knowledge-map', category: 'content' },
   { icon: Library, label: 'Biblioteca', id: 'library', category: 'content' },
   { icon: Search, label: 'Búsqueda', id: 'search', category: 'tools' },
   { icon: BarChart3, label: 'Análisis', id: 'analytics', category: 'tools' },
