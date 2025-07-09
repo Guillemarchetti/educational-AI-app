@@ -21,6 +21,9 @@ urlpatterns = [
     # Análisis de imágenes
     path('analyze-image/', views.analyze_image, name='analyze_image'),
     
+    # Prompts inteligentes dinámicos
+    path('smart-prompts/', views.generate_smart_prompts, name='generate_smart_prompts'),
+    
     # Utilidades
     path('upload-file/', views.upload_file, name='upload_file'),
     path('health/', views.health_check, name='health_check'),

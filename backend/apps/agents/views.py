@@ -26,6 +26,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .services.ai_service import AIService
+from .services.smart_prompts_service import SmartPromptsService
 
 logger = logging.getLogger(__name__)
 
@@ -653,3 +654,43 @@ def analyze_image(request):
     except Exception as e:
         logger.error(f"Error en analyze_image: {e}")
         return JsonResponse({'error': f'Error interno: {str(e)}'}, status=500) 
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def generate_smart_prompts(request):
+    """
+    Genera prompts dinámicos basados en el contexto del chat
+    """
+    try:
+        data = json.loads(request.body)
+        context = data.get('context', [])
+        
+        # Inicializar el servicio de prompts inteligentes
+        prompts_service = SmartPromptsService()
+        
+        # Generar prompts dinámicos
+        prompts = prompts_service.generate_dynamic_prompts(context)
+        
+        # Obtener metadatos
+        metadata = prompts_service.get_prompt_metadata(context)
+        
+        response_data = {
+            'success': True,
+            'prompts': prompts,
+            'metadata': metadata,
+            'message': 'Prompts generados exitosamente'
+        }
+        
+        return JsonResponse(response_data, status=200)
+        
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        logger.error(f"Error generating smart prompts: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'Internal server error'
+        }, status=500) 
