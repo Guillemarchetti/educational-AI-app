@@ -10,6 +10,7 @@ import { ContextDisplay } from './ContextDisplay'
 import { SmartPrompts } from './SmartPrompts'
 import { ProgressTracker } from './ProgressTracker'
 import { QuizSystem } from './QuizSystem'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 
 // Definimos la interfaz Message aquí mismo para que el componente sea autocontenido
 export interface Message {
@@ -49,6 +50,7 @@ export function ChatInterface({
   const [isProcessing, setIsProcessing] = useState(false)
   const [showProgress, setShowProgress] = useState(false)
   const [showQuiz, setShowQuiz] = useState(false)
+  const [isContextOpen, setIsContextOpen] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -167,7 +169,28 @@ export function ChatInterface({
       {/* Mostrar contexto si hay alguno */}
       {contextText.length > 0 && (
         <div className="border-b border-enterprise-800/50">
-          <ContextDisplay contextText={contextText} onRemoveContext={onRemoveContext} />
+          {/* Acordeón de contexto */}
+          <button
+            className="flex items-center gap-2 px-4 py-2 w-full text-left bg-enterprise-950/70 hover:bg-enterprise-900/80 transition-colors"
+            onClick={() => setIsContextOpen((prev) => !prev)}
+          >
+            {isContextOpen ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            <span className="font-medium text-slate-200 text-sm">Contexto Agregado</span>
+            <span className="ml-2 text-xs text-slate-400">({contextText.length})</span>
+            <span className="flex-1" />
+            <span className="text-xs text-slate-500">{isContextOpen ? 'Ocultar' : 'Mostrar'}</span>
+          </button>
+          <div
+            style={{
+              maxHeight: isContextOpen ? 260 : 0,
+              overflow: 'hidden',
+              transition: 'max-height 0.3s cubic-bezier(0.4,0,0.2,1)',
+            }}
+          >
+            {isContextOpen && (
+              <ContextDisplay contextText={contextText} onRemoveContext={onRemoveContext} />
+            )}
+          </div>
         </div>
       )}
       
