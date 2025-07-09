@@ -1010,3 +1010,16 @@ html {
   transform: scale(1.1);
   box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
 } 
+
+/* Ocultar scrollbars en todos los navegadores modernos */
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+} 
