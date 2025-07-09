@@ -7,6 +7,11 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Detectar raíz del proyecto (donde está este script)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$SCRIPT_DIR/.."
+cd "$PROJECT_ROOT" || exit 1
+
 OS_TYPE="$(uname -s)"
 
 function close_ports() {
@@ -44,11 +49,11 @@ function check_dependencies() {
         echo -e "${RED}❌ Python no está instalado${NC}"
         exit 1
     fi
-    if [ ! -f "frontend/package.json" ]; then
+    if [ ! -f "$PROJECT_ROOT/frontend/package.json" ]; then
         echo -e "${RED}❌ package.json no encontrado en frontend/. ¿Estás en el directorio correcto?${NC}"
         exit 1
     fi
-    if [ ! -d "backend" ]; then
+    if [ ! -d "$PROJECT_ROOT/backend" ]; then
         echo -e "${RED}❌ Directorio 'backend' no encontrado${NC}"
         exit 1
     fi
@@ -57,7 +62,7 @@ function check_dependencies() {
 
 function start_backend() {
     echo -e "${YELLOW}🐍 Iniciando backend Django...${NC}"
-    cd backend
+    cd "$PROJECT_ROOT/backend"
     if [ -d "venv" ]; then
         if [[ "$OS_TYPE" == "Linux" || "$OS_TYPE" == "Darwin" ]]; then
             source venv/bin/activate
@@ -68,7 +73,7 @@ function start_backend() {
     else
         echo -e "${YELLOW}⚠️  No se encontró entorno virtual${NC}"
     fi
-    
+
     # Cargar variables de entorno del archivo .env
     if [ -f ".env" ]; then
         export $(cat .env | xargs)
@@ -76,14 +81,14 @@ function start_backend() {
     else
         echo -e "${YELLOW}⚠️  Archivo .env no encontrado${NC}"
     fi
-    
+
     if [[ "$OS_TYPE" == "Linux" || "$OS_TYPE" == "Darwin" ]]; then
-        nohup python3 manage.py runserver 8000 > ../logs/backend.log 2>&1 &
+        nohup python3 manage.py runserver 8000 > "$PROJECT_ROOT/logs/backend.log" 2>&1 &
     else
-        nohup python manage.py runserver 8000 > ../logs/backend.log 2>&1 &
+        nohup python manage.py runserver 8000 > "$PROJECT_ROOT/logs/backend.log" 2>&1 &
     fi
     BACKEND_PID=$!
-    cd ..
+    cd "$PROJECT_ROOT"
     sleep 10
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:8000 | grep -q "200\|404"; then
         echo -e "${GREEN}✅ Backend iniciado correctamente (PID: $BACKEND_PID)${NC}"
@@ -97,10 +102,10 @@ function start_backend() {
 
 function start_frontend() {
     echo -e "${YELLOW}⚛️  Iniciando frontend Next.js...${NC}"
-    cd frontend
-    nohup npm run dev > ../logs/frontend.log 2>&1 &
+    cd "$PROJECT_ROOT/frontend"
+    nohup npm run dev > "$PROJECT_ROOT/logs/frontend.log" 2>&1 &
     FRONTEND_PID=$!
-    cd ..
+    cd "$PROJECT_ROOT"
     sleep 5
     if curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200"; then
         echo -e "${GREEN}✅ Frontend iniciado correctamente (PID: $FRONTEND_PID)${NC}"
