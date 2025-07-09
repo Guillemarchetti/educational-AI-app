@@ -179,6 +179,9 @@ export default function EnterpriseChatPage() {
       // Cargar estructura del documento si está disponible
       await loadDocumentStructure(file.name);
 
+      // Generar mensaje de bienvenida automático
+      await generateWelcomeMessage(file.name, data.text);
+
     } catch (error) {
       console.error("Error en extracción de texto:", error);
       // Aquí podrías mostrar una notificación al usuario
@@ -210,6 +213,72 @@ export default function EnterpriseChatPage() {
 
   const handleStructureContextSelect = (context: string, title: string) => {
     handleContextAdd(context);
+  };
+
+  const generateWelcomeMessage = async (filename: string, extractedText: string) => {
+    try {
+      // Crear un resumen del contexto para el mensaje de bienvenida
+      const textPreview = extractedText.substring(0, 500) + (extractedText.length > 500 ? '...' : '');
+      
+      // Detectar el tipo de contenido basado en el texto
+      const isMath = /[+\-*/=()\[\]{}]/.test(extractedText) || /matemática|matematica|math|ecuación|ecuacion/.test(extractedText.toLowerCase());
+      const isScience = /ciencia|física|fisica|química|quimica|biología|biologia|experimento/.test(extractedText.toLowerCase());
+      const isLanguage = /lenguaje|español|espanol|gramática|gramatica|literatura/.test(extractedText.toLowerCase());
+      const isHistory = /historia|histórico|historico|pasado|antiguo/.test(extractedText.toLowerCase());
+      
+      let subjectType = 'general';
+      if (isMath) subjectType = 'matemáticas';
+      else if (isScience) subjectType = 'ciencias';
+      else if (isLanguage) subjectType = 'lenguaje';
+      else if (isHistory) subjectType = 'historia';
+      
+      const welcomeMessage = `🎓 **¡Bienvenido al análisis de tu material educativo!**
+
+📚 **Documento cargado:** ${filename}
+📖 **Tipo de contenido:** ${subjectType}
+📄 **Contexto extraído:** ${extractedText.length} caracteres
+
+💡 **¿Qué puedo hacer por ti?**
+• Explicar conceptos del material
+• Resolver dudas específicas
+• Crear ejercicios prácticos
+• Analizar diagramas o imágenes
+• Generar resúmenes
+• Comparar temas relacionados
+
+🔍 **Contexto disponible:** He analizado el contenido de tu documento y estoy listo para ayudarte con cualquier pregunta sobre este material.
+
+¡Adelante, pregunta lo que necesites! 🚀`;
+
+      // Enviar el mensaje de bienvenida al chat
+      await sendWelcomeMessage(welcomeMessage);
+      
+    } catch (error) {
+      console.error('Error generando mensaje de bienvenida:', error);
+    }
+  };
+
+  const sendWelcomeMessage = async (message: string) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/agents/chat/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: message,
+          userId: 'demo-user',
+          context: contextText.join('\n\n---\n\n'),
+          isWelcomeMessage: true
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // El mensaje se agregará automáticamente al chat a través del sistema de mensajes
+        console.log('Mensaje de bienvenida enviado:', data);
+      }
+    } catch (error) {
+      console.error('Error enviando mensaje de bienvenida:', error);
+    }
   };
 
   const handleKnowledgeNodeClick = (node: any) => {
@@ -253,6 +322,7 @@ export default function EnterpriseChatPage() {
                 onFileDrop={handleFileDrop}
                 isExtracting={isExtracting}
                 selectedFile={selectedFile}
+                onSendWelcomeMessage={sendWelcomeMessage}
               />
             </Panel>
           </PanelGroup>
@@ -308,6 +378,7 @@ export default function EnterpriseChatPage() {
                 onFileDrop={handleFileDrop}
                 isExtracting={isExtracting}
                 selectedFile={selectedFile}
+                onSendWelcomeMessage={sendWelcomeMessage}
               />
             </Panel>
           </PanelGroup>
@@ -337,6 +408,7 @@ export default function EnterpriseChatPage() {
                 onFileDrop={handleFileDrop}
                 isExtracting={isExtracting}
                 selectedFile={selectedFile}
+                onSendWelcomeMessage={sendWelcomeMessage}
               />
             </Panel>
           </PanelGroup>
@@ -366,6 +438,7 @@ export default function EnterpriseChatPage() {
                 onFileDrop={handleFileDrop}
                 isExtracting={isExtracting}
                 selectedFile={selectedFile}
+                onSendWelcomeMessage={sendWelcomeMessage}
               />
             </Panel>
           </PanelGroup>

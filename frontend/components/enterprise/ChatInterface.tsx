@@ -35,6 +35,7 @@ interface ChatInterfaceProps {
   onFileDrop: (file: FileNode) => void;
   isExtracting: boolean;
   selectedFile?: { name: string; url: string; id?: string } | null;
+  onSendWelcomeMessage?: (message: string) => void;
 }
 
 export function ChatInterface({ 
@@ -45,6 +46,7 @@ export function ChatInterface({
   onFileDrop,
   isExtracting,
   selectedFile,
+  onSendWelcomeMessage,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isProcessing, setIsProcessing] = useState(false)
@@ -81,6 +83,45 @@ export function ChatInterface({
       audio.play()
     }
   }, [messages])
+
+  // Generar mensaje de bienvenida cuando se selecciona un archivo
+  useEffect(() => {
+    if (selectedFile && contextText.length > 0 && messages.length === 0) {
+      // Solo generar mensaje de bienvenida si es el primer archivo seleccionado
+      const lastContext = contextText[contextText.length - 1];
+      if (lastContext.includes(`Contexto del archivo "${selectedFile.name}"`)) {
+        generateWelcomeMessage();
+      }
+    }
+  }, [selectedFile, contextText, messages.length]);
+
+  const generateWelcomeMessage = async () => {
+    if (!selectedFile || !onSendWelcomeMessage) return;
+
+    try {
+      // Crear un mensaje de bienvenida personalizado
+      const welcomeMessage = `🎓 **¡Bienvenido al análisis de tu material educativo!**
+
+📚 **Documento cargado:** ${selectedFile.name}
+📖 **Contexto disponible:** He analizado el contenido de tu documento y estoy listo para ayudarte.
+
+💡 **¿Qué puedo hacer por ti?**
+• Explicar conceptos del material
+• Resolver dudas específicas
+• Crear ejercicios prácticos
+• Analizar diagramas o imágenes
+• Generar resúmenes
+• Comparar temas relacionados
+
+¡Adelante, pregunta lo que necesites! 🚀`;
+
+      // Enviar el mensaje de bienvenida
+      await onSendWelcomeMessage(welcomeMessage);
+      
+    } catch (error) {
+      console.error('Error generando mensaje de bienvenida:', error);
+    }
+  };
 
   const handleSendMessage = async (messageText: string) => {
     if (!messageText.trim() || isProcessing) return
