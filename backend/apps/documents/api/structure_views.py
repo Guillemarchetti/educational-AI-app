@@ -153,21 +153,24 @@ class DocumentStructureView(View):
         elements = structure.get('elements', [])
         
         for element in elements:
+            # Si es objeto, conviértelo a dict
+            if hasattr(element, 'to_dict'):
+                element = element.to_dict()
             DocumentStructure.objects.create(
                 document=document,
-                element_id=element.element_id,
-                element_type=element.element_type,
-                title=element.title,
-                level=element.level,
-                page_number=element.page_number,
-                line_number=element.line_number,
+                element_id=element['element_id'],
+                element_type=element['element_type'],
+                title=element['title'],
+                level=element['level'],
+                page_number=element['page_number'],
+                line_number=element['line_number'],
                 structure_path=self._build_structure_path(element, structure),
-                content_preview=element.content_preview,
+                content_preview=element.get('content_preview', ''),
                 metadata={
                     'original_element': {
-                        'element_type': element.element_type,
-                        'title': element.title,
-                        'level': element.level
+                        'element_type': element['element_type'],
+                        'title': element['title'],
+                        'level': element['level']
                     }
                 }
             )
@@ -237,24 +240,30 @@ class DocumentStructureView(View):
         except Exception as e:
             logger.error(f"Error creating semantic chunks: {str(e)}")
     
-    def _build_structure_path(self, element, structure):
-        """Construye la ruta de estructura para un elemento"""
-        # Buscar en la jerarquía para construir el path
-        hierarchy = structure.get('hierarchy', {})
+    def _build_structure_path(self, element, all_elements):
+        """Construye la ruta jerárquica de un elemento"""
+        path = []
+        current = element
         
-        for unit in hierarchy.get('units', []):
-            if unit.get('element') and unit['element'].element_id == element.element_id:
-                return unit['title']
+        while current:
+            # Si es objeto, conviértelo a dict
+            if hasattr(current, 'to_dict'):
+                current = current.to_dict()
             
-            for module in unit.get('modules', []):
-                if module.get('element') and module['element'].element_id == element.element_id:
-                    return f"{unit['title']} > {module['title']}"
-                
-                for class_data in module.get('classes', []):
-                    if class_data.get('element') and class_data['element'].element_id == element.element_id:
-                        return f"{unit['title']} > {module['title']} > {class_data['title']}"
+            path.insert(0, {
+                'element_id': current['element_id'],
+                'title': current['title'],
+                'element_type': current['element_type']
+            })
+            
+            # Buscar el padre
+            parent_id = current.get('parent_id')
+            if parent_id:
+                current = next((e for e in all_elements if e.get('element_id') == parent_id), None)
+            else:
+                current = None
         
-        return element.title
+        return path
     
     def _build_hierarchy_response(self, structure_elements):
         """Construye la respuesta de jerarquía desde elementos de BD"""

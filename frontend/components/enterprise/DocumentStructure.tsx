@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { BookOpen, FolderOpen, FileText, Eye } from 'lucide-react'
+import { BookOpen, FolderOpen, FileText, Eye, ChevronDown, ChevronRight } from 'lucide-react'
 
 interface StructureElement {
   element_type: string
@@ -20,6 +20,7 @@ interface HierarchyUnit {
   page_start: number
   modules: HierarchyModule[]
   element?: StructureElement
+  classes?: StructureElement[] // Added for direct classes
 }
 
 interface HierarchyModule {
@@ -49,6 +50,16 @@ interface DocumentStructureProps {
 }
 
 export function DocumentStructure({ structureData, onSelectContext, selectedFile }: DocumentStructureProps) {
+  const [openUnits, setOpenUnits] = useState<{ [key: string]: boolean }>({})
+  const [openModules, setOpenModules] = useState<{ [key: string]: boolean }>({})
+
+  const handleToggleUnit = (unitId: string) => {
+    setOpenUnits((prev) => ({ ...prev, [unitId]: !prev[unitId] }))
+  }
+  const handleToggleModule = (moduleId: string) => {
+    setOpenModules((prev) => ({ ...prev, [moduleId]: !prev[moduleId] }))
+  }
+
   const handleElementSelect = (element: StructureElement) => {
     const contextText = `Contexto de ${element.title} (Página ${element.page_number}):\n\n${element.content_preview}`
     onSelectContext(contextText, element.title)
@@ -76,7 +87,6 @@ export function DocumentStructure({ structureData, onSelectContext, selectedFile
         <h3 className="text-lg font-semibold text-white mb-3">
           Estructura del Documento
         </h3>
-        
         <div className="grid grid-cols-4 gap-2 text-xs">
           <div className="text-center p-2 bg-enterprise-800/50 rounded">
             <div className="text-blue-400 font-semibold">{analysis_metadata.units_found}</div>
@@ -96,60 +106,85 @@ export function DocumentStructure({ structureData, onSelectContext, selectedFile
           </div>
         </div>
       </div>
-
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {hierarchy.units.map((unit) => (
-          <div key={unit.id} className="border border-enterprise-700/50 rounded-lg p-3">
-            <div className="flex items-center justify-between">
+          <div key={unit.id} className="border border-enterprise-700/50 rounded-lg mb-2">
+            <div className="flex items-center justify-between p-3 cursor-pointer hover:bg-enterprise-800/30" onClick={() => handleToggleUnit(unit.id)}>
               <div className="flex items-center gap-2">
+                {openUnits[unit.id] ? <ChevronDown className="w-4 h-4 text-blue-400" /> : <ChevronRight className="w-4 h-4 text-blue-400" />}
                 <BookOpen className="w-4 h-4 text-blue-400" />
                 <span className="text-sm font-medium text-white">{unit.title}</span>
               </div>
               {unit.element && (
                 <button
-                  onClick={() => handleElementSelect(unit.element!)}
+                  onClick={e => { e.stopPropagation(); handleElementSelect(unit.element!) }}
                   className="p-1 hover:bg-enterprise-700/50 rounded"
                 >
                   <Eye className="w-4 h-4 text-slate-400" />
                 </button>
               )}
             </div>
-            
-            {unit.modules.map((module) => (
-              <div key={module.id} className="ml-4 mt-2 p-2 border-l border-enterprise-700/30">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FolderOpen className="w-4 h-4 text-green-400" />
-                    <span className="text-sm text-slate-200">{module.title}</span>
-                  </div>
-                  {module.element && (
-                    <button
-                      onClick={() => handleElementSelect(module.element!)}
-                      className="p-1 hover:bg-enterprise-700/50 rounded"
-                    >
-                      <Eye className="w-4 h-4 text-slate-400" />
-                    </button>
-                  )}
-                </div>
-                
-                {module.classes.map((classElement) => (
-                  <div key={classElement.element_id} className="ml-4 mt-1 p-2 border-l border-enterprise-700/20">
-                    <div className="flex items-center justify-between">
+            {openUnits[unit.id] && (
+              <div className="ml-6 mt-1">
+                {/* Mostrar módulos si existen */}
+                {unit.modules && unit.modules.length > 0 && unit.modules.map((module) => (
+                  <div key={module.id} className="mb-1">
+                    <div className="flex items-center justify-between p-2 cursor-pointer hover:bg-enterprise-800/20 rounded" onClick={() => handleToggleModule(module.id)}>
                       <div className="flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-purple-400" />
-                        <span className="text-sm text-slate-300">{classElement.title}</span>
+                        {openModules[module.id] ? <ChevronDown className="w-4 h-4 text-green-400" /> : <ChevronRight className="w-4 h-4 text-green-400" />}
+                        <FolderOpen className="w-4 h-4 text-green-400" />
+                        <span className="text-sm text-slate-200">{module.title}</span>
                       </div>
-                      <button
-                        onClick={() => handleElementSelect(classElement)}
-                        className="p-1 hover:bg-enterprise-700/50 rounded"
-                      >
-                        <Eye className="w-4 h-4 text-slate-400" />
-                      </button>
+                      {module.element && (
+                        <button
+                          onClick={e => { e.stopPropagation(); handleElementSelect(module.element!) }}
+                          className="p-1 hover:bg-enterprise-700/50 rounded"
+                        >
+                          <Eye className="w-4 h-4 text-slate-400" />
+                        </button>
+                      )}
                     </div>
+                    {openModules[module.id] && module.classes && module.classes.length > 0 && (
+                      <div className="ml-6 mt-1">
+                        {module.classes.map((classElement) => (
+                          <div key={classElement.element_id} className="flex items-center justify-between p-2 hover:bg-enterprise-800/10 rounded">
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-purple-400" />
+                              <span className="text-sm text-slate-300">{classElement.title}</span>
+                            </div>
+                            <button
+                              onClick={() => handleElementSelect(classElement)}
+                              className="p-1 hover:bg-enterprise-700/50 rounded"
+                            >
+                              <Eye className="w-4 h-4 text-slate-400" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
+                {/* Mostrar clases directas bajo la unidad si existen */}
+                {unit.classes && unit.classes.length > 0 && (
+                  <div className="ml-2 mt-2">
+                    {unit.classes.map((classElement: any) => (
+                      <div key={classElement.element_id} className="flex items-center justify-between p-2 hover:bg-enterprise-800/10 rounded">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-4 h-4 text-purple-400" />
+                          <span className="text-sm text-slate-300">{classElement.title}</span>
+                        </div>
+                        <button
+                          onClick={() => handleElementSelect(classElement)}
+                          className="p-1 hover:bg-enterprise-700/50 rounded"
+                        >
+                          <Eye className="w-4 h-4 text-slate-400" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
+            )}
           </div>
         ))}
       </div>

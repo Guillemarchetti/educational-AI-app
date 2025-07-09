@@ -73,6 +73,15 @@ export function ChatInterface({
     scrollToBottom()
   }, [messages])
 
+  // Sonido al recibir mensaje de IA
+  useEffect(() => {
+    if (messages.length > 0 && messages[messages.length - 1].sender === 'ai') {
+      const audio = new Audio('/beep.mp3')
+      audio.volume = 0.25
+      audio.play()
+    }
+  }, [messages])
+
   const handleSendMessage = async (messageText: string) => {
     if (!messageText.trim() || isProcessing) return
 

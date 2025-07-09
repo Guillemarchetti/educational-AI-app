@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import {
   Panel,
@@ -186,12 +186,12 @@ export default function EnterpriseChatPage() {
     }
   };
 
-  const loadDocumentStructure = async (filename: string) => {
+  const loadDocumentStructure = async (fileOrId: string) => {
     setStructureLoading(true);
     try {
-      // Buscar el documento por nombre
-      const response = await fetch(`http://localhost:8000/api/documents/structure/${filename}/`);
-      
+      // Usar el id si está disponible, si no, usar el nombre
+      const idOrName = selectedFile?.id || fileOrId;
+      const response = await fetch(`http://localhost:8000/api/documents/structure/${idOrName}/`);
       if (response.ok) {
         const data = await response.json();
         setDocumentStructure(data);
@@ -203,11 +203,19 @@ export default function EnterpriseChatPage() {
     } finally {
       setStructureLoading(false);
     }
-  };
+  }
 
   const handleStructureContextSelect = (context: string, title: string) => {
     handleContextAdd(context);
   };
+
+  useEffect(() => {
+    if (selectedFile && selectedFile.id) {
+      loadDocumentStructure(selectedFile.id)
+    } else {
+      setDocumentStructure(null)
+    }
+  }, [selectedFile])
 
   const renderMainContent = () => {
     switch (currentSection) {

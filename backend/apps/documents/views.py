@@ -244,14 +244,33 @@ def extract_text(request):
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_document_structure(request, document_id):
-    """Obtiene la estructura analizada de un documento específico"""
+    """Obtiene la estructura analizada de un documento específico por ID o nombre"""
     try:
-        document = Document.objects.get(id=document_id)
+        document = None
+        
+        # Intentar buscar por ID primero (si es un UUID válido)
+        if document_id and len(document_id) == 36 and '-' in document_id:
+            try:
+                document = Document.objects.get(id=document_id)
+                logger.info(f"Documento encontrado por ID: {document_id}")
+            except (ValueError, Document.DoesNotExist):
+                logger.warning(f"Documento no encontrado por ID: {document_id}")
+                document = None
+        
+        # Si no se encontró por ID, buscar por nombre de archivo
+        if not document:
+            try:
+                document = Document.objects.get(title=document_id)
+                logger.info(f"Documento encontrado por nombre: {document_id}")
+            except Document.DoesNotExist:
+                logger.warning(f"Documento no encontrado por nombre: {document_id}")
+                return JsonResponse({'error': 'Document not found'}, status=404)
         
         if not document.structure_analyzed:
             return JsonResponse({
                 'error': 'Document structure not analyzed yet',
                 'document_id': str(document.id),
+                'document_title': document.title,
                 'structure_analyzed': False
             }, status=404)
         
@@ -270,8 +289,6 @@ def get_document_structure(request, document_id):
             })
         })
         
-    except Document.DoesNotExist:
-        return JsonResponse({'error': 'Document not found'}, status=404)
     except Exception as e:
         logger.error(f"Error getting document structure: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500) 

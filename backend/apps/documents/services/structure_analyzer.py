@@ -24,6 +24,18 @@ class StructureElement:
     element_id: Optional[str] = None
     content_preview: str = ""
 
+    def to_dict(self):
+        return {
+            'element_type': self.element_type,
+            'title': self.title,
+            'level': self.level,
+            'page_number': self.page_number,
+            'line_number': self.line_number,
+            'parent_id': self.parent_id,
+            'element_id': self.element_id,
+            'content_preview': self.content_preview
+        }
+
 class DocumentStructureAnalyzer:
     """Analizador principal de estructura de documentos"""
     
@@ -128,15 +140,29 @@ class DocumentStructureAnalyzer:
             # Detectar elementos de estructura
             elements = self._detect_structure_elements(text_content)
             
-            # Construir jerarquía
+            # Serializar elementos a dict
+            elements_dict = [e.to_dict() for e in elements]
+            
+            # Construir jerarquía (serializar elementos dentro de la jerarquía)
             hierarchy = self._build_hierarchy(elements)
+            
+            def serialize_hierarchy(obj):
+                if isinstance(obj, StructureElement):
+                    return obj.to_dict()
+                elif isinstance(obj, dict):
+                    return {k: serialize_hierarchy(v) for k, v in obj.items()}
+                elif isinstance(obj, list):
+                    return [serialize_hierarchy(i) for i in obj]
+                else:
+                    return obj
+            hierarchy_serialized = serialize_hierarchy(hierarchy)
             
             # Generar estructura final
             structure = {
                 'document_path': pdf_file_path,
                 'total_pages': len(text_content),
-                'elements': elements,
-                'hierarchy': hierarchy,
+                'elements': elements_dict,
+                'hierarchy': hierarchy_serialized,
                 'analysis_metadata': {
                     'total_elements': len(elements),
                     'units_found': len([e for e in elements if e.element_type == 'unit']),
