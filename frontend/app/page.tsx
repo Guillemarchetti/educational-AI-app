@@ -8,7 +8,7 @@ import {
   PanelResizeHandle,
 } from 'react-resizable-panels'
 
-import { ChatInterface } from '@/components/enterprise/ChatInterface'
+import { ChatInterface, Message } from '@/components/enterprise/ChatInterface'
 import { FileExplorer } from '@/components/enterprise/FileExplorer'
 import { DocumentStructure } from '@/components/enterprise/DocumentStructure'
 import { Sidebar } from '@/components/enterprise/Sidebar'
@@ -40,6 +40,7 @@ export default function EnterpriseChatPage() {
   const [structureLoading, setStructureLoading] = useState(false)
   const [selectedText, setSelectedText] = useState<string>('')
   const [selectedKnowledgeNode, setSelectedKnowledgeNode] = useState<any>(null)
+  const [messages, setMessages] = useState<Message[]>([])
 
   const handleTextSelect = (text: string) => {
     setSelectedText(text);
@@ -260,22 +261,33 @@ export default function EnterpriseChatPage() {
 
   const sendWelcomeMessage = async (message: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/agents/chat/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: message,
-          userId: 'demo-user',
-          context: contextText.join('\n\n---\n\n'),
-          isWelcomeMessage: true
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // El mensaje se agregará automáticamente al chat a través del sistema de mensajes
-        console.log('Mensaje de bienvenida enviado:', data);
+      console.log('sendWelcomeMessage llamado con:', message);
+      
+      // Crear el mensaje de bienvenida directamente en el chat
+      const welcomeMessage = {
+        id: Date.now(),
+        text: message,
+        sender: 'ai' as const,
+        timestamp: new Date(),
+        agent: 'Sistema'
+      };
+      
+      console.log('Mensaje creado:', welcomeMessage);
+      console.log('setMessages disponible:', !!setMessages);
+      
+      // Agregar el mensaje al estado de mensajes del ChatInterface
+      if (setMessages) {
+        setMessages(prev => {
+          console.log('Estado anterior de mensajes:', prev.length);
+          const newState = [...prev, welcomeMessage];
+          console.log('Nuevo estado de mensajes:', newState.length);
+          return newState;
+        });
+      } else {
+        console.log('setMessages no está disponible');
       }
+      
+      console.log('Mensaje de bienvenida agregado al chat');
     } catch (error) {
       console.error('Error enviando mensaje de bienvenida:', error);
     }
@@ -323,6 +335,8 @@ export default function EnterpriseChatPage() {
                 isExtracting={isExtracting}
                 selectedFile={selectedFile}
                 onSendWelcomeMessage={sendWelcomeMessage}
+                messages={messages}
+                setMessages={setMessages}
               />
             </Panel>
           </PanelGroup>
@@ -379,6 +393,8 @@ export default function EnterpriseChatPage() {
                 isExtracting={isExtracting}
                 selectedFile={selectedFile}
                 onSendWelcomeMessage={sendWelcomeMessage}
+                messages={messages}
+                setMessages={setMessages}
               />
             </Panel>
           </PanelGroup>
@@ -409,6 +425,8 @@ export default function EnterpriseChatPage() {
                 isExtracting={isExtracting}
                 selectedFile={selectedFile}
                 onSendWelcomeMessage={sendWelcomeMessage}
+                messages={messages}
+                setMessages={setMessages}
               />
             </Panel>
           </PanelGroup>
@@ -439,6 +457,8 @@ export default function EnterpriseChatPage() {
                 isExtracting={isExtracting}
                 selectedFile={selectedFile}
                 onSendWelcomeMessage={sendWelcomeMessage}
+                messages={messages}
+                setMessages={setMessages}
               />
             </Panel>
           </PanelGroup>

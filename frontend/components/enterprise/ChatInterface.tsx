@@ -36,6 +36,8 @@ interface ChatInterfaceProps {
   isExtracting: boolean;
   selectedFile?: { name: string; url: string; id?: string } | null;
   onSendWelcomeMessage?: (message: string) => void;
+  messages?: Message[];
+  setMessages?: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
 export function ChatInterface({ 
@@ -47,8 +49,14 @@ export function ChatInterface({
   isExtracting,
   selectedFile,
   onSendWelcomeMessage,
+  messages: externalMessages,
+  setMessages: externalSetMessages,
 }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<Message[]>([])
+  const [internalMessages, setInternalMessages] = useState<Message[]>([])
+  
+  // Usar mensajes externos si están disponibles, si no, usar internos
+  const messages = externalMessages || internalMessages;
+  const setMessages = externalSetMessages || setInternalMessages;
   const [isProcessing, setIsProcessing] = useState(false)
   const [showProgress, setShowProgress] = useState(false)
   const [showQuiz, setShowQuiz] = useState(false)
@@ -86,19 +94,47 @@ export function ChatInterface({
 
   // Generar mensaje de bienvenida cuando se selecciona un archivo
   useEffect(() => {
-    if (selectedFile && contextText.length > 0 && messages.length === 0) {
-      // Solo generar mensaje de bienvenida si es el primer archivo seleccionado
+    console.log('useEffect para mensaje de bienvenida:', {
+      selectedFile: selectedFile?.name,
+      contextTextLength: contextText.length,
+      messagesLength: messages.length
+    });
+    
+    // Generar mensaje de bienvenida cuando se selecciona un archivo y no hay mensajes
+    if (selectedFile && messages.length === 0) {
+      console.log('Archivo seleccionado y no hay mensajes, generando mensaje de bienvenida');
+      generateWelcomeMessage();
+    } else {
+      console.log('No se cumplen las condiciones básicas para el mensaje de bienvenida');
+    }
+  }, [selectedFile, messages.length]);
+
+  // Generar mensaje de bienvenida cuando se agrega contexto de un archivo
+  useEffect(() => {
+    console.log('useEffect para contexto agregado:', {
+      contextTextLength: contextText.length,
+      selectedFile: selectedFile?.name
+    });
+    
+    if (contextText.length > 0 && selectedFile) {
       const lastContext = contextText[contextText.length - 1];
       if (lastContext.includes(`Contexto del archivo "${selectedFile.name}"`)) {
-        generateWelcomeMessage();
+        console.log('Contexto de archivo agregado, verificando si generar mensaje de bienvenida');
+        // Solo generar si no hay mensajes o si el último mensaje no es de bienvenida
+        if (messages.length === 0 || messages[messages.length - 1].agent !== 'Sistema') {
+          console.log('Generando mensaje de bienvenida por contexto agregado');
+          generateWelcomeMessage();
+        }
       }
     }
-  }, [selectedFile, contextText, messages.length]);
+  }, [contextText, selectedFile, messages.length]);
 
   const generateWelcomeMessage = async () => {
-    if (!selectedFile || !onSendWelcomeMessage) return;
+    if (!selectedFile) return;
 
     try {
+      console.log('Generando mensaje de bienvenida para:', selectedFile.name);
+      
       // Crear un mensaje de bienvenida personalizado
       const welcomeMessage = `🎓 **¡Bienvenido al análisis de tu material educativo!**
 
@@ -115,8 +151,17 @@ export function ChatInterface({
 
 ¡Adelante, pregunta lo que necesites! 🚀`;
 
-      // Enviar el mensaje de bienvenida
-      await onSendWelcomeMessage(welcomeMessage);
+      // Crear el mensaje directamente en el estado local
+      const welcomeMessageObj = {
+        id: Date.now(),
+        text: welcomeMessage,
+        sender: 'ai' as const,
+        timestamp: new Date(),
+        agent: 'Sistema'
+      };
+      
+      console.log('Agregando mensaje de bienvenida al chat:', welcomeMessageObj);
+      setMessages(prev => [...prev, welcomeMessageObj]);
       
     } catch (error) {
       console.error('Error generando mensaje de bienvenida:', error);
