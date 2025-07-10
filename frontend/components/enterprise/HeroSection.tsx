@@ -489,34 +489,38 @@ export function HeroSection({
 
         {/* Footer */}
         <motion.footer 
-          className="border-t border-slate-700/30 pt-8"
+          className="border-t border-slate-700/30 pt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 3.6, duration: 0.8 }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
             {/* Brand Section */}
-            <div className="md:col-span-2">
+            <div>
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center">
                   <GraduationCap className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-lg font-bold text-white">EduAI Hub</span>
               </div>
-              <p className="text-slate-400 text-sm leading-relaxed max-w-md">
+              <p className="text-slate-400 text-sm leading-relaxed max-w-lg">
                 Transformando la educación a través de la inteligencia artificial. 
                 Creando el futuro del aprendizaje, una experiencia a la vez.
               </p>
+              <div className="flex items-center gap-2 mt-3">
+                <Sparkles className="w-4 h-4 text-emerald-400" />
+                <span className="text-emerald-400 font-medium text-sm">Sistema en desarrollo activo</span>
+              </div>
             </div>
 
             {/* Quick Links */}
-            <div>
-              <h4 className="text-white font-semibold mb-3 text-sm">Enlaces Rápidos</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
+            <div className="flex justify-end">
+              <div>
+                <h4 className="text-white font-semibold mb-3 text-sm">Enlaces Rápidos</h4>
+                <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
                   <a 
                     href="#hero" 
-                    className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer font-medium"
                     onClick={(e) => {
                       e.preventDefault();
                       document.getElementById('hero')?.scrollIntoView({ 
@@ -527,11 +531,9 @@ export function HeroSection({
                   >
                     Inicio
                   </a>
-                </li>
-                <li>
                   <a 
                     href="#features" 
-                    className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer font-medium"
                     onClick={(e) => {
                       e.preventDefault();
                       document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' });
@@ -539,11 +541,9 @@ export function HeroSection({
                   >
                     Características
                   </a>
-                </li>
-                <li>
                   <a 
                     href="#about" 
-                    className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer font-medium"
                     onClick={(e) => {
                       e.preventDefault();
                       document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
@@ -551,11 +551,9 @@ export function HeroSection({
                   >
                     Acerca de
                   </a>
-                </li>
-                <li>
                   <a 
                     href="#" 
-                    className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                    className="text-slate-400 hover:text-white transition-colors cursor-pointer font-medium"
                     onClick={(e) => {
                       e.preventDefault();
                       setShowContactPopup(true);
@@ -563,12 +561,17 @@ export function HeroSection({
                   >
                     Contacto
                   </a>
-                </li>
-              </ul>
+                </div>
+              </div>
             </div>
           </div>
 
-
+          {/* Copyright */}
+          <div className="border-t border-slate-700/30 pt-3 text-center flex items-center justify-center">
+            <p className="text-slate-500 text-xs">
+              2025 EduAI Hub. Todos los derechos reservados.
+            </p>
+          </div>
         </motion.footer>
         </div>
       </div>
