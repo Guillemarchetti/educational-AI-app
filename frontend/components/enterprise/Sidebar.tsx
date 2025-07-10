@@ -28,18 +28,18 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { icon: Home, label: 'Inicio', id: 'dashboard', category: 'main' },
-  { icon: MessageSquare, label: 'Chat AI', id: 'chat', category: 'main' },
-  { icon: ImageIcon, label: 'Imágenes', id: 'images', category: 'content' },
-  { icon: FileText, label: 'Documentos', id: 'documents', category: 'content' },
-  { icon: BookOpen, label: 'Estructura', id: 'structure', category: 'content' },
-  { icon: Brain, label: 'Knowledge Map', id: 'knowledge-map', category: 'content' },
-  { icon: Library, label: 'Biblioteca', id: 'library', category: 'content' },
-  { icon: Search, label: 'Búsqueda', id: 'search', category: 'tools' },
-  { icon: BarChart3, label: 'Análisis', id: 'analytics', category: 'tools' },
-  { icon: Upload, label: 'Subir', id: 'upload', category: 'tools' },
-  { icon: History, label: 'Historial', id: 'history', category: 'system' },
-  { icon: Settings, label: 'Configuración', id: 'settings', category: 'system' }
+  { icon: Home, label: 'Inicio', id: 'dashboard', category: 'main', tooltip: 'Inicio' },
+  { icon: MessageSquare, label: 'Chat AI', id: 'chat', category: 'main', tooltip: 'Chat IA' },
+  { icon: ImageIcon, label: 'Imágenes', id: 'images', category: 'content', tooltip: 'Imágenes' },
+  { icon: FileText, label: 'Documentos', id: 'documents', category: 'content', tooltip: 'Documentos' },
+  { icon: BookOpen, label: 'Estructura', id: 'structure', category: 'content', tooltip: 'Estructura' },
+  { icon: Brain, label: 'Knowledge Map', id: 'knowledge-map', category: 'content', tooltip: 'Conocimiento' },
+  { icon: Library, label: 'Biblioteca', id: 'library', category: 'content', tooltip: 'Biblioteca' },
+  { icon: Search, label: 'Búsqueda', id: 'search', category: 'tools', tooltip: 'Buscar' },
+  { icon: BarChart3, label: 'Análisis', id: 'analytics', category: 'tools', tooltip: 'Analizar' },
+  { icon: Upload, label: 'Subir', id: 'upload', category: 'tools', tooltip: 'Subir' },
+  { icon: History, label: 'Historial', id: 'history', category: 'system', tooltip: 'Historial' },
+  { icon: Settings, label: 'Configuración', id: 'settings', category: 'system', tooltip: 'Configurar' }
 ]
 
 export function Sidebar({ currentSection, setCurrentSection }: SidebarProps) {
@@ -56,7 +56,7 @@ export function Sidebar({ currentSection, setCurrentSection }: SidebarProps) {
   return (
     <>
       <motion.aside 
-        className="w-20 h-full overflow-y-auto bg-gray-900/50 backdrop-blur-xl border-r border-gray-800/50 flex flex-col items-center py-6 relative"
+        className="w-20 h-full bg-gray-900/50 backdrop-blur-xl border-r border-gray-800/50 flex flex-col items-center py-6 relative"
         initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
@@ -97,9 +97,9 @@ export function Sidebar({ currentSection, setCurrentSection }: SidebarProps) {
                 <item.icon className="w-5 h-5 relative z-10" />
                 
                 {/* Tooltip */}
-                <div className="absolute left-full ml-4 px-3 py-2 bg-gray-800/95 backdrop-blur-sm text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 border border-gray-700/50">
-                  {item.label}
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-800/95 rotate-45 border-l border-b border-gray-700/50"></div>
+                <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm font-medium rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
+                  <span className="text-blue-400 font-semibold">{item.tooltip}</span>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
                 </div>
                 
                 {/* Active indicator */}
@@ -124,9 +124,9 @@ export function Sidebar({ currentSection, setCurrentSection }: SidebarProps) {
             whileTap={{ scale: 0.95 }}
           >
             <Moon className="w-5 h-5" />
-            <div className="absolute left-full ml-4 px-3 py-2 bg-gray-800/95 backdrop-blur-sm text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 border border-gray-700/50">
-              Modo Oscuro
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-800/95 rotate-45 border-l border-b border-gray-700/50"></div>
+            <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
+              <span className="text-purple-300 font-semibold">Modo Oscuro</span>
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
             </div>
           </motion.button>
 
@@ -136,9 +136,9 @@ export function Sidebar({ currentSection, setCurrentSection }: SidebarProps) {
             whileHover={{ scale: 1.05 }}
           >
             <Sparkles className="w-4 h-4 text-green-400" />
-            <div className="absolute left-full ml-4 px-3 py-2 bg-gray-800/95 backdrop-blur-sm text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 border border-gray-700/50">
-              Sistema: Activo
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-800/95 rotate-45 border-l border-b border-gray-700/50"></div>
+            <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
+              <span className="text-green-300 font-semibold">Sistema: Activo</span>
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
             </div>
           </motion.div>
           
@@ -149,10 +149,10 @@ export function Sidebar({ currentSection, setCurrentSection }: SidebarProps) {
             whileTap={{ scale: 0.95 }}
           >
             <User className="w-5 h-5 text-white" />
-            <div className="absolute left-full ml-4 px-3 py-2 bg-gray-800/95 backdrop-blur-sm text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap z-50 border border-gray-700/50">
-              Usuario Educativo
+            <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
+              <div className="text-blue-400 font-semibold">Usuario Educativo</div>
               <div className="text-xs text-gray-300 mt-1">Profesor/Estudiante</div>
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-800/95 rotate-45 border-l border-b border-gray-700/50"></div>
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
             </div>
             
             {/* Online status */}
