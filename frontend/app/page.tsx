@@ -16,6 +16,7 @@ import { ImageSelector } from '@/components/enterprise/ImageSelector'
 import { ContextDisplay } from '@/components/enterprise/ContextDisplay'
 import { KnowledgeMap } from '@/components/enterprise/KnowledgeMap'
 import { WelcomePage } from '@/components/enterprise/WelcomePage'
+import { HeroSection } from '@/components/enterprise/HeroSection'
 
 const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
   ssr: false,
@@ -30,7 +31,7 @@ interface FileNode {
 }
 
 export default function EnterpriseChatPage() {
-  const [currentSection, setCurrentSection] = useState('chat')
+  const [currentSection, setCurrentSection] = useState('dashboard')
   const [selectedFile, setSelectedFile] = useState<{ name: string; url: string; id?: string } | null>(null)
   const [contextText, setContextText] = useState<string[]>([])
   const [isDraggingOver, setIsDraggingOver] = useState(false)
@@ -312,6 +313,46 @@ export default function EnterpriseChatPage() {
 
   const renderMainContent = () => {
     switch (currentSection) {
+      case 'dashboard':
+        return (
+          <HeroSection 
+            onStartNow={() => setCurrentSection('chat')}
+            onViewDemo={() => {
+              // Simular una demo - podrías mostrar un modal o cambiar a una vista específica
+              alert('Demo de la plataforma - Funcionalidades principales:\n\n• Chat con IA educativa\n• Análisis de documentos\n• Generación de contenido\n• Mapas de conocimiento\n\n¡Explora las diferentes secciones desde la barra lateral!');
+            }}
+            onRequestAccess={() => {
+              // Simular solicitud de acceso beta
+              alert('Solicitud de acceso beta enviada.\n\nTe notificaremos cuando la plataforma esté lista para pruebas.\n\nMientras tanto, puedes explorar las funcionalidades en modo demo.');
+            }}
+            onNavigateToChat={() => setCurrentSection('chat')}
+            onShowSidebar={() => setCurrentSection('chat')}
+            onNavigateToSection={(section) => {
+              switch (section) {
+                case 'inicio':
+                  // Scroll al inicio de la página
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                  break;
+                case 'caracteristicas':
+                  // Scroll a la sección de características
+                  const featuresSection = document.querySelector('[data-section="features"]');
+                  featuresSection?.scrollIntoView({ behavior: 'smooth' });
+                  break;
+                case 'acerca':
+                  // Scroll a la sección de acerca de
+                  const aboutSection = document.querySelector('[data-section="about"]');
+                  aboutSection?.scrollIntoView({ behavior: 'smooth' });
+                  break;
+                case 'contacto':
+                  // Mostrar pop-up de contacto
+                  alert('📧 Contacto:\n\nEmail: info@eduaihub.com\nEstado: En desarrollo activo\n\n¡Estamos trabajando para estar disponibles pronto!\n\nPara más información o colaboraciones, escríbenos a info@eduaihub.com');
+                  break;
+                default:
+                  break;
+              }
+            }}
+          />
+        );
       case 'chat':
         return (
           <PanelGroup key="chat-panels" direction="horizontal">
@@ -485,14 +526,24 @@ export default function EnterpriseChatPage() {
   };
 
   return (
-    <main className="flex h-screen w-full bg-gray-950 text-white overflow-hidden">
-      <Sidebar 
-        currentSection={currentSection} 
-        setCurrentSection={setCurrentSection}
-      />
-      <div className="flex-1 h-full overflow-hidden">
-        {renderMainContent()}
-      </div>
+    <main className="h-screen w-full bg-gray-950 text-white overflow-hidden">
+      {currentSection === 'dashboard' ? (
+        // Hero section ocupa toda la pantalla sin sidebar
+        <div className="h-full w-full">
+          {renderMainContent()}
+        </div>
+      ) : (
+        // Resto de secciones con sidebar
+        <div className="flex h-full w-full">
+          <Sidebar 
+            currentSection={currentSection} 
+            setCurrentSection={setCurrentSection}
+          />
+          <div className="flex-1 h-full overflow-hidden">
+            {renderMainContent()}
+          </div>
+        </div>
+      )}
     </main>
   )
 } 

@@ -45,7 +45,38 @@ class BaseAIService(ABC):
             if not api_key or api_key == 'sk-your-openai-key-here':
                 self.logger.warning("OpenAI API key no configurada")
                 return None
-            return OpenAI(api_key=api_key)
+            
+            # Limpiar variables de entorno que puedan causar conflictos
+            env_vars_to_clean = ['HTTP_PROXY', 'HTTPS_PROXY', 'http_proxy', 'https_proxy']
+            for var in env_vars_to_clean:
+                if var in os.environ:
+                    del os.environ[var]
+            
+            # Inicializar cliente con configuración mínima
+            try:
+                # Inicialización completamente aislada
+                import openai
+                # Limpiar cualquier configuración global
+                if hasattr(openai, 'api_key'):
+                    del openai.api_key
+                if hasattr(openai, 'api_base'):
+                    del openai.api_base
+                
+                # Crear cliente con configuración mínima
+                client = openai.OpenAI(api_key=api_key)
+            except Exception as e:
+                self.logger.error(f"Error en inicialización aislada: {e}")
+                # Intentar con configuración manual
+                try:
+                    import openai
+                    client = openai.OpenAI()
+                    client.api_key = api_key
+                except Exception as e2:
+                    self.logger.error(f"Error en configuración manual: {e2}")
+                    raise e2
+            
+            self.logger.info(f"OpenAI cliente inicializado correctamente")
+            return client
         except Exception as e:
             self.logger.error(f"Error inicializando cliente OpenAI: {e}")
             return None

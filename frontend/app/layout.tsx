@@ -25,12 +25,12 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'Claude - AI Assistant',
-  description: 'AI Assistant for thoughtful conversations and professional tasks',
-  keywords: ['AI trading', 'financial analytics', 'enterprise fintech', 'portfolio management', 'institutional trading'],
-  authors: [{ name: 'Genie AI Enterprise' }],
-  creator: 'Genie AI',
-  publisher: 'Genie AI Enterprise',
+  title: 'EduAI Hub - Centro de Recursos Educativos con IA',
+  description: 'El centro de recursos educativos más avanzado, potenciado por inteligencia artificial para transformar la experiencia de aprendizaje',
+  keywords: ['educación', 'inteligencia artificial', 'aprendizaje', 'recursos educativos', 'IA educativa', 'plataforma educativa'],
+  authors: [{ name: 'EduAI Hub' }],
+  creator: 'EduAI Hub',
+  publisher: 'EduAI Hub',
   robots: {
     index: true,
     follow: true,
@@ -44,25 +44,25 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    locale: 'en_US',
-    url: 'https://genie-ai.com',
-    title: 'Genie AI - Enterprise Financial Intelligence',
-    description: 'Advanced AI-powered financial analytics and trading platform for institutions',
-    siteName: 'Genie AI',
+    locale: 'es_ES',
+    url: 'https://eduaihub.com',
+    title: 'EduAI Hub - Centro de Recursos Educativos con IA',
+    description: 'El centro de recursos educativos más avanzado, potenciado por inteligencia artificial para transformar la experiencia de aprendizaje',
+    siteName: 'EduAI Hub',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'Genie AI Platform',
+        alt: 'EduAI Hub Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Genie AI - Enterprise Financial Intelligence',
-    description: 'Advanced AI-powered financial analytics platform',
-    creator: '@GenieAI',
+    title: 'EduAI Hub - Centro de Recursos Educativos con IA',
+    description: 'El centro de recursos educativos más avanzado, potenciado por inteligencia artificial',
+    creator: '@EduAIHub',
     images: ['/twitter-image.jpg'],
   },
   icons: {
@@ -82,7 +82,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="es" className={inter.variable}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

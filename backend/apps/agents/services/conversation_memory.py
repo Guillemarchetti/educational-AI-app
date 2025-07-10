@@ -56,10 +56,15 @@ class ConversationMemory:
     def _init_redis_client(self):
         """Inicializar cliente Redis"""
         try:
+            # Verificar si Redis está disponible
             redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-            return redis.from_url(redis_url, decode_responses=True)
+            redis_client = redis.from_url(redis_url, decode_responses=True)
+            # Probar conexión
+            redis_client.ping()
+            self.logger.info("Redis conectado exitosamente")
+            return redis_client
         except Exception as e:
-            self.logger.warning(f"Error conectando a Redis: {e}. Usando cache de Django.")
+            self.logger.info(f"Redis no disponible: {e}. Usando cache de Django.")
             return None
     
     def add_message(self, role: str, content: str, metadata: Optional[Dict[str, Any]] = None) -> bool:

@@ -76,7 +76,7 @@ function start_backend() {
 
     # Cargar variables de entorno del archivo .env
     if [ -f ".env" ]; then
-        export $(cat .env | xargs)
+        export $(grep -v "^#" .env | xargs)
         echo "   - Variables de entorno cargadas desde .env"
     else
         echo -e "${YELLOW}⚠️  Archivo .env no encontrado${NC}"
