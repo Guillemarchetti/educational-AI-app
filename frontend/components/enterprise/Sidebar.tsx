@@ -1,219 +1,238 @@
-'use client'
+'use client';
 
-import React, { useState } from 'react'
-import { motion } from 'framer-motion'
+import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { 
+  Home, 
   MessageSquare, 
-  FileText, 
   BookOpen, 
+  BarChart3, 
+  FileText, 
+  Users, 
   Settings, 
-  Moon, 
-  Sparkles,
-  User,
-  Home,
   Search,
-  History,
-  Upload,
-  BarChart3,
-  GraduationCap,
-  Library,
-  Image as ImageIcon,
-  Gamepad2,
-  Brain
-} from 'lucide-react'
+  ChevronDown,
+  Moon,
+  User
+} from 'lucide-react';
 
 interface SidebarProps {
-  currentSection: string
-  setCurrentSection: (section: string) => void
+  currentSection: string;
+  setCurrentSection: (section: string) => void;
 }
 
-const menuItems = [
-  { icon: Home, label: 'Inicio', id: 'dashboard', category: 'main', tooltip: 'Inicio' },
-  { icon: MessageSquare, label: 'Chat AI', id: 'chat', category: 'main', tooltip: 'Chat IA' },
-  { icon: ImageIcon, label: 'Imágenes', id: 'images', category: 'content', tooltip: 'Imágenes' },
-  { icon: FileText, label: 'Documentos', id: 'documents', category: 'content', tooltip: 'Documentos' },
-  { icon: BookOpen, label: 'Estructura', id: 'structure', category: 'content', tooltip: 'Estructura' },
-  { icon: Brain, label: 'Knowledge Map', id: 'knowledge-map', category: 'content', tooltip: 'Conocimiento' },
-  { icon: Library, label: 'Biblioteca', id: 'library', category: 'content', tooltip: 'Biblioteca' },
-  { icon: Search, label: 'Búsqueda', id: 'search', category: 'tools', tooltip: 'Buscar' },
-  { icon: BarChart3, label: 'Análisis', id: 'analytics', category: 'tools', tooltip: 'Analizar' },
-  { icon: Upload, label: 'Subir', id: 'upload', category: 'tools', tooltip: 'Subir' },
-  { icon: History, label: 'Historial', id: 'history', category: 'system', tooltip: 'Historial' },
-  { icon: Settings, label: 'Configuración', id: 'settings', category: 'system', tooltip: 'Configurar' }
-]
+const Sidebar: React.FC<SidebarProps> = ({ currentSection, setCurrentSection }) => {
+  const [showScrollArrow, setShowScrollArrow] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-export function Sidebar({ currentSection, setCurrentSection }: SidebarProps) {
-  const [showUploadModal, setShowUploadModal] = useState(false);
+  const navigationItems = [
+    { id: 'dashboard', icon: Home, label: 'Inicio', color: 'text-blue-400' },
+    { id: 'chat', icon: MessageSquare, label: 'Chat IA', color: 'text-green-400' },
+    { id: 'documents', icon: FileText, label: 'Documentos', color: 'text-purple-400' },
+    { id: 'analytics', icon: BarChart3, label: 'Analíticas', color: 'text-orange-400' },
+    { id: 'structure', icon: BookOpen, label: 'Estructura', color: 'text-pink-400' },
+    { id: 'images', icon: Users, label: 'Imágenes', color: 'text-indigo-400' },
+    { id: 'knowledge-map', icon: Search, label: 'Conocimiento', color: 'text-cyan-400' },
+  ];
 
-  const handleMenuClick = (id: string) => {
-    if (id === 'upload') {
-      setShowUploadModal(true);
-    } else {
-      setCurrentSection(id);
+  const bottomControls = [
+    { icon: Moon, label: 'Modo Oscuro', color: 'text-purple-300' },
+    { icon: Settings, label: 'Configuración', color: 'text-gray-300' },
+  ];
+
+  const accountOptions = [
+    { icon: User, label: 'Mi Perfil', color: 'text-blue-300' },
+    { icon: BarChart3, label: 'Estadísticas', color: 'text-green-300' },
+    { icon: BookOpen, label: 'Historial', color: 'text-orange-300' },
+  ];
+
+  useEffect(() => {
+    const checkScroll = () => {
+      if (scrollContainerRef.current) {
+        const { scrollHeight, clientHeight, scrollTop } = scrollContainerRef.current;
+        setShowScrollArrow(scrollHeight > clientHeight && scrollTop < scrollHeight - clientHeight);
+      }
+    };
+
+    checkScroll();
+    window.addEventListener('resize', checkScroll);
+    return () => window.removeEventListener('resize', checkScroll);
+  }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.user-menu-container')) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
+
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const { scrollHeight, clientHeight, scrollTop } = scrollContainerRef.current;
+      setShowScrollArrow(scrollHeight > clientHeight && scrollTop < scrollHeight - clientHeight);
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({
+        top: scrollContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
   };
 
   return (
-    <>
-      <motion.aside 
-        className="w-20 h-full bg-gray-900/50 backdrop-blur-xl border-r border-gray-800/50 flex flex-col items-center py-6 relative"
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        {/* Logo */}
-        <motion.div 
-          className="mb-8 relative"
+    <aside className="w-16 bg-gray-900/95 backdrop-blur-sm border-r border-gray-800/50 flex flex-col h-screen">
+      {/* Logo */}
+      <div className="p-4 border-b border-gray-800/50">
+        <motion.button 
+          className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 flex items-center justify-center relative group user-menu-container shadow-lg hover:shadow-xl transition-all duration-300 border-2 border-blue-400/20 hover:border-blue-400/40"
+          onClick={() => setShowUserMenu(!showUserMenu)}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg relative overflow-hidden">
-            <GraduationCap className="w-6 h-6 text-white relative z-10" />
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 shimmer"></div>
+          <User className="w-5 h-5 text-white drop-shadow-sm" />
+          
+          {/* Status Indicator */}
+          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-gray-900 shadow-sm">
+            <div className="w-full h-full bg-green-400 rounded-full animate-pulse"></div>
           </div>
-          <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-gray-900 status-online"></div>
-        </motion.div>
+          
+          {/* User Menu Dropdown */}
+          {showUserMenu && (
+            <motion.div 
+              className="absolute left-full ml-3 top-0 bg-gray-900/95 backdrop-blur-sm rounded-xl border border-gray-700/50 shadow-2xl z-[9999] min-w-48"
+              initial={{ opacity: 0, scale: 0.95, x: -10 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.95, x: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="p-3 border-b border-gray-700/50">
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <div className="text-white text-sm font-semibold">Juan Pérez</div>
+                    <div className="text-gray-400 text-xs">usuario@ejemplo.com</div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-gray-400">Plan:</span>
+                  <span className="text-green-400 font-medium">Premium</span>
+                </div>
+              </div>
+              
+              <div className="p-2">
+                {/* Account Options */}
+                <div className="mb-2">
+                  <div className="text-xs text-gray-500 font-medium px-3 py-1 uppercase tracking-wide">Cuenta</div>
+                  {accountOptions.map((option, index) => {
+                    const IconComponent = option.icon;
+                    
+                    return (
+                      <motion.button
+                        key={index}
+                        className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800/50 transition-all duration-200 group"
+                        whileHover={{ x: 2 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <IconComponent className="w-4 h-4" />
+                        <span className="text-sm font-medium">{option.label}</span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
 
-        {/* Navigation Menu */}
-        <nav className="flex flex-col space-y-3 flex-1">
-          {menuItems.map((item, index) => {
-            const isActive = currentSection === item.id
+                {/* Divider */}
+                <div className="border-t border-gray-700/50 my-2"></div>
+
+                {/* System Options */}
+                <div>
+                  <div className="text-xs text-gray-500 font-medium px-3 py-1 uppercase tracking-wide">Sistema</div>
+                  {bottomControls.map((control, index) => {
+                    const IconComponent = control.icon;
+                    
+                    return (
+                      <motion.button
+                        key={index}
+                        className="w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-gray-800/50 transition-all duration-200 group"
+                        whileHover={{ x: 2 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <IconComponent className="w-4 h-4" />
+                        <span className="text-sm font-medium">{control.label}</span>
+                      </motion.button>
+                    );
+                  })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </motion.button>
+      </div>
+
+      {/* Navigation Items */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex-1 overflow-y-auto scrollbar-hide"
+        onScroll={handleScroll}
+      >
+        <div className="flex flex-col space-y-2 p-2">
+          {navigationItems.map((item) => {
+            const IconComponent = item.icon;
+            const isActive = currentSection === item.id;
             
             return (
               <motion.button
                 key={item.id}
-                onClick={() => handleMenuClick(item.id)}
-                className={`group relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group relative ${
                   isActive 
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/25' 
+                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
                     : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
                 }`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.4 }}
+                onClick={() => setCurrentSection(item.id)}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <item.icon className="w-5 h-5 relative z-10" />
-                
-                {/* Tooltip */}
-                <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm font-medium rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
-                  <span className="text-blue-400 font-semibold">{item.tooltip}</span>
+                <IconComponent className="w-5 h-5" />
+                <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
+                  <span className={`font-semibold ${item.color}`}>{item.label}</span>
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
                 </div>
-                
-                {/* Active indicator */}
-                {isActive && (
-                  <motion.div
-                    className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-8 bg-blue-400 rounded-r-full"
-                    layoutId="activeIndicator"
-                    transition={{ type: "spring", bounce: 0.25, duration: 0.6 }}
-                  />
-                )}
               </motion.button>
-            )
+            );
           })}
-        </nav>
-
-        {/* User Profile & Controls */}
-        <div className="flex flex-col space-y-3 mt-auto">
-          {/* Theme Toggle */}
-          <motion.button 
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all duration-300 group"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Moon className="w-5 h-5" />
-            <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
-              <span className="text-purple-300 font-semibold">Modo Oscuro</span>
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
-            </div>
-          </motion.button>
-
-          {/* Status Indicator */}
-          <motion.div 
-            className="w-12 h-12 rounded-xl flex items-center justify-center bg-gray-800/30 border border-gray-700/50 group relative"
-            whileHover={{ scale: 1.05 }}
-          >
-            <Sparkles className="w-4 h-4 text-green-400" />
-            <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
-              <span className="text-green-300 font-semibold">Sistema: Activo</span>
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
-            </div>
-          </motion.div>
-          
-          {/* User Avatar */}
-          <motion.div 
-            className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-600 flex items-center justify-center cursor-pointer relative group"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <User className="w-5 h-5 text-white" />
-            <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
-              <div className="text-blue-400 font-semibold">Usuario Educativo</div>
-              <div className="text-xs text-gray-300 mt-1">Profesor/Estudiante</div>
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
-            </div>
-            
-            {/* Online status */}
-            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-gray-900 status-online"></div>
-          </motion.div>
         </div>
-      </motion.aside>
-      {/* Modal de subida de PDF */}
-      {showUploadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-gray-900 rounded-xl p-6 shadow-xl w-full max-w-md relative">
-            <button
-              className="absolute top-2 right-2 text-gray-400 hover:text-white text-xl"
-              onClick={() => setShowUploadModal(false)}
-              aria-label="Cerrar"
-            >
-              ×
-            </button>
-            <h3 className="text-lg font-semibold text-white mb-4">Subir PDF</h3>
-            <form
-              className="flex flex-col gap-4"
-              onSubmit={async (e) => {
-                e.preventDefault();
-                const input = document.getElementById('pdf-upload-modal') as HTMLInputElement;
-                if (!input?.files?.length) return;
-                const file = input.files[0];
-                const formData = new FormData();
-                formData.append('file', file);
-                try {
-                  const res = await fetch('http://localhost:8000/api/documents/upload/', {
-                    method: 'POST',
-                    body: formData,
-                  });
-                  if (!res.ok) throw new Error('Error al subir el archivo');
-                  alert('Archivo subido correctamente. Procesando...');
-                  input.value = '';
-                  setShowUploadModal(false);
-                  // Opcional: recargar la página o emitir un evento para recargar la lista de documentos
-                  window.location.reload();
-                } catch (err) {
-                  alert('Error al subir el archivo');
-                }
-              }}
-            >
-              <input
-                id="pdf-upload-modal"
-                type="file"
-                accept="application/pdf"
-                className="block w-full text-xs text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                required
-              />
-              <button
-                type="submit"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-              >
-                Subir PDF
-              </button>
-            </form>
-          </div>
-        </div>
+      </div>
+
+      {/* Scroll Arrow */}
+      {showScrollArrow && (
+        <motion.button
+          className="w-12 h-12 mx-2 mb-2 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all duration-300"
+          onClick={scrollToBottom}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <ChevronDown className="w-5 h-5" />
+        </motion.button>
       )}
-    </>
-  )
-} 
+    </aside>
+  );
+};
+
+export { Sidebar };
+export default Sidebar; 
