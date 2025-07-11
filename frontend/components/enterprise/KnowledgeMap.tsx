@@ -54,25 +54,17 @@ export function KnowledgeMap({ documentStructure, selectedFile, onNodeClick }: K
     }
   }, [documentStructure, selectedFile, useSyntheticData])
 
-  // Debug: Monitorear cambios en useSyntheticData
-  useEffect(() => {
-    console.log('🔄 useSyntheticData changed to:', useSyntheticData)
-  }, [useSyntheticData])
-
   const generateKnowledgeMap = async (forceSynthetic?: boolean) => {
     if (!selectedFile?.id) return
     
     const shouldUseSynthetic = forceSynthetic !== undefined ? forceSynthetic : useSyntheticData
     setIsLoading(true)
-    console.log('🔍 Generating knowledge map with useSyntheticData:', shouldUseSynthetic)
     
     try {
       // Usar endpoint sintético si está habilitado
       const endpoint = shouldUseSynthetic 
         ? `http://localhost:8000/api/agents/knowledge-map/synthetic/${selectedFile.id}/`
         : `http://localhost:8000/api/agents/knowledge-map/${selectedFile.id}/`
-      
-      console.log('🌐 Fetching from endpoint:', endpoint)
       
       const response = await fetch(endpoint, {
         method: 'GET',
@@ -81,24 +73,16 @@ export function KnowledgeMap({ documentStructure, selectedFile, onNodeClick }: K
         },
       })
       
-      console.log('📡 Response status:', response.status)
-      
       if (response.ok) {
         const data = await response.json()
-        console.log('📦 Response data:', data)
         
         if (data.success && data.knowledge_map) {
           setKnowledgeMap(data.knowledge_map.nodes || [])
-          console.log(`✅ ${shouldUseSynthetic ? 'Synthetic' : 'Real'} knowledge map loaded:`, data.knowledge_map)
-          console.log(`📊 Nodes count:`, data.knowledge_map.nodes?.length || 0)
         } else {
-          console.log('❌ No knowledge map in response, generating new one...')
           // Si no existe, generar uno nuevo
           await generateNewKnowledgeMap()
         }
       } else {
-        console.log('❌ Knowledge map not found, generating new one...')
-        console.log('📄 Response text:', await response.text())
         // Si hay error, generar uno nuevo
         await generateNewKnowledgeMap()
       }
@@ -114,7 +98,6 @@ export function KnowledgeMap({ documentStructure, selectedFile, onNodeClick }: K
 
   const generateNewKnowledgeMap = async () => {
     try {
-      console.log('Generating new knowledge map for document:', selectedFile?.id)
       const response = await fetch('http://localhost:8000/api/agents/knowledge-map/generate/', {
         method: 'POST',
         headers: { 
@@ -127,15 +110,12 @@ export function KnowledgeMap({ documentStructure, selectedFile, onNodeClick }: K
         const data = await response.json()
         if (data.success && data.knowledge_map) {
           setKnowledgeMap(data.knowledge_map.nodes || [])
-          console.log('New knowledge map generated:', data.knowledge_map)
         } else {
-          console.log('Failed to generate knowledge map, using fallback')
           // Fallback a datos simulados
           const map = convertStructureToKnowledgeMap(documentStructure)
           setKnowledgeMap(map)
         }
       } else {
-        console.log('Error generating knowledge map, using fallback')
         // Fallback a datos simulados
         const map = convertStructureToKnowledgeMap(documentStructure)
         setKnowledgeMap(map)
@@ -420,7 +400,7 @@ export function KnowledgeMap({ documentStructure, selectedFile, onNodeClick }: K
   }
 
   return (
-    <div className="h-full flex flex-col bg-enterprise-900">
+    <div className="h-full flex flex-col bg-enterprise-900 mx-8 overflow-y-auto">
       {/* Header */}
       <div className="p-6 border-b border-enterprise-800/50">
         <div className="flex items-center justify-between mb-4">
@@ -448,14 +428,11 @@ export function KnowledgeMap({ documentStructure, selectedFile, onNodeClick }: K
             {/* Toggle Synthetic Data */}
             <button
               onClick={() => {
-                console.log('🎯 Toggle synthetic data clicked, current state:', useSyntheticData)
                 const newState = !useSyntheticData
                 setUseSyntheticData(newState)
-                console.log('🔄 Setting useSyntheticData to:', newState)
                 
                 // Forzar recarga inmediata si hay un archivo seleccionado
                 if (selectedFile?.id) {
-                  console.log('🔄 Forcing immediate reload with new state:', newState)
                   setTimeout(() => {
                     generateKnowledgeMap(newState)
                   }, 100)
@@ -552,7 +529,7 @@ export function KnowledgeMap({ documentStructure, selectedFile, onNodeClick }: K
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-6">
+      <div className="p-6 pb-8">
         {viewMode === 'tree' && (
           <div className="space-y-4">
             {knowledgeMap.map(node => renderKnowledgeNode(node))}

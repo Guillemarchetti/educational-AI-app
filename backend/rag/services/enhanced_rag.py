@@ -178,9 +178,6 @@ class EnhancedRAGService:
                 for i, (doc, distance, metadata) in enumerate(zip(documents, distances, metadatas)):
                     if distance < 1.2:  # Umbral de relevancia ajustable
                         relevant_chunks.append(doc)
-                        
-                        # Log para debugging
-                        self.logger.debug(f"Chunk relevante #{i+1} (dist: {distance:.3f}): {doc[:100]}...")
             
             self.logger.info(f"Búsqueda completada: {len(relevant_chunks)} chunks relevantes para '{query[:50]}...'")
             return relevant_chunks

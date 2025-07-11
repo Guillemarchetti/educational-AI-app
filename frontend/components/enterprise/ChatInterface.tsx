@@ -10,7 +10,8 @@ import { ContextDisplay } from './ContextDisplay'
 import { SmartPrompts } from './SmartPrompts'
 import { ProgressTracker } from './ProgressTracker'
 import { QuizSystem } from './QuizSystem'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ImageSelector } from './ImageSelector'
+import { ChevronDown, ChevronRight, CheckCircle, Square } from 'lucide-react'
 
 // Definimos la interfaz Message aquí mismo para que el componente sea autocontenido
 export interface Message {
@@ -38,6 +39,17 @@ interface ChatInterfaceProps {
   onSendWelcomeMessage?: (message: string) => void;
   messages?: Message[];
   setMessages?: React.Dispatch<React.SetStateAction<Message[]>>;
+  isImageSelectionMode?: boolean;
+  onToggleImageSelection?: () => void;
+  onImageContextAdd?: (imageData: string, description: string) => void;
+  showImageSuccessNotification?: boolean;
+  showDragInstruction?: boolean;
+  showSelectionSuccess?: boolean;
+  showContextLoadedNotification?: boolean;
+  onHideImageNotifications?: () => void;
+  onHideImageSelector?: () => void;
+  showProgress?: boolean;
+  onToggleProgress?: () => void;
 }
 
 export function ChatInterface({ 
@@ -51,6 +63,17 @@ export function ChatInterface({
   onSendWelcomeMessage,
   messages: externalMessages,
   setMessages: externalSetMessages,
+  isImageSelectionMode: externalImageSelectionMode,
+  onToggleImageSelection: externalToggleImageSelection,
+  onImageContextAdd: externalImageContextAdd,
+  showImageSuccessNotification,
+  showDragInstruction,
+  showSelectionSuccess,
+  showContextLoadedNotification,
+  onHideImageNotifications,
+  onHideImageSelector,
+  showProgress: externalShowProgress,
+  onToggleProgress: externalOnToggleProgress,
 }: ChatInterfaceProps) {
   const [internalMessages, setInternalMessages] = useState<Message[]>([])
   
@@ -58,11 +81,21 @@ export function ChatInterface({
   const messages = externalMessages || internalMessages;
   const setMessages = externalSetMessages || setInternalMessages;
   const [isProcessing, setIsProcessing] = useState(false)
-  const [showProgress, setShowProgress] = useState(false)
+  // Usar estado externo si está disponible, si no, usar interno
+  const showProgress = externalShowProgress !== undefined ? externalShowProgress : false;
+  const onToggleProgress = externalOnToggleProgress || (() => {});
   const [showQuiz, setShowQuiz] = useState(false)
-  const [isContextOpen, setIsContextOpen] = useState(true)
+  const [showSmartPrompts, setShowSmartPrompts] = useState(false)
+  const [showImageSelector, setShowImageSelector] = useState(false)
+  const [internalImageSelectionMode, setInternalImageSelectionMode] = useState(false)
+  const [isContextOpen, setIsContextOpen] = useState(false)
   const [persistentContext, setPersistentContext] = useState<string[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Usar estado externo si está disponible, si no, usar interno
+  const isImageSelectionMode = externalImageSelectionMode !== undefined ? externalImageSelectionMode : internalImageSelectionMode;
+  const onToggleImageSelection = externalToggleImageSelection || (() => setInternalImageSelectionMode(!internalImageSelectionMode));
+  const onImageContextAdd = externalImageContextAdd || (() => {});
 
   // Mantener contexto persistente actualizado
   useEffect(() => {
@@ -83,6 +116,14 @@ export function ChatInterface({
     scrollToBottom()
   }, [messages])
 
+  // Debug: Monitorear cambios en showSmartPrompts
+  useEffect(() => {
+    console.log('showSmartPrompts cambió a:', showSmartPrompts)
+  }, [showSmartPrompts])
+
+  // Debug: Verificar el estado actual
+  console.log('Estado actual - showSmartPrompts:', showSmartPrompts, 'isProcessing:', isProcessing)
+
   // Sonido al recibir mensaje de IA
   useEffect(() => {
     if (messages.length > 0 && messages[messages.length - 1].sender === 'ai') {
@@ -94,35 +135,19 @@ export function ChatInterface({
 
   // Generar mensaje de bienvenida cuando se selecciona un archivo
   useEffect(() => {
-    console.log('useEffect para mensaje de bienvenida:', {
-      selectedFile: selectedFile?.name,
-      contextTextLength: contextText.length,
-      messagesLength: messages.length
-    });
-    
     // Generar mensaje de bienvenida cuando se selecciona un archivo y no hay mensajes
     if (selectedFile && messages.length === 0) {
-      console.log('Archivo seleccionado y no hay mensajes, generando mensaje de bienvenida');
       generateWelcomeMessage();
-    } else {
-      console.log('No se cumplen las condiciones básicas para el mensaje de bienvenida');
     }
   }, [selectedFile, messages.length]);
 
   // Generar mensaje de bienvenida cuando se agrega contexto de un archivo
   useEffect(() => {
-    console.log('useEffect para contexto agregado:', {
-      contextTextLength: contextText.length,
-      selectedFile: selectedFile?.name
-    });
-    
     if (contextText.length > 0 && selectedFile) {
       const lastContext = contextText[contextText.length - 1];
       if (lastContext.includes(`Contexto del archivo "${selectedFile.name}"`)) {
-        console.log('Contexto de archivo agregado, verificando si generar mensaje de bienvenida');
         // Solo generar si no hay mensajes o si el último mensaje no es de bienvenida
         if (messages.length === 0 || messages[messages.length - 1].agent !== 'Sistema') {
-          console.log('Generando mensaje de bienvenida por contexto agregado');
           generateWelcomeMessage();
         }
       }
@@ -133,8 +158,6 @@ export function ChatInterface({
     if (!selectedFile) return;
 
     try {
-      console.log('Generando mensaje de bienvenida para:', selectedFile.name);
-      
       // Crear un mensaje de bienvenida personalizado
       const welcomeMessage = `🎓 **¡Bienvenido al análisis de tu material educativo!**
 
@@ -160,7 +183,6 @@ export function ChatInterface({
         agent: 'Sistema'
       };
       
-      console.log('Agregando mensaje de bienvenida al chat:', welcomeMessageObj);
       setMessages(prev => [...prev, welcomeMessageObj]);
       
     } catch (error) {
@@ -170,6 +192,37 @@ export function ChatInterface({
 
   const handleSendMessage = async (messageText: string) => {
     if (!messageText.trim() || isProcessing) return
+
+    // Ocultar SmartPrompts cuando se envía un mensaje
+    console.log('Ocultando SmartPrompts...')
+    setShowSmartPrompts(false)
+    
+    // Ocultar ImageSelector si está visible
+    if (showImageSelector) {
+      console.log('Ocultando ImageSelector...')
+      setShowImageSelector(false)
+    }
+    
+    // Ocultar notificaciones de imagen que puedan estar bloqueando
+    if (showDragInstruction || showSelectionSuccess || showImageSuccessNotification) {
+      console.log('Ocultando notificaciones de imagen...')
+      if (onHideImageNotifications) {
+        onHideImageNotifications()
+      }
+      // También ocultar ImageSelector si está visible
+      if (showImageSelector) {
+        console.log('Ocultando ImageSelector desde notificaciones...')
+        setShowImageSelector(false)
+      }
+    }
+    
+    // Forzar actualización inmediata
+    setTimeout(() => {
+      if (showSmartPrompts) {
+        console.log('Forzando ocultar SmartPrompts...')
+        setShowSmartPrompts(false)
+      }
+    }, 0)
 
     const userMessage: Message = {
       id: Date.now(),
@@ -259,6 +312,21 @@ export function ChatInterface({
     // También limpiar contexto actual
     contextText.forEach((_, index) => onRemoveContext(index))
   }
+
+  // Función para ocultar ImageSelector y notificaciones (como el segundo clic del icono)
+  const hideImageSelectorAndNotifications = () => {
+    console.log('Ocultando ImageSelector y notificaciones...')
+    
+    // Ocultar ImageSelector (como el segundo clic del icono)
+    setShowImageSelector(false)
+    
+    // Ocultar notificaciones de imagen
+    if (onHideImageNotifications) {
+      onHideImageNotifications()
+    }
+  }
+
+
   
   return (
     <div 
@@ -278,8 +346,15 @@ export function ChatInterface({
         </div>
       )}
       <ChatHeader 
-        onToggleProgress={() => setShowProgress(!showProgress)}
         onToggleQuiz={() => setShowQuiz(!showQuiz)}
+        onToggleSmartPrompts={() => setShowSmartPrompts(!showSmartPrompts)}
+        onToggleImageSelector={() => {
+          setShowImageSelector(!showImageSelector)
+          // Solo activar modo de selección si se está mostrando el selector y hay archivo
+          if (!showImageSelector && selectedFile && onToggleImageSelection) {
+            onToggleImageSelection()
+          }
+        }}
         onClearContext={clearPersistentContext}
       />
       
@@ -314,14 +389,97 @@ export function ChatInterface({
         </div>
       )}
       
+      {/* Notificaciones de imagen (después del contexto) */}
+      {showDragInstruction && selectedFile && (
+        <div className="flex items-center justify-center py-4 px-4 animate-in fade-in duration-300">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-blue-400/50 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                <Square className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-sm">Arrastre para seleccionar</h4>
+                <p className="text-blue-100 text-xs">Haga clic y arrastre sobre la imagen</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {showSelectionSuccess && (
+        <div className="flex items-center justify-center py-4 px-4 animate-in fade-in duration-300">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-green-400/50 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-sm">¡Selección exitosa!</h4>
+                <p className="text-green-100 text-xs">Procesando imagen...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {showImageSuccessNotification && (
+        <div className="flex items-center justify-center py-4 px-4 animate-in fade-in duration-300">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-blue-400/50 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center animate-spin">
+                <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full"></div>
+              </div>
+              <div>
+                <h4 className="font-semibold text-sm">Cargando contexto...</h4>
+                <p className="text-blue-100 text-xs">Por favor espere</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {showContextLoadedNotification && (
+        <div className="flex items-center justify-center py-4 px-4 animate-in fade-in duration-300">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl shadow-2xl border border-green-400/50 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                <CheckCircle className="w-4 h-4 text-white" />
+              </div>
+              <div className="flex-1">
+                <h4 className="font-semibold text-sm">Contexto cargado</h4>
+                <p className="text-green-100 text-xs">Puede seguir seleccionando imágenes o salir</p>
+              </div>
+              <button
+                onClick={hideImageSelectorAndNotifications}
+                className="ml-2 px-3 py-1 bg-white/20 hover:bg-white/30 text-white text-xs font-medium rounded-lg transition-colors"
+              >
+                Salir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Smart Prompts */}
-      <SmartPrompts 
-        context={contextText}
-        onPromptSelect={handleSendMessage}
-        subject="general"
-        difficulty="intermediate"
-        learningStyle="visual"
-      />
+      {showSmartPrompts && (
+        <SmartPrompts 
+          context={contextText}
+          onPromptSelect={handleSendMessage}
+          subject="general"
+          difficulty="intermediate"
+          learningStyle="visual"
+        />
+      )}
+
+      {/* Image Selector */}
+      {showImageSelector && (
+        <ImageSelector 
+          selectedFile={selectedFile}
+          onAddImageContext={onImageContextAdd}
+          isSelectionMode={isImageSelectionMode}
+          onToggleSelectionMode={onToggleImageSelection}
+        />
+      )}
       
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
         <MessageList
@@ -332,11 +490,7 @@ export function ChatInterface({
       </div>
       <ChatInput onSendMessage={handleSendMessage} isProcessing={isProcessing} />
       
-      {/* Progress Tracker */}
-      <ProgressTracker 
-        isVisible={showProgress}
-        onToggle={() => setShowProgress(!showProgress)}
-      />
+
       
       {/* Quiz System */}
       {showQuiz && (

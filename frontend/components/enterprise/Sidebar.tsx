@@ -6,34 +6,31 @@ import {
   Home, 
   MessageSquare, 
   BookOpen, 
-  BarChart3, 
-  FileText, 
-  Users, 
+  Brain, 
+  Bell, 
   Settings, 
   Search,
-  ChevronDown,
   Moon,
-  User
+  User,
+  Trophy
 } from 'lucide-react';
 
 interface SidebarProps {
   currentSection: string;
   setCurrentSection: (section: string) => void;
+  onToggleProgress?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ currentSection, setCurrentSection }) => {
-  const [showScrollArrow, setShowScrollArrow] = useState(false);
+const Sidebar: React.FC<SidebarProps> = ({ currentSection, setCurrentSection, onToggleProgress }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const navigationItems = [
-    { id: 'dashboard', icon: Home, label: 'Inicio', color: 'text-blue-400' },
-    { id: 'chat', icon: MessageSquare, label: 'Chat IA', color: 'text-green-400' },
-    { id: 'documents', icon: FileText, label: 'Documentos', color: 'text-purple-400' },
-    { id: 'analytics', icon: BarChart3, label: 'Analíticas', color: 'text-orange-400' },
-    { id: 'structure', icon: BookOpen, label: 'Estructura', color: 'text-pink-400' },
-    { id: 'images', icon: Users, label: 'Imágenes', color: 'text-indigo-400' },
-    { id: 'knowledge-map', icon: Search, label: 'Conocimiento', color: 'text-cyan-400' },
+    { id: 'dashboard', icon: Home, label: 'Inicio' },
+    { id: 'chat', icon: MessageSquare, label: 'Chat IA' },
+    { id: 'structure', icon: BookOpen, label: 'Estructura' },
+    { id: 'search', icon: Search, label: 'Buscador' },
+    { id: 'pomodoro', icon: Bell, label: 'Organizador' },
+    { id: 'analytics', icon: Brain, label: 'Conocimiento' },
   ];
 
   const bottomControls = [
@@ -43,22 +40,11 @@ const Sidebar: React.FC<SidebarProps> = ({ currentSection, setCurrentSection }) 
 
   const accountOptions = [
     { icon: User, label: 'Mi Perfil', color: 'text-blue-300' },
-    { icon: BarChart3, label: 'Estadísticas', color: 'text-green-300' },
+    { icon: Brain, label: 'Estadísticas', color: 'text-green-300' },
     { icon: BookOpen, label: 'Historial', color: 'text-orange-300' },
   ];
 
-  useEffect(() => {
-    const checkScroll = () => {
-      if (scrollContainerRef.current) {
-        const { scrollHeight, clientHeight, scrollTop } = scrollContainerRef.current;
-        setShowScrollArrow(scrollHeight > clientHeight && scrollTop < scrollHeight - clientHeight);
-      }
-    };
 
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, []);
 
   // Close user menu when clicking outside
   useEffect(() => {
@@ -78,21 +64,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentSection, setCurrentSection }) 
     };
   }, [showUserMenu]);
 
-  const handleScroll = () => {
-    if (scrollContainerRef.current) {
-      const { scrollHeight, clientHeight, scrollTop } = scrollContainerRef.current;
-      setShowScrollArrow(scrollHeight > clientHeight && scrollTop < scrollHeight - clientHeight);
-    }
-  };
 
-  const scrollToBottom = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({
-        top: scrollContainerRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
-    }
-  };
 
   return (
     <aside className="w-16 bg-gray-900/95 backdrop-blur-sm border-r border-gray-800/50 flex flex-col h-screen">
@@ -105,6 +77,12 @@ const Sidebar: React.FC<SidebarProps> = ({ currentSection, setCurrentSection }) 
           whileTap={{ scale: 0.95 }}
         >
           <User className="w-5 h-5 text-white drop-shadow-sm" />
+          
+          {/* User Menu Tooltip */}
+          <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900/95 backdrop-blur-sm text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-xl">
+            <span className="font-medium text-blue-400">Mi Cuenta</span>
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
+          </div>
           
           {/* Status Indicator */}
           <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full border-2 border-gray-900 shadow-sm">
@@ -186,50 +164,48 @@ const Sidebar: React.FC<SidebarProps> = ({ currentSection, setCurrentSection }) 
       </div>
 
       {/* Navigation Items */}
-      <div 
-        ref={scrollContainerRef}
-        className="flex-1 overflow-y-auto scrollbar-hide"
-        onScroll={handleScroll}
-      >
-        <div className="flex flex-col space-y-2 p-2">
-          {navigationItems.map((item) => {
-            const IconComponent = item.icon;
-            const isActive = currentSection === item.id;
-            
-            return (
-              <motion.button
-                key={item.id}
-                className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group relative ${
-                  isActive 
-                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
-                    : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
-                }`}
-                onClick={() => setCurrentSection(item.id)}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <IconComponent className="w-5 h-5" />
-                <div className="absolute left-full ml-3 px-4 py-2.5 bg-gray-900/95 backdrop-blur-sm text-white text-sm rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-2xl">
-                  <span className={`font-semibold ${item.color}`}>{item.label}</span>
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
+      <div className="flex-1 flex flex-col space-y-2 p-2">
+        {navigationItems.map((item) => {
+          const IconComponent = item.icon;
+          const isActive = currentSection === item.id;
+          
+          return (
+            <motion.button
+              key={item.id}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group relative ${
+                isActive 
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+              }`}
+              onClick={() => setCurrentSection(item.id)}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+                              <IconComponent className="w-5 h-5" />
+                <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900/95 backdrop-blur-sm text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-xl">
+                  <span className="font-medium text-blue-400">{item.label}</span>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
                 </div>
-              </motion.button>
-            );
-          })}
-        </div>
+            </motion.button>
+          );
+        })}
+        
+        {/* Progress Icon */}
+        {onToggleProgress && (
+          <motion.button
+            className="w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 group relative text-gray-400 hover:text-yellow-400 hover:bg-gray-800/50"
+            onClick={onToggleProgress}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Trophy className="w-5 h-5" />
+            <div className="absolute left-full ml-2 px-3 py-2 bg-gray-900/95 backdrop-blur-sm text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none whitespace-nowrap z-[9999] border border-gray-700/50 shadow-xl">
+              <span className="font-medium text-blue-400">Ver Progreso</span>
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-1.5 h-1.5 bg-gray-900/95 rotate-45 border-l border-b border-gray-700/50"></div>
+            </div>
+          </motion.button>
+        )}
       </div>
-
-      {/* Scroll Arrow */}
-      {showScrollArrow && (
-        <motion.button
-          className="w-12 h-12 mx-2 mb-2 rounded-xl flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-800/50 transition-all duration-300"
-          onClick={scrollToBottom}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <ChevronDown className="w-5 h-5" />
-        </motion.button>
-      )}
     </aside>
   );
 };

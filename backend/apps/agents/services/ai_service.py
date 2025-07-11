@@ -42,6 +42,14 @@ class BaseAIService(ABC):
         """Inicializar cliente de OpenAI"""
         try:
             api_key = os.getenv('OPENAI_API_KEY')
+            
+            # Debug: Imprimir API key que está usando
+            if api_key:
+                masked_key = f"{api_key[:10]}...{api_key[-4:]}" if len(api_key) > 14 else "***"
+                print(f"🔍 AI Service usando API Key: {masked_key}")
+            else:
+                print("❌ AI Service: No se encontró OPENAI_API_KEY")
+            
             if not api_key or api_key == 'sk-your-openai-key-here':
                 self.logger.warning("OpenAI API key no configurada")
                 return None
@@ -212,6 +220,12 @@ Por favor, responde como {self.get_agent_name()} considerando todo el contexto p
                 context_prompt = self.truncate_to_token_limit(context_prompt, 2000)
             
             self.logger.info(f"Procesando consulta con OpenAI GPT-4o-mini - Tokens: {total_tokens}")
+            
+            # Debug: Verificar API key antes de la llamada
+            current_api_key = os.getenv('OPENAI_API_KEY')
+            if current_api_key:
+                masked_key = f"{current_api_key[:10]}...{current_api_key[-4:]}" if len(current_api_key) > 14 else "***"
+                print(f"🔍 Llamada OpenAI usando API Key: {masked_key}")
             
             # Llamada a OpenAI usando gpt-4o-mini (más económico)
             response = self.openai_client.chat.completions.create(

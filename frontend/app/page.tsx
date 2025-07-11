@@ -17,6 +17,7 @@ import { ContextDisplay } from '@/components/enterprise/ContextDisplay'
 import { KnowledgeMap } from '@/components/enterprise/KnowledgeMap'
 import { WelcomePage } from '@/components/enterprise/WelcomePage'
 import { HeroSection } from '@/components/enterprise/HeroSection'
+import { ProgressTracker } from '@/components/enterprise/ProgressTracker'
 
 const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
   ssr: false,
@@ -37,30 +38,32 @@ export default function EnterpriseChatPage() {
   const [isDraggingOver, setIsDraggingOver] = useState(false)
   const [isExtracting, setIsExtracting] = useState(false)
   const [isImageSelectionMode, setIsImageSelectionMode] = useState(false)
+  const [showImageSuccessNotification, setShowImageSuccessNotification] = useState(false)
+  const [showDragInstruction, setShowDragInstruction] = useState(false)
+  const [showSelectionSuccess, setShowSelectionSuccess] = useState(false)
+  const [showContextLoadedNotification, setShowContextLoadedNotification] = useState(false)
   const [documentStructure, setDocumentStructure] = useState<any>(null)
   const [structureLoading, setStructureLoading] = useState(false)
-  const [selectedText, setSelectedText] = useState<string>('')
   const [selectedKnowledgeNode, setSelectedKnowledgeNode] = useState<any>(null)
   const [messages, setMessages] = useState<Message[]>([])
+  const [showProgress, setShowProgress] = useState(false)
+  const [isDocumentsPanelCollapsed, setIsDocumentsPanelCollapsed] = useState(false)
 
-  const handleTextSelect = (text: string) => {
-    setSelectedText(text);
-  };
-
-  const handleClearSelection = () => {
-    setSelectedText('');
-  }
+  // Resetear notificación cuando cambiamos de sección
+  useEffect(() => {
+    setShowImageSuccessNotification(false)
+    // Ocultar progreso cuando se cambia de sección
+    setShowProgress(false)
+  }, [currentSection])
 
   const handleContextAdd = (text: string) => {
-    console.log('handleContextAdd called with:', text)
-    setContextText(prev => [...prev, text]);
-    setSelectedText(''); // Limpiar la selección después de añadir
-    console.log('Context updated')
+    setContextText(prev => {
+      const newContext = [...prev, text];
+      return newContext;
+    });
   };
 
   const handleStructureContextAdd = async (structurePath: string, elementType: string, title: string) => {
-    console.log('Adding structure context:', { structurePath, elementType, title })
-    
     try {
       const response = await fetch('/api/documents/context/', {
         method: 'POST',
@@ -81,8 +84,6 @@ export default function EnterpriseChatPage() {
       // Agregar indicador de contexto estructural
       const structureContext = `📚 ${elementType.toUpperCase()}: ${title}\n🔗 Ruta: ${structurePath}\n📄 ${data.chunks_added} fragmentos agregados`;
       handleContextAdd(structureContext);
-      
-      console.log('Structure context added:', data);
     } catch (error) {
       console.error('Error adding structure context:', error);
       alert('Error al agregar contexto por estructura');
@@ -90,28 +91,56 @@ export default function EnterpriseChatPage() {
   };
 
   const handleImageContextAdd = (imageData: string, description: string) => {
-    console.log('Adding image context:', { imageDataLength: imageData.length, description })
     // Solo incluir la descripción del análisis, no la imagen base64 completa
     const imageContext = `🖼️ ANÁLISIS DE IMAGEN:\n\n${description}\n\n📄 Archivo: ${selectedFile?.name}`;
     handleContextAdd(imageContext);
+    
+    // Mostrar notificación de contexto cargado
+    setShowContextLoadedNotification(true);
+  };
+
+  // Función que maneja la selección de imagen
+  const handleImageSelectedWithNotification = (imageData: string, description: string) => {
+    // Llamar a la función original
+    handleImageContextAdd(imageData, description);
   };
 
   const handleToggleImageSelection = () => {
-    setIsImageSelectionMode(!isImageSelectionMode)
+    const newMode = !isImageSelectionMode
+    setIsImageSelectionMode(newMode)
+    
+    if (newMode) {
+      // Solo mostrar instrucción si hay un archivo seleccionado
+      if (selectedFile) {
+        setShowDragInstruction(true)
+      }
+    } else {
+      // Ocultar todas las notificaciones cuando se desactiva      
+      setShowDragInstruction(false)
+      setShowImageSuccessNotification(false)
+      setShowSelectionSuccess(false)
+    }
   }
 
   const handleImageSelection = (imageData: string, coordinates: { x: number, y: number, width: number, height: number }) => {
     // Esta función se llama cuando se captura una imagen del PDF
-    console.log('Image selection received:', { coordinates, imageDataLength: imageData.length });
     
-    // Procesar la imagen con análisis de IA
-    processImageWithAI(imageData, coordinates);
+    // Ocultar instrucción de arrastre y mostrar notificación de selección exitosa
+    setShowDragInstruction(false);
+    setShowSelectionSuccess(true);
+    
+    // Después de 1.5 segundos, cambiar a notificación de carga
+    setTimeout(() => {
+      setShowSelectionSuccess(false);
+      setShowImageSuccessNotification(true);
+      
+      // Procesar la imagen con análisis de IA
+      processImageWithAI(imageData, coordinates);
+    }, 1500);
   }
 
   const processImageWithAI = async (imageData: string, coordinates: { x: number, y: number, width: number, height: number }) => {
     try {
-      console.log('Processing image with AI...');
-      
       // Enviar imagen al backend para análisis
       const response = await fetch('http://localhost:8000/api/agents/analyze-image/', {
         method: 'POST',
@@ -134,13 +163,15 @@ export default function EnterpriseChatPage() {
       }
       
       const result = await response.json();
-      console.log('AI analysis result:', result);
       
       // Crear descripción con el análisis de IA
       const description = `🖼️ ANÁLISIS DE IMAGEN:\n\n${result.analysis}\n\n📊 Info técnica: ${result.image_info?.size || 'N/A'}`;
       
       // Agregar al contexto del chat con el análisis completo
       handleImageContextAdd(imageData, description);
+      
+      // Ocultar notificación cuando se complete el procesamiento
+      setShowImageSuccessNotification(false);
       
       // Desactivar modo selección después de capturar
       setIsImageSelectionMode(false);
@@ -151,12 +182,45 @@ export default function EnterpriseChatPage() {
       // Fallback: agregar imagen sin análisis detallado
       const fallbackDescription = `Área seleccionada del PDF "${selectedFile?.name}" - Coordenadas: ${Math.round(coordinates.x)}, ${Math.round(coordinates.y)} - Tamaño: ${Math.round(coordinates.width)}x${Math.round(coordinates.height)}px\n\n⚠️ Error al analizar con IA. Describe qué ves en la imagen para obtener ayuda.`;
       handleImageContextAdd(imageData, fallbackDescription);
+      
+      // Ocultar notificación en caso de error también
+      setShowImageSuccessNotification(false);
+      
       setIsImageSelectionMode(false);
     }
   }
 
   const handleRemoveContext = (index: number) => {
     setContextText(prev => prev.filter((_, i) => i !== index));
+  }
+
+  const handleHideImageNotifications = () => {
+    setShowDragInstruction(false);
+    setShowSelectionSuccess(false);
+    setShowImageSuccessNotification(false);
+    setShowContextLoadedNotification(false);
+    
+    // Desactivar modo de selección de imágenes para ocultar el ImageSelector
+    if (isImageSelectionMode) {
+      setIsImageSelectionMode(false);
+    }
+  }
+
+  const handleHideImageSelector = () => {
+    // Esta función será llamada desde ChatInterface para ocultar el ImageSelector
+    console.log('Ocultando ImageSelector desde componente padre...')
+  }
+
+  const handleToggleProgress = () => {
+    if (currentSection === 'progress') {
+      setCurrentSection('chat') // Volver a chat si ya estamos en progreso
+    } else {
+      setCurrentSection('progress') // Ir a la sección de progreso
+    }
+  }
+
+  const handleToggleDocumentsPanel = () => {
+    setIsDocumentsPanelCollapsed(!isDocumentsPanelCollapsed);
   }
 
   const handleFileDrop = async (file: FileNode) => {
@@ -203,8 +267,6 @@ export default function EnterpriseChatPage() {
       if (response.ok) {
         const data = await response.json();
         setDocumentStructure(data);
-      } else {
-        console.log('Document structure not available yet');
       }
     } catch (error) {
       console.error('Error loading document structure:', error);
@@ -262,8 +324,6 @@ export default function EnterpriseChatPage() {
 
   const sendWelcomeMessage = async (message: string) => {
     try {
-      console.log('sendWelcomeMessage llamado con:', message);
-      
       // Crear el mensaje de bienvenida directamente en el chat
       const welcomeMessage = {
         id: Date.now(),
@@ -273,29 +333,20 @@ export default function EnterpriseChatPage() {
         agent: 'Sistema'
       };
       
-      console.log('Mensaje creado:', welcomeMessage);
-      console.log('setMessages disponible:', !!setMessages);
-      
       // Agregar el mensaje al estado de mensajes del ChatInterface
       if (setMessages) {
         setMessages(prev => {
-          console.log('Estado anterior de mensajes:', prev.length);
           const newState = [...prev, welcomeMessage];
-          console.log('Nuevo estado de mensajes:', newState.length);
           return newState;
         });
-      } else {
-        console.log('setMessages no está disponible');
       }
       
-      console.log('Mensaje de bienvenida agregado al chat');
     } catch (error) {
       console.error('Error enviando mensaje de bienvenida:', error);
     }
   };
 
   const handleKnowledgeNodeClick = (node: any) => {
-    console.log('Knowledge node clicked:', node)
     setSelectedKnowledgeNode(node)
     
     // Agregar contexto del nodo seleccionado al chat
@@ -312,6 +363,7 @@ export default function EnterpriseChatPage() {
   }, [selectedFile])
 
   const renderMainContent = () => {
+
     switch (currentSection) {
       case 'dashboard':
         return (
@@ -327,46 +379,45 @@ export default function EnterpriseChatPage() {
             }}
             onNavigateToChat={() => setCurrentSection('chat')}
             onShowSidebar={() => setCurrentSection('chat')}
-            onNavigateToSection={(section) => {
-              switch (section) {
-                case 'inicio':
-                  // Scroll al inicio de la página
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                  break;
-                case 'caracteristicas':
-                  // Scroll a la sección de características
-                  const featuresSection = document.querySelector('[data-section="features"]');
-                  featuresSection?.scrollIntoView({ behavior: 'smooth' });
-                  break;
-                case 'acerca':
-                  // Scroll a la sección de acerca de
-                  const aboutSection = document.querySelector('[data-section="about"]');
-                  aboutSection?.scrollIntoView({ behavior: 'smooth' });
-                  break;
-                case 'contacto':
-                  // Mostrar pop-up de contacto
-                  alert('📧 Contacto:\n\nEmail: info@eduaihub.com\nEstado: En desarrollo activo\n\n¡Estamos trabajando para estar disponibles pronto!\n\nPara más información o colaboraciones, escríbenos a info@eduaihub.com');
-                  break;
-                default:
-                  break;
-              }
-            }}
           />
         );
       case 'chat':
         return (
           <PanelGroup key="chat-panels" direction="horizontal">
-            <Panel defaultSize={20} minSize={15}>
-              <FileExplorer onSelectFile={setSelectedFile} />
+            {!isDocumentsPanelCollapsed && (
+              <>
+                <Panel defaultSize={20} minSize={15}>
+                  <FileExplorer 
+                    onSelectFile={setSelectedFile} 
+                    onToggleCollapse={handleToggleDocumentsPanel}
+                    isCollapsed={isDocumentsPanelCollapsed}
+                  />
+                </Panel>
+                <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+              </>
+            )}
+            <Panel defaultSize={isDocumentsPanelCollapsed ? 50 : 45} minSize={30}>
+              <div className="relative h-full">
+                {isDocumentsPanelCollapsed && (
+                  <button
+                    onClick={handleToggleDocumentsPanel}
+                    className="absolute top-2 left-2 z-10 p-2 bg-gray-800/80 hover:bg-gray-700/80 rounded-lg transition-colors"
+                    title="Mostrar documentos"
+                  >
+                    <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                  </button>
+                )}
+                <PdfViewer 
+                  selectedFile={selectedFile}
+                  isSelectionMode={isImageSelectionMode}
+                  onImageSelection={handleImageSelection}
+                />
+              </div>
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={45} minSize={30}>
-              <PdfViewer 
-                selectedFile={selectedFile}
-              />
-            </Panel>
-            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={35} minSize={25}>
+            <Panel defaultSize={isDocumentsPanelCollapsed ? 50 : 35} minSize={25}>
               <ChatInterface 
                 contextText={contextText}
                 onRemoveContext={handleRemoveContext}
@@ -378,64 +429,94 @@ export default function EnterpriseChatPage() {
                 onSendWelcomeMessage={sendWelcomeMessage}
                 messages={messages}
                 setMessages={setMessages}
-              />
-            </Panel>
-          </PanelGroup>
-        );
-      
-      case 'images':
-        return (
-          <PanelGroup key="images-panels" direction="horizontal">
-            <Panel defaultSize={20} minSize={15}>
-              <FileExplorer onSelectFile={setSelectedFile} />
-            </Panel>
-            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={50} minSize={35}>
-              <PdfViewer 
-                selectedFile={selectedFile}
-                isSelectionMode={isImageSelectionMode}
-                onImageSelection={handleImageSelection}
-              />
-            </Panel>
-            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={30} minSize={25}>
-              <ImageSelector 
-                selectedFile={selectedFile}
-                onAddImageContext={handleImageContextAdd}
-                isSelectionMode={isImageSelectionMode}
-                onToggleSelectionMode={handleToggleImageSelection}
+                isImageSelectionMode={isImageSelectionMode}
+                onToggleImageSelection={handleToggleImageSelection}
+                onImageContextAdd={handleImageContextAdd}
+                showImageSuccessNotification={showImageSuccessNotification}
+                showDragInstruction={showDragInstruction}
+                showSelectionSuccess={showSelectionSuccess}
+                showContextLoadedNotification={showContextLoadedNotification}
+                onHideImageNotifications={handleHideImageNotifications}
+                onHideImageSelector={handleHideImageSelector}
+                showProgress={showProgress}
+                onToggleProgress={handleToggleProgress}
               />
             </Panel>
           </PanelGroup>
         );
 
+
+      
+      case 'images':
+        return (
+          <div className="h-full flex flex-col">
+            <PanelGroup key="images-panels" direction="horizontal" className="flex-1">
+              <Panel defaultSize={20} minSize={15}>
+                <FileExplorer onSelectFile={setSelectedFile} />
+              </Panel>
+              <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+              <Panel defaultSize={50} minSize={35}>
+                <PdfViewer 
+                  selectedFile={selectedFile}
+                  isSelectionMode={isImageSelectionMode}
+                  onImageSelection={handleImageSelection}
+                />
+              </Panel>
+              <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+              <Panel defaultSize={30} minSize={25}>
+                <ImageSelector 
+                  selectedFile={selectedFile}
+                  onAddImageContext={handleImageSelectedWithNotification}
+                  isSelectionMode={isImageSelectionMode}
+                  onToggleSelectionMode={handleToggleImageSelection}
+                  showSuccessNotification={showImageSuccessNotification}
+                />
+              </Panel>
+            </PanelGroup>
+          </div>
+        );
+
       case 'structure':
         return (
           <PanelGroup key="structure-panels" direction="horizontal">
-            <Panel defaultSize={25} minSize={20}>
-              <FileExplorer onSelectFile={setSelectedFile} />
+            {!isDocumentsPanelCollapsed && (
+              <>
+                <Panel defaultSize={25} minSize={20}>
+                  <FileExplorer 
+                    onSelectFile={setSelectedFile} 
+                    onToggleCollapse={handleToggleDocumentsPanel}
+                    isCollapsed={isDocumentsPanelCollapsed}
+                  />
+                </Panel>
+                <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
+              </>
+            )}
+            <Panel defaultSize={isDocumentsPanelCollapsed ? 50 : 40} minSize={30}>
+              <div className="relative h-full">
+                {isDocumentsPanelCollapsed && (
+                  <button
+                    onClick={handleToggleDocumentsPanel}
+                    className="absolute top-2 left-2 z-10 p-2 bg-gray-800/80 hover:bg-gray-700/80 rounded-lg transition-colors"
+                    title="Mostrar documentos"
+                  >
+                    <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-5l-2-2H5a2 2 0 00-2 2z" />
+                    </svg>
+                  </button>
+                )}
+                <PdfViewer 
+                  selectedFile={selectedFile}
+                  isSelectionMode={isImageSelectionMode}
+                  onImageSelection={handleImageSelection}
+                />
+              </div>
             </Panel>
             <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={35} minSize={25}>
+            <Panel defaultSize={isDocumentsPanelCollapsed ? 50 : 35} minSize={25}>
               <DocumentStructure 
                 structureData={documentStructure?.structure_data}
                 onSelectContext={handleStructureContextSelect}
                 selectedFile={selectedFile}
-              />
-            </Panel>
-            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={40} minSize={30}>
-              <ChatInterface 
-                contextText={contextText}
-                onRemoveContext={handleRemoveContext}
-                isDraggingOver={isDraggingOver}
-                setIsDraggingOver={setIsDraggingOver}
-                onFileDrop={handleFileDrop}
-                isExtracting={isExtracting}
-                selectedFile={selectedFile}
-                onSendWelcomeMessage={sendWelcomeMessage}
-                messages={messages}
-                setMessages={setMessages}
               />
             </Panel>
           </PanelGroup>
@@ -443,34 +524,23 @@ export default function EnterpriseChatPage() {
 
       case 'analytics':
         return (
-          <PanelGroup key="analytics-panels" direction="horizontal">
-            <Panel defaultSize={25} minSize={20}>
-              <FileExplorer onSelectFile={setSelectedFile} />
-            </Panel>
-            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={50} minSize={35}>
-              <KnowledgeMap 
-                documentStructure={documentStructure}
-                selectedFile={selectedFile}
-                onNodeClick={handleKnowledgeNodeClick}
-              />
-            </Panel>
-            <PanelResizeHandle className="w-1.5 bg-gray-800/50 hover:bg-blue-400/50 transition-colors" />
-            <Panel defaultSize={25} minSize={20}>
-              <ChatInterface 
-                contextText={contextText}
-                onRemoveContext={handleRemoveContext}
-                isDraggingOver={isDraggingOver}
-                setIsDraggingOver={setIsDraggingOver}
-                onFileDrop={handleFileDrop}
-                isExtracting={isExtracting}
-                selectedFile={selectedFile}
-                onSendWelcomeMessage={sendWelcomeMessage}
-                messages={messages}
-                setMessages={setMessages}
-              />
-            </Panel>
-          </PanelGroup>
+          <div className="h-full w-full bg-enterprise-900">
+            <KnowledgeMap 
+              documentStructure={documentStructure}
+              selectedFile={selectedFile}
+              onNodeClick={handleKnowledgeNodeClick}
+            />
+          </div>
+        );
+
+      case 'progress':
+        return (
+          <div className="h-full w-full bg-enterprise-900">
+            <ProgressTracker 
+              isVisible={true}
+              onToggle={handleToggleProgress}
+            />
+          </div>
         );
 
       case 'knowledge-map':
@@ -500,9 +570,60 @@ export default function EnterpriseChatPage() {
                 onSendWelcomeMessage={sendWelcomeMessage}
                 messages={messages}
                 setMessages={setMessages}
+                showContextLoadedNotification={showContextLoadedNotification}
+                onHideImageNotifications={handleHideImageNotifications}
+                onHideImageSelector={handleHideImageSelector}
+                showProgress={showProgress}
+                onToggleProgress={handleToggleProgress}
               />
             </Panel>
           </PanelGroup>
+        );
+
+      case 'pomodoro':
+        return (
+          <div className="h-full w-full bg-enterprise-900 flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-blue-500/20 rounded-2xl flex items-center justify-center">
+                <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white">Organizador</h2>
+              <p className="text-slate-400 text-lg">Sistema de recordatorios con Técnica Pomodoro</p>
+              <div className="bg-enterprise-800/30 rounded-lg p-6 border border-enterprise-700/50 max-w-md">
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  🚧 <strong>En construcción</strong> 🚧
+                </p>
+                <p className="text-slate-400 text-xs mt-2">
+                  Próximamente: Temporizador personalizado, sesiones de estudio organizadas y sistema de recompensas.
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'search':
+        return (
+          <div className="h-full w-full bg-enterprise-900 flex items-center justify-center">
+            <div className="text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-green-500/20 rounded-2xl flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white">Buscador Web</h2>
+              <p className="text-slate-400 text-lg">Contenido interactivo basado en el contexto</p>
+              <div className="bg-enterprise-800/30 rounded-lg p-6 border border-enterprise-700/50 max-w-md">
+                <p className="text-slate-300 text-sm leading-relaxed">
+                  🔍 <strong>En construcción</strong> 🔍
+                </p>
+                <p className="text-slate-400 text-xs mt-2">
+                  Próximamente: Búsqueda inteligente en la web, contenido interactivo relacionado con el chat y contexto cargado.
+                </p>
+              </div>
+            </div>
+          </div>
         );
       
       case 'documents':
@@ -519,7 +640,7 @@ export default function EnterpriseChatPage() {
             </Panel>
           </PanelGroup>
         );
-      
+
       default:
         return <WelcomePage />;
     }
@@ -538,6 +659,7 @@ export default function EnterpriseChatPage() {
           <Sidebar 
             currentSection={currentSection} 
             setCurrentSection={setCurrentSection}
+            onToggleProgress={handleToggleProgress}
           />
           <div className="flex-1 h-full overflow-hidden">
             {renderMainContent()}

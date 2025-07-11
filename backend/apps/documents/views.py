@@ -132,11 +132,21 @@ def upload_document(request):
         if not uploaded_file.name.endswith('.pdf'):
             return JsonResponse({'error': 'Only PDF files are allowed'}, status=400)
         
-        # Guardar archivo
-        file_path = default_storage.save(
-            f'documents/{uploaded_file.name}',
-            ContentFile(uploaded_file.read())
-        )
+        # Crear directorio uploads si no existe
+        documents_dir = os.path.join(settings.BASE_DIR, 'uploads')
+        os.makedirs(documents_dir, exist_ok=True)
+        
+        # Guardar archivo en el directorio uploads
+        file_path = os.path.join(documents_dir, uploaded_file.name)
+        
+        # Verificar si el archivo ya existe
+        if os.path.exists(file_path):
+            return JsonResponse({'error': 'File already exists'}, status=400)
+        
+        # Guardar el archivo
+        with open(file_path, 'wb') as destination:
+            for chunk in uploaded_file.chunks():
+                destination.write(chunk)
         
         # Asignar usuario (autenticado o default)
         if hasattr(request, 'user') and getattr(request.user, 'is_authenticated', False):
@@ -148,15 +158,20 @@ def upload_document(request):
         document = Document.objects.create(
             user=user,
             title=uploaded_file.name,
-            file_path=default_storage.path(file_path),
+            file_path=file_path,
             file_size=uploaded_file.size,
             content_type=uploaded_file.content_type or 'application/pdf'
         )
         
         # Analizar estructura automáticamente
-        from .api.structure_views import DocumentStructureView
-        structure_view = DocumentStructureView()
-        structure_view._analyze_document_structure(document)
+        try:
+            from .api.structure_views import DocumentStructureView
+            structure_view = DocumentStructureView()
+            structure_view._analyze_document_structure(document)
+            logger.info(f"Estructura analizada para: {uploaded_file.name}")
+        except Exception as e:
+            logger.error(f"Error analizando estructura para {uploaded_file.name}: {str(e)}")
+            # No fallar el upload si el análisis de estructura falla
         
         return JsonResponse({
             'message': 'Document uploaded successfully',
@@ -291,4 +306,48 @@ def get_document_structure(request, document_id):
         
     except Exception as e:
         logger.error(f"Error getting document structure: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+@csrf_exempt
+@require_http_methods(["DELETE"])
+def delete_document(request, document_id):
+    """Elimina un documento por ID o nombre"""
+    try:
+        file_path = None
+        document = None
+        
+        # Intentar buscar por ID primero (si es un UUID válido)
+        if document_id and len(document_id) == 36 and '-' in document_id:
+            try:
+                document = Document.objects.get(id=document_id)
+                file_path = document.file_path
+                logger.info(f"Documento encontrado por ID para eliminar: {document_id}")
+            except (ValueError, Document.DoesNotExist):
+                logger.warning(f"Documento no encontrado por ID: {document_id}")
+                file_path = None
+        
+        # Si no se encontró por ID, buscar por nombre de archivo
+        if not file_path:
+            documents_dir = os.path.join(settings.BASE_DIR, 'uploads')
+            file_path = os.path.join(documents_dir, document_id)
+            logger.info(f"Buscando archivo por nombre para eliminar: {file_path}")
+        
+        # Verificar que el archivo existe
+        if not os.path.exists(file_path):
+            logger.error(f"Archivo no encontrado para eliminar: {file_path}")
+            return JsonResponse({'error': 'File not found'}, status=404)
+        
+        # Eliminar archivo físico
+        os.remove(file_path)
+        logger.info(f"Archivo físico eliminado: {file_path}")
+        
+        # Eliminar registro de la base de datos si existe
+        if document:
+            document.delete()
+            logger.info(f"Registro de base de datos eliminado para: {document_id}")
+        
+        return JsonResponse({'message': 'Document deleted successfully'})
+        
+    except Exception as e:
+        logger.error(f"Error deleting document {document_id}: {str(e)}")
         return JsonResponse({'error': str(e)}, status=500) 

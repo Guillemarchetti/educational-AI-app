@@ -7,4 +7,5 @@ urlpatterns = [
     path('extract_text/', views.extract_text, name='extract_text'),
     path('structure/<str:document_id>/', views.get_document_structure, name='get_document_structure'),
     path('serve/<str:document_id>/', views.serve_document, name='serve_document'),
+    path('delete/<str:document_id>/', views.delete_document, name='delete_document'),
 ] 

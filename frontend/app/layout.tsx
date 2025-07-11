@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import './katex-custom.css'
+import { ToastContainer } from '../components/enterprise/Toast'
 
 // Polyfill for Promise.withResolvers (Node.js 18 compatibility)
 if (typeof Promise.withResolvers === 'undefined') {
@@ -91,6 +92,7 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         {children}
+        <ToastContainer />
       </body>
     </html>
   )

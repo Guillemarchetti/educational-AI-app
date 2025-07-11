@@ -74,12 +74,12 @@ function start_backend() {
         echo -e "${YELLOW}⚠️  No se encontró entorno virtual${NC}"
     fi
 
-    # Cargar variables de entorno del archivo .env
-    if [ -f ".env" ]; then
-        export $(grep -v "^#" .env | xargs)
-        echo "   - Variables de entorno cargadas desde .env"
+    # Cargar variables de entorno del archivo .env desde la raíz del proyecto
+    if [ -f "$PROJECT_ROOT/.env" ]; then
+        export $(grep -v "^#" "$PROJECT_ROOT/.env" | xargs)
+        echo "   - Variables de entorno cargadas desde $PROJECT_ROOT/.env"
     else
-        echo -e "${YELLOW}⚠️  Archivo .env no encontrado${NC}"
+        echo -e "${YELLOW}⚠️  Archivo .env no encontrado en $PROJECT_ROOT${NC}"
     fi
 
     if [[ "$OS_TYPE" == "Linux" || "$OS_TYPE" == "Darwin" ]]; then

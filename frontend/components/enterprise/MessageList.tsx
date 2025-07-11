@@ -124,7 +124,7 @@ export function MessageList({ messages, isProcessing, messagesEndRef, onPromptCl
   return (
     <div className="flex-1 flex flex-col min-h-0 p-6">
       {/* Chat History Area with Scroll */}
-      <div className="flex-1 overflow-y-auto enterprise-scrollbar space-y-6 pr-2" style={{ maxHeight: 'calc(100vh - 350px)' }}>
+      <div className="flex-1 overflow-y-auto enterprise-scrollbar space-y-6 pr-2">
         {messages.map((message, index) => {
           // Si es mensaje de IA, extraer prompts sugeridos
           let prompts: string[] = []
