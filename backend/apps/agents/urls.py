@@ -35,4 +35,7 @@ urlpatterns = [
     # Utilidades
     path('upload-file/', views.upload_file, name='upload_file'),
     path('health/', views.health_check, name='health_check'),
+    
+    # Búsqueda Web Contextual
+    path('web-search/', views.web_search, name='web_search'),
 ] 

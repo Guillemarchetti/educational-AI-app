@@ -964,3 +964,55 @@ def get_synthetic_knowledge_map(request, document_id):
             {'error': 'Internal server error'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         ) 
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def web_search(request):
+    """
+    Endpoint para búsqueda web contextual de recursos educativos
+    """
+    try:
+        data = json.loads(request.body)
+        query = data.get('query', '').strip()
+        context = data.get('context', {})
+        user_id = data.get('user_id', 'default-user')
+        
+        if not query:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Query de búsqueda requerida'
+            }, status=400)
+        
+        # Inicializar servicio de búsqueda web
+        from .services.web_search_service import WebSearchService
+        search_service = WebSearchService()
+        
+        # Realizar búsqueda contextual
+        search_results = search_service.search_contextual_resources(query, context)
+        
+        if search_results['status'] == 'success':
+            return JsonResponse({
+                'status': 'success',
+                'query': query,
+                'context': context,
+                'results': search_results['results'],
+                'total_results': search_results['total_results'],
+                'suggestions': search_service.get_search_suggestions(query)
+            })
+        else:
+            return JsonResponse({
+                'status': 'error',
+                'message': search_results.get('error', 'Error en la búsqueda')
+            }, status=500)
+            
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'JSON inválido'
+        }, status=400)
+    except Exception as e:
+        logger.error(f"Error en web_search: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': f'Error interno: {str(e)}'
+        }, status=500) 
