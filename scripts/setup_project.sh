@@ -362,7 +362,7 @@ show_final_instructions() {
 
 # Función principal
 main() {
-    echo -e "${BLUE}🚀 Configurando Chat Agent AI desde cero...${NC}"
+    echo -e "${BLUE}🚀 Configurando ContextAI desde cero...${NC}"
     echo "=================================="
     
     detect_os

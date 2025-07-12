@@ -1,10 +1,10 @@
-# 🚀 APP Educación - AI-Powered Educational Platform
+# 🚀 ContextAI - Plataforma Educativa con IA Contextual
 
 A comprehensive educational platform built with Django backend and Next.js frontend, featuring AI agents, RAG systems, and advanced document processing capabilities.
 
 ## 📋 **Project Overview**
 
-This is a full-stack educational application that combines:
+ContextAI es una plataforma educativa completa que combina:
 - **Django Backend** - RESTful API with AI agents and RAG system
 - **Next.js Frontend** - Modern React-based user interface
 - **AI Agents** - Content creation and educational assistance

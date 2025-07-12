@@ -7,7 +7,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🛑 Parando Chat Agent AI...${NC}"
+echo -e "${BLUE}🛑 Parando ContextAI...${NC}"
 echo "=================================="
 
 # Función para cerrar puertos específicos

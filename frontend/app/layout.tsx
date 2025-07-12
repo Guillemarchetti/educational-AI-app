@@ -26,12 +26,12 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'EduAI Hub - Centro de Recursos Educativos con IA',
-  description: 'El centro de recursos educativos más avanzado, potenciado por inteligencia artificial para transformar la experiencia de aprendizaje',
-  keywords: ['educación', 'inteligencia artificial', 'aprendizaje', 'recursos educativos', 'IA educativa', 'plataforma educativa'],
-  authors: [{ name: 'EduAI Hub' }],
-  creator: 'EduAI Hub',
-  publisher: 'EduAI Hub',
+  title: 'ContextAI - Plataforma Educativa con IA Contextual',
+  description: 'La plataforma educativa más inteligente que entiende el contexto para transformar la experiencia de aprendizaje',
+  keywords: ['educación', 'inteligencia artificial', 'contexto', 'aprendizaje', 'IA contextual', 'plataforma educativa'],
+  authors: [{ name: 'ContextAI' }],
+  creator: 'ContextAI',
+  publisher: 'ContextAI',
   robots: {
     index: true,
     follow: true,
@@ -46,24 +46,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'es_ES',
-    url: 'https://eduaihub.com',
-    title: 'EduAI Hub - Centro de Recursos Educativos con IA',
-    description: 'El centro de recursos educativos más avanzado, potenciado por inteligencia artificial para transformar la experiencia de aprendizaje',
-    siteName: 'EduAI Hub',
+    url: 'https://contextai.com',
+    title: 'ContextAI - Plataforma Educativa con IA Contextual',
+    description: 'La plataforma educativa más inteligente que entiende el contexto para transformar la experiencia de aprendizaje',
+    siteName: 'ContextAI',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'EduAI Hub Platform',
+        alt: 'ContextAI Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EduAI Hub - Centro de Recursos Educativos con IA',
-    description: 'El centro de recursos educativos más avanzado, potenciado por inteligencia artificial',
-    creator: '@EduAIHub',
+    title: 'ContextAI - Plataforma Educativa con IA Contextual',
+    description: 'La plataforma educativa más inteligente que entiende el contexto',
+    creator: '@ContextAI',
     images: ['/twitter-image.jpg'],
   },
   icons: {

@@ -21,7 +21,7 @@ export function WelcomePage() {
         />
         <FeatureCard
           icon={<MessageSquare className="w-6 h-6 text-blue-400" />}
-          title="Chat AI Contextual"
+          title="ContextAI - Chat Inteligente"
           description="Interactúa con agentes inteligentes que entienden tus documentos."
         />
         <FeatureCard

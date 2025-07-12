@@ -12,6 +12,13 @@ import re
 from datetime import datetime
 import time
 
+# Importar el agente de contexto
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
+
+from agents.web_search_agent import web_search_context_agent
+
 logger = logging.getLogger(__name__)
 
 class WebSearchService:
@@ -48,37 +55,56 @@ class WebSearchService:
     
     def search_contextual_resources(self, query: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
         """
-        Busca recursos web relevantes basados en el contexto del usuario
-        
-        Args:
-            query: Término de búsqueda
-            context: Contexto del usuario (tema, nivel, idioma, etc.)
-            
-        Returns:
-            Dict con resultados organizados por tipo
+        Busca recursos web relevantes basados en el contexto agregado del usuario
+        SOLO usa DuckDuckGo y Wikipedia
         """
         try:
             self.logger.info(f"Buscando recursos para: {query}")
             
+            # Usar el agente de contexto si hay información del contexto agregado
+            agent_queries = None
+            if context and (context.get('chat_context') or context.get('document_id')):
+                agent_queries = self._get_agent_generated_queries(context)
+                # Si query está vacío, usar main_query del agente
+                if (not query or query.strip() == "") and agent_queries and agent_queries.get('main_query'):
+                    query = agent_queries['main_query']
+            
+            # Si después de todo no hay query, devolver error
+            if not query or query.strip() == "":
+                return {
+                    'status': 'error',
+                    'error': 'No se pudo generar una consulta de búsqueda a partir del contexto agregado.',
+                    'results': {}
+                }
+            
             # Enriquecer query con contexto
             enriched_query = self._enrich_query_with_context(query, context)
             
-            # Realizar búsquedas paralelas
+            # Realizar búsquedas SOLO en DuckDuckGo y Wikipedia
             results = {
                 'web_results': self._search_duckduckgo(enriched_query),
                 'wikipedia_results': self._search_wikipedia(enriched_query),
-                'educational_videos': self._search_educational_videos(enriched_query),
-                'academic_resources': self._search_academic_sites(enriched_query),
                 'search_metadata': {
                     'query': query,
                     'enriched_query': enriched_query,
                     'context': context,
+                    'agent_queries': agent_queries,
                     'timestamp': datetime.now().isoformat()
                 }
             }
             
-            # Filtrar y rankear resultados
-            filtered_results = self._filter_and_rank_results(results, context)
+            # Filtrar y rankear resultados con verificación de relevancia
+            filtered_results = self._filter_and_rank_results_with_verification(results, context)
+            
+            # Agregar consultas del agente si están disponibles
+            if agent_queries:
+                filtered_results['agent_analysis'] = {
+                    'analysis': agent_queries.get('analysis', ''),
+                    'main_query': agent_queries.get('main_query', ''),
+                    'related_queries': agent_queries.get('related_queries', []),
+                    'educational_focus': agent_queries.get('educational_focus', ''),
+                    'suggested_topics': agent_queries.get('suggested_topics', [])
+                }
             
             return {
                 'status': 'success',
@@ -122,46 +148,52 @@ class WebSearchService:
         return ' '.join(enriched_terms)
     
     def _search_duckduckgo(self, query: str) -> List[Dict]:
-        """Búsqueda usando DuckDuckGo API (gratuito)"""
+        """Buscar usando DuckDuckGo API"""
         try:
-            params = {
-                'q': query,
-                'format': 'json',
-                'no_html': '1',
-                'skip_disambig': '1'
-            }
+            # Usar la API de DuckDuckGo Instant Answer
+            url = f"{self.duckduckgo_api}?q={quote_plus(query)}&format=json&no_html=1&skip_disambig=1"
             
-            response = requests.get(self.duckduckgo_api, params=params, headers=self.headers, timeout=10)
-            response.raise_for_status()
+            response = requests.get(url, headers=self.headers, timeout=10)
             
-            data = response.json()
-            results = []
-            
-            # Procesar resultados principales
-            if 'AbstractURL' in data and data['AbstractURL']:
-                results.append({
-                    'title': data.get('Abstract', ''),
-                    'url': data['AbstractURL'],
-                    'snippet': data.get('AbstractText', ''),
-                    'source': 'DuckDuckGo',
-                    'type': 'web_result'
-                })
-            
-            # Procesar resultados relacionados
-            for result in data.get('RelatedTopics', [])[:5]:
-                if isinstance(result, dict) and 'FirstURL' in result:
-                    results.append({
-                        'title': result.get('Text', ''),
-                        'url': result['FirstURL'],
-                        'snippet': result.get('Text', '')[:200],
-                        'source': 'DuckDuckGo',
-                        'type': 'related_result'
-                    })
-            
-            return results
-            
+            if response.status_code == 200:
+                try:
+                    data = response.json()
+                    
+                    results = []
+                    
+                    # Extraer Abstract (si existe)
+                    if data.get('Abstract'):
+                        results.append({
+                            'title': data.get('Heading', 'Información'),
+                            'url': data.get('AbstractURL', ''),
+                            'snippet': data.get('Abstract', ''),
+                            'source': 'DuckDuckGo',
+                            'type': 'encyclopedia'
+                        })
+                    
+                    # Extraer Related Topics
+                    if data.get('RelatedTopics'):
+                        for topic in data['RelatedTopics'][:3]:
+                            if isinstance(topic, dict) and topic.get('Text'):
+                                results.append({
+                                    'title': topic.get('Text', '').split(' - ')[0] if ' - ' in topic.get('Text', '') else topic.get('Text', ''),
+                                    'url': topic.get('FirstURL', ''),
+                                    'snippet': topic.get('Text', ''),
+                                    'source': 'DuckDuckGo',
+                                    'type': 'web_result'
+                                })
+                    
+                    return results
+                    
+                except json.JSONDecodeError:
+                    self.logger.error("Error decodificando respuesta JSON de DuckDuckGo")
+                    return []
+            else:
+                self.logger.error(f"Error en DuckDuckGo API: {response.status_code}")
+                return []
+                
         except Exception as e:
-            self.logger.error(f"Error en búsqueda DuckDuckGo: {str(e)}")
+            self.logger.error(f"Error en búsqueda DuckDuckGo: {e}")
             return []
     
     def _search_wikipedia(self, query: str) -> List[Dict]:
@@ -309,8 +341,57 @@ class WebSearchService:
             organized_results = {
                 'web_results': [r for r in filtered_results if r.get('type') == 'web_result'],
                 'encyclopedia': [r for r in filtered_results if r.get('type') == 'encyclopedia'],
-                'videos': [r for r in filtered_results if r.get('type') == 'video'],
-                'academic': [r for r in filtered_results if r.get('type') == 'academic'],
+                'all_results': filtered_results[:20]  # Top 20 resultados
+            }
+            
+            return organized_results
+            
+        except Exception as e:
+            self.logger.error(f"Error filtrando resultados: {str(e)}")
+            return {'all_results': []}
+    
+    def _filter_and_rank_results_with_verification(self, results: Dict, context: Dict = None) -> Dict:
+        """Filtra y rankea los resultados con verificación de relevancia por el agente."""
+        try:
+            all_results = []
+            
+            # Combinar solo resultados de DuckDuckGo y Wikipedia
+            for result_type, result_list in results.items():
+                if result_type in ['web_results', 'wikipedia_results']:
+                    for result in result_list:
+                        result['result_type'] = result_type
+                        all_results.append(result)
+            
+            # Filtrar por relevancia y calidad con verificación del agente
+            filtered_results = []
+            for result in all_results:
+                # Verificar que la URL sea válida
+                if not self._is_valid_url(result.get('url', '')):
+                    continue
+                
+                # Filtrar por idioma si se especifica
+                if context and context.get('language') == 'es':
+                    if 'wikipedia.org' in result.get('url', '') and 'en.wikipedia.org' in result.get('url', ''):
+                        continue  # Evitar Wikipedia en inglés si se busca español
+                
+                # Verificar relevancia con el agente
+                relevance_check = self._verify_result_relevance_with_agent(result, context)
+                
+                if relevance_check.get('is_relevant', True):  # Por defecto incluir si no se puede verificar
+                    # Asignar score de relevancia
+                    result['relevance_score'] = self._calculate_relevance_score(result, context)
+                    result['agent_verification'] = relevance_check
+                    filtered_results.append(result)
+                else:
+                    self.logger.info(f"Resultado filtrado por el agente: {result.get('title', 'N/A')}")
+            
+            # Ordenar por relevancia
+            filtered_results.sort(key=lambda x: x.get('relevance_score', 0), reverse=True)
+            
+            # Organizar por tipo (solo web y wikipedia)
+            organized_results = {
+                'web_results': [r for r in filtered_results if r.get('type') == 'web_result'],
+                'encyclopedia': [r for r in filtered_results if r.get('type') == 'encyclopedia'],
                 'all_results': filtered_results[:20]  # Top 20 resultados
             }
             
@@ -324,27 +405,18 @@ class WebSearchService:
         """Calcula un score de relevancia para un resultado"""
         score = 0.0
         
-        # Score base por tipo de fuente
+        # Score base por tipo de fuente (solo DuckDuckGo y Wikipedia)
         source_scores = {
-            'Wikipedia': 0.8,
-            'Khan Academy': 0.9,
-            'Coursera': 0.9,
-            'MIT OpenCourseWare': 0.95,
-            'Harvard Online': 0.95,
-            'DuckDuckGo': 0.6
+            'Wikipedia': 0.9,
+            'DuckDuckGo': 0.7
         }
         
         source = result.get('source', '')
         score += source_scores.get(source, 0.5)
         
-        # Bonus por sitios educativos
-        url = result.get('url', '')
-        if any(site in url for site in self.educational_sites):
-            score += 0.3
-        
         # Bonus por contenido en español (si se especifica)
         if context and context.get('language') == 'es':
-            if 'es.wikipedia.org' in url or 'es.khanacademy.org' in url:
+            if 'es.wikipedia.org' in result.get('url', ''):
                 score += 0.2
         
         return score
@@ -371,3 +443,55 @@ class WebSearchService:
             suggestions.append(f"{query} {term}")
         
         return suggestions[:5] 
+
+    def _get_agent_generated_queries(self, context: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """
+        Usa el agente de contexto para generar consultas optimizadas
+        """
+        try:
+            chat_messages = context.get('chat_messages', [])
+            chat_context = context.get('chat_context', [])
+            current_document = context.get('document_id')
+            user_level = context.get('level', 'secondary')
+            
+            # Llamar al agente
+            agent_result = web_search_context_agent.generate_search_queries(
+                chat_messages=chat_messages,
+                chat_context=chat_context,
+                current_document=current_document,
+                user_level=user_level
+            )
+            
+            return agent_result if agent_result.get('status') == 'success' else None
+            
+        except Exception as e:
+            self.logger.error(f"Error al generar consultas con agente: {str(e)}")
+            return None 
+
+    def _verify_result_relevance_with_agent(self, result: Dict, context: Dict = None) -> Dict[str, Any]:
+        """Verifica la relevancia de un resultado usando el agente."""
+        try:
+            from agents.web_search_agent import web_search_context_agent
+            
+            chat_context = context.get('chat_context', []) if context else []
+            current_document = context.get('document_id') if context else None
+            
+            # Verificar relevancia con el agente
+            verification = web_search_context_agent.verify_result_relevance(
+                search_result=result,
+                context=chat_context,
+                current_document=current_document
+            )
+            
+            return verification
+            
+        except Exception as e:
+            self.logger.error(f"Error en verificación de relevancia: {str(e)}")
+            return {
+                "status": "error",
+                "is_relevant": True,  # Por defecto incluir en caso de error
+                "relevance_score": 5,
+                "reasoning": f"Error en verificación: {str(e)}",
+                "educational_value": "No determinado",
+                "recommendation": "Revisar manualmente"
+            } 

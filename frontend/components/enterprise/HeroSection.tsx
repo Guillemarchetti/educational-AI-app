@@ -16,7 +16,39 @@ import {
   TrendingUp,
   Award,
   Menu,
-  Mail
+  Mail,
+  Search,
+  Globe,
+  Mic,
+  Camera,
+  Video,
+  Headphones,
+  Palette,
+  Gamepad2,
+  Lightbulb,
+  Rocket,
+  Shield,
+  Heart,
+  Clock,
+  BarChart3,
+  Smartphone,
+  Wifi,
+  Cloud,
+  Database,
+  Cpu,
+  Eye,
+  Ear,
+  Hand,
+  Compass,
+  Map,
+  Beaker,
+  Atom,
+  Dna,
+  Leaf,
+  Mountain,
+  Waves,
+  Sun,
+  Moon
 } from 'lucide-react'
 
 interface HeroSectionProps {
@@ -42,9 +74,14 @@ export function HeroSection({
       description: 'Convierte conceptos complejos en explicaciones claras y fáciles de entender'
     },
     {
-      icon: BookOpen,
-      title: 'Gamificación Educativa',
-      description: 'Aprende jugando con desafíos, recompensas y progresión divertida'
+      icon: Search,
+      title: 'Búsquedas Contextuales',
+      description: 'IA que entiende el contexto y encuentra recursos educativos relevantes'
+    },
+    {
+      icon: Globe,
+      title: 'Recursos Verificados',
+      description: 'Acceso a Wikipedia, DuckDuckGo y fuentes educativas confiables'
     },
     {
       icon: Target,
@@ -52,23 +89,28 @@ export function HeroSection({
       description: 'Planifica tu tiempo de estudio de manera eficiente y personalizada'
     },
     {
-      icon: Users,
-      title: 'Experiencia Entretenida',
-      description: 'Disfruta del aprendizaje con contenido interactivo y motivador'
+      icon: Shield,
+      title: 'Verificación de Calidad',
+      description: 'IA que valida la precisión de la información educativa'
+    },
+    {
+      icon: Heart,
+      title: 'Aprendizaje Personalizado',
+      description: 'Se adapta a tu estilo y ritmo de aprendizaje'
     }
   ]
 
   const stats = [
-    { number: '5+', label: 'Agentes IA Especializados', icon: Brain },
-    { number: '100%', label: 'Tiempo Real', icon: Zap },
-    { number: '∞', label: 'Posibilidades', icon: Sparkles },
+    { number: '6', label: 'Características Principales', icon: Brain },
+    { number: '2+', label: 'Fuentes de Búsqueda', icon: Search },
+    { number: '100%', label: 'Contextual', icon: Zap },
     { number: '24/7', label: 'Disponibilidad', icon: Star }
   ]
 
   const achievements = [
     'Simplifica conceptos complejos de forma amena',
-    'Organización inteligente del tiempo de estudio',
-    'Experiencia gamificada y entretenida',
+    'Búsquedas automáticas basadas en contexto',
+    'Recursos educativos verificados y confiables',
     'Aprendizaje personalizado y efectivo'
   ]
 
@@ -117,7 +159,7 @@ export function HeroSection({
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-white">EduAI Hub</span>
+            <span className="text-xl font-bold text-white">ContextAI</span>
           </div>
 
           {/* Navigation */}
@@ -190,9 +232,9 @@ export function HeroSection({
                 transition={{ delay: 0.4, duration: 0.8 }}
                 style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
               >
-                <span className="block -ml-8">EduAI</span>
+                <span className="block -ml-8">Context</span>
                 <span className="block ml-12 text-4xl md:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
-                  Hub
+                  AI
                 </span>
               </motion.h1>
 
@@ -217,8 +259,8 @@ export function HeroSection({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.8 }}
               >
-                Transforma conceptos difíciles en experiencias amenas, organiza tu tiempo de estudio 
-                y disfruta de un aprendizaje gamificado potenciado por inteligencia artificial.
+                Transforma conceptos difíciles en experiencias amenas, encuentra recursos educativos 
+                automáticamente y disfruta de un aprendizaje contextual potenciado por inteligencia artificial.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -321,8 +363,8 @@ export function HeroSection({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.4, duration: 0.6 }}
               >
-                Descubre cómo EduAI Hub revoluciona tu experiencia de aprendizaje con herramientas 
-                inteligentes diseñadas para hacer el estudio más efectivo, entretenido y organizado.
+                Descubre cómo ContextAI revoluciona tu experiencia de aprendizaje con búsquedas 
+                contextuales inteligentes que encuentran automáticamente los recursos educativos más relevantes.
               </motion.p>
             </div>
 
@@ -422,7 +464,7 @@ export function HeroSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.6, duration: 0.6 }}
             >
-              Acerca de EduAI Hub
+              Acerca de ContextAI
             </motion.h2>
             <motion.p 
               className="text-slate-300 text-sm md:text-base max-w-3xl leading-relaxed"
@@ -501,7 +543,7 @@ export function HeroSection({
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center">
                   <GraduationCap className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-lg font-bold text-white">EduAI Hub</span>
+                <span className="text-lg font-bold text-white">ContextAI</span>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed max-w-lg">
                 Transformando la educación a través de la inteligencia artificial. 
@@ -569,7 +611,7 @@ export function HeroSection({
           {/* Copyright */}
           <div className="border-t border-slate-700/30 pt-3 text-center flex items-center justify-center">
             <p className="text-slate-500 text-xs">
-              2025 EduAI Hub. Todos los derechos reservados.
+              2025 ContextAI. Todos los derechos reservados.
             </p>
           </div>
         </motion.footer>
@@ -607,7 +649,7 @@ export function HeroSection({
                 <Mail className="w-5 h-5 text-blue-400" />
                 <div>
                   <p className="text-white font-medium">Email</p>
-                  <p className="text-slate-400 text-sm">info@eduaihub.com</p>
+                  <p className="text-slate-400 text-sm">info@contextai.com</p>
                 </div>
               </div>
               

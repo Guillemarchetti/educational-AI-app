@@ -1,7 +1,7 @@
 {
-  "name": "genie-ai-enterprise",
+  "name": "contextai-frontend",
   "version": "2.0.0",
-  "description": "Genie AI - Enterprise-Grade Financial Intelligence Platform",
+  "description": "ContextAI - Plataforma Educativa con IA Contextual",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -64,11 +64,11 @@
     "nextjs",
     "react",
     "ai",
-    "fintech",
-    "enterprise",
-    "trading",
-    "analytics"
+    "education",
+    "contextual",
+    "learning",
+    "platform"
   ],
-  "author": "Genie AI Enterprise",
+  "author": "ContextAI",
   "license": "Proprietary"
 }

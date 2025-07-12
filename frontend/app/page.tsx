@@ -12,12 +12,14 @@ import { ChatInterface, Message } from '@/components/enterprise/ChatInterface'
 import { FileExplorer } from '@/components/enterprise/FileExplorer'
 import { DocumentStructure } from '@/components/enterprise/DocumentStructure'
 import { Sidebar } from '@/components/enterprise/Sidebar'
+import SidebarWithSearch from '@/components/enterprise/SidebarWithSearch'
 import { ImageSelector } from '@/components/enterprise/ImageSelector'
 import { ContextDisplay } from '@/components/enterprise/ContextDisplay'
 import { KnowledgeMap } from '@/components/enterprise/KnowledgeMap'
 import { WelcomePage } from '@/components/enterprise/WelcomePage'
 import { HeroSection } from '@/components/enterprise/HeroSection'
 import { ProgressTracker } from '@/components/enterprise/ProgressTracker'
+import WebSearchSidebar from '@/components/WebSearchSidebar';
 
 const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
   ssr: false,
@@ -606,22 +608,32 @@ export default function EnterpriseChatPage() {
       case 'search':
         return (
           <div className="h-full w-full bg-enterprise-900 flex items-center justify-center">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-green-500/20 rounded-2xl flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-white">Buscador Web</h2>
-              <p className="text-slate-400 text-lg">Contenido interactivo basado en el contexto</p>
-              <div className="bg-enterprise-800/30 rounded-lg p-6 border border-enterprise-700/50 max-w-md">
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  🔍 <strong>En construcción</strong> 🔍
-                </p>
-                <p className="text-slate-400 text-xs mt-2">
-                  Próximamente: Búsqueda inteligente en la web, contenido interactivo relacionado con el chat y contexto cargado.
-                </p>
-              </div>
+            <div className="max-w-2xl w-full h-full p-6">
+              <WebSearchSidebar
+                currentDocument={selectedFile}
+                currentTopic={selectedFile?.name}
+                userLevel="secondary"
+                chatMessages={messages
+                  .filter(m => 
+                    m.sender === 'user' && 
+                    m.text && 
+                    m.text.trim() !== '' && 
+                    m.text.length < 200 && 
+                    !m.text.includes('🎓') && 
+                    !m.text.includes('¡Bienvenido') &&
+                    !m.text.includes('Documento cargado') &&
+                    !m.text.includes('Contexto disponible') &&
+                    !m.text.includes('¿Qué puedo hacer por ti?') &&
+                    !m.text.includes('¡Adelante, pregunta') &&
+                    m.agent !== 'Sistema'
+                  )
+                  .map(m => ({
+                    content: m.text,
+                    role: 'user',
+                    id: m.id
+                  })) as any}
+                chatContext={contextText as any}
+              />
             </div>
           </div>
         );
@@ -654,7 +666,7 @@ export default function EnterpriseChatPage() {
           {renderMainContent()}
         </div>
       ) : (
-        // Resto de secciones con sidebar
+        // Todas las demás secciones con sidebar (incluyendo search)
         <div className="flex h-full w-full">
           <Sidebar 
             currentSection={currentSection} 

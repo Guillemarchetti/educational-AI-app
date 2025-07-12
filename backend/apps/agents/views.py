@@ -977,10 +977,11 @@ def web_search(request):
         context = data.get('context', {})
         user_id = data.get('user_id', 'default-user')
         
-        if not query:
+        # Permitir query vacío si hay contexto suficiente
+        if not query and not (context.get('chat_messages') or context.get('chat_context') or context.get('subject') or context.get('level')):
             return JsonResponse({
                 'status': 'error',
-                'message': 'Query de búsqueda requerida'
+                'message': 'Query de búsqueda requerida o contexto insuficiente'
             }, status=400)
         
         # Inicializar servicio de búsqueda web

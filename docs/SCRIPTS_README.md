@@ -1,4 +1,4 @@
-# 🚀 Scripts de Gestión de Servidores - Chat Agent AI
+# 🚀 Scripts de Gestión de Servidores - ContextAI
 
 Este proyecto incluye scripts automatizados para gestionar fácilmente los servidores frontend y backend.
 
