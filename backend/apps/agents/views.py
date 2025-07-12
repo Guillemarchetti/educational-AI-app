@@ -70,8 +70,27 @@ class AgentChatAPIView(APIView):
             conversation_context = memory.get_context(limit=10)
 
             # Buscar documentos relevantes si RAG está disponible
+            # Para quizzes, usar solo el contexto explícito del usuario
             relevant_docs = []
-            if self.rag_service:
+            
+            # Mejorar detección de peticiones de quiz
+            message_lower = message.lower()
+            quiz_keywords = ['quiz', 'cuestionario', 'examen', 'test', 'evaluación', 'preguntas']
+            generate_keywords = ['genera', 'crea', 'diseña', 'elabora', 'prepara']
+            
+            is_quiz_request = (
+                any(keyword in message_lower for keyword in quiz_keywords) or
+                (any(gen_keyword in message_lower for gen_keyword in generate_keywords) and 
+                 any(quiz_keyword in message_lower for quiz_keyword in quiz_keywords)) or
+                "preguntas" in message_lower and ("genera" in message_lower or "crea" in message_lower)
+            )
+            
+            # Si es petición de quiz, forzar uso del EvaluatorAgent
+            if is_quiz_request and not agent_type:
+                agent_type = 'evaluator'
+                logger.info(f"Petición de quiz detectada, usando EvaluatorAgent")
+            
+            if self.rag_service and not is_quiz_request:
                 try:
                     relevant_docs = self.rag_service.search_relevant_content(
                         message, user_id, top_k=5
@@ -87,6 +106,7 @@ class AgentChatAPIView(APIView):
                 'user_profile': self._get_user_profile(user_id),
                 'session_metadata': memory.get_session_metadata(),
                 'explicit_context': explicit_context,
+                'is_quiz_request': is_quiz_request,
             }
 
             # Procesar consulta con Agent Manager
