@@ -18,6 +18,7 @@ import { KnowledgeMap } from '@/components/enterprise/KnowledgeMap'
 import { WelcomePage } from '@/components/enterprise/WelcomePage'
 import { HeroSection } from '@/components/enterprise/HeroSection'
 import { ProgressTracker } from '@/components/enterprise/ProgressTracker'
+import { PomodoroSession, PomodoroStats } from '@/components/enterprise/pomodoro'
 
 const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
   ssr: false,
@@ -48,6 +49,12 @@ export default function EnterpriseChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [showProgress, setShowProgress] = useState(false)
   const [isDocumentsPanelCollapsed, setIsDocumentsPanelCollapsed] = useState(false)
+
+  // Handler para sesión completada
+  const handlePomodoroSessionComplete = (session: any) => {
+    console.log('Sesión completada:', session);
+    // Aquí podrías guardar estadísticas, mostrar notificaciones, etc.
+  };
 
   // Resetear notificación cuando cambiamos de sección
   useEffect(() => {
@@ -582,24 +589,8 @@ export default function EnterpriseChatPage() {
 
       case 'pomodoro':
         return (
-          <div className="h-full w-full bg-enterprise-900 flex items-center justify-center">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-blue-500/20 rounded-2xl flex items-center justify-center">
-                <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-white">Organizador</h2>
-              <p className="text-slate-400 text-lg">Sistema de recordatorios con Técnica Pomodoro</p>
-              <div className="bg-enterprise-800/30 rounded-lg p-6 border border-enterprise-700/50 max-w-md">
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  🚧 <strong>En construcción</strong> 🚧
-                </p>
-                <p className="text-slate-400 text-xs mt-2">
-                  Próximamente: Temporizador personalizado, sesiones de estudio organizadas y sistema de recompensas.
-                </p>
-              </div>
-            </div>
+          <div className="h-full w-full bg-enterprise-900">
+            <PomodoroSession onSessionComplete={handlePomodoroSessionComplete} />
           </div>
         );
 

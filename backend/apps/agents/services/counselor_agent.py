@@ -431,7 +431,7 @@ Enfócate en soluciones prácticas y empoderadoras.
     
     def _extract_recommended_tools(self, response: str) -> List[str]:
         """Extraer herramientas recomendadas"""
-        return ["Anki para memorización", "Pomodoro Timer", "Notion para organización"]
+        return ["Anki para memorización", "Temporizador de estudio", "Notion para organización"]
     
     def _extract_career_recommendations(self, response: str) -> List[Dict[str, str]]:
         """Extraer recomendaciones de carrera"""

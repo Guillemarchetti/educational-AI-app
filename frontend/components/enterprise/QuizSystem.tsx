@@ -310,16 +310,16 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4"
     >
       <motion.div
-        className="bg-enterprise-900 border border-enterprise-800 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-enterprise-900 border border-enterprise-800 rounded-xl shadow-2xl w-full max-w-4xl h-full max-h-[98vh] overflow-hidden flex flex-col"
         initial={{ y: 50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1 }}
       >
         {/* Header */}
-        <div className="p-6 border-b border-enterprise-800">
+        <div className="p-4 sm:p-6 border-b border-enterprise-800 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
@@ -332,14 +332,14 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
             </div>
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-white transition-colors"
+              className="text-slate-400 hover:text-white transition-colors text-2xl leading-none"
             >
               ×
             </button>
           </div>
         </div>
 
-        <div className="p-6">
+        <div className="p-4 sm:p-6 flex-1 overflow-y-auto min-h-0">
           <AnimatePresence mode="wait">
             {!quizSession && !isGenerating && (
               <motion.div
@@ -349,25 +349,25 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                 exit={{ opacity: 0, y: -20 }}
                 className="text-center"
               >
-                <div className="mb-6">
-                  <Target className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                <div className="mb-4">
+                  <Target className="w-12 h-12 text-purple-400 mx-auto mb-3" />
+                  <h3 className="text-base font-semibold text-white mb-1">
                     ¿Listo para el desafío?
                   </h3>
-                  <p className="text-slate-400 mb-6">
+                  <p className="text-slate-400 mb-4 text-sm">
                     Generaremos un quiz personalizado basado en el contexto que has agregado al chat
                   </p>
                   
                   {/* Información del contexto */}
                   {context.length > 0 && (
-                    <div className="bg-enterprise-800/50 rounded-lg p-4 border border-enterprise-700 mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                          <BookOpen className="w-5 h-5 text-purple-400" />
+                    <div className="bg-enterprise-800/50 rounded-lg p-3 border border-enterprise-700 mb-4">
+                      <div className="flex items-start gap-2">
+                        <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                          <BookOpen className="w-4 h-4 text-purple-400" />
                         </div>
-                        <div className="flex-1">
-                          <h4 className="text-white font-semibold">Contexto Disponible</h4>
-                          <p className="text-slate-400 text-sm mb-2">{context.length} elemento(s) agregado(s)</p>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-white font-semibold text-sm">Contexto Disponible</h4>
+                          <p className="text-slate-400 text-xs mb-2">{context.length} elemento(s) agregado(s)</p>
                           
                           {/* Mostrar tipos de contexto */}
                           <div className="flex flex-wrap gap-2">
@@ -376,20 +376,21 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                               const isText = item.includes('Contexto del archivo') || item.includes('Contexto del documento')
                               const isStructure = item.includes('📚') && item.includes('Ruta:')
                               
+                              // Filtrar elementos de imagen
+                              if (isImage) return null;
+                              
                               return (
                                 <span 
                                   key={index}
-                                  className={`px-2 py-1 rounded text-xs font-medium ${
-                                    isImage 
-                                      ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                                      : isText
+                                  className={`px-2 py-1 rounded text-xs font-medium flex-shrink-0 ${
+                                    isText
                                       ? 'bg-green-500/20 text-green-300 border border-green-500/30'
                                       : isStructure
                                       ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
                                       : 'bg-gray-500/20 text-gray-300 border border-gray-500/30'
                                   }`}
                                 >
-                                  {isImage ? '🖼️ Imagen' : isText ? '📄 Texto' : isStructure ? '📚 Estructura' : '📝 Contexto'}
+                                  {isText ? '📄 Texto' : isStructure ? '📚 Estructura' : '📝 Contexto'}
                                 </span>
                               )
                             })}
@@ -400,20 +401,20 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                  <div className="p-4 bg-enterprise-800/50 rounded-lg border border-enterprise-700">
-                    <Clock className="w-6 h-6 text-sky-400 mx-auto mb-2" />
-                    <p className="text-white font-semibold">10 min</p>
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="p-3 bg-enterprise-800/50 rounded-lg border border-enterprise-700 text-center">
+                    <Clock className="w-5 h-5 text-sky-400 mx-auto mb-1" />
+                    <p className="text-white font-semibold text-sm">10 min</p>
                     <p className="text-xs text-slate-400">Tiempo límite</p>
                   </div>
-                  <div className="p-4 bg-enterprise-800/50 rounded-lg border border-enterprise-700">
-                    <BookOpen className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                    <p className="text-white font-semibold">5 preguntas</p>
+                  <div className="p-3 bg-enterprise-800/50 rounded-lg border border-enterprise-700 text-center">
+                    <BookOpen className="w-5 h-5 text-green-400 mx-auto mb-1" />
+                    <p className="text-white font-semibold text-sm">5 preguntas</p>
                     <p className="text-xs text-slate-400">Basadas en tu PDF</p>
                   </div>
-                  <div className="p-4 bg-enterprise-800/50 rounded-lg border border-enterprise-700">
-                    <Trophy className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-                    <p className="text-white font-semibold">Puntuación</p>
+                  <div className="p-3 bg-enterprise-800/50 rounded-lg border border-enterprise-700 text-center">
+                    <Trophy className="w-5 h-5 text-yellow-400 mx-auto mb-1" />
+                    <p className="text-white font-semibold text-sm">Puntuación</p>
                     <p className="text-xs text-slate-400">Con explicaciones</p>
                   </div>
                 </div>
@@ -421,7 +422,7 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                 <button
                   onClick={generateQuiz}
                   disabled={context.length === 0}
-                  className={`px-6 py-3 rounded-lg font-semibold transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 text-sm ${
                     context.length === 0
                       ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
                       : 'bg-purple-600 hover:bg-purple-700 text-white hover:scale-105'
@@ -438,13 +439,13 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="text-center py-12"
+                className="text-center py-8"
               >
-                <div className="animate-spin w-12 h-12 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">
+                <div className="animate-spin w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-3" />
+                <h3 className="text-base font-semibold text-white mb-2">
                   Generando tu quiz personalizado...
                 </h3>
-                <p className="text-slate-400">
+                <p className="text-slate-400 text-sm">
                   Analizando el contenido de tu documento
                 </p>
               </motion.div>
@@ -458,12 +459,12 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                 exit={{ opacity: 0, x: -20 }}
               >
                 {/* Progress y Timer */}
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
                     <div className="text-sm text-slate-400">
                       Pregunta {quizSession.currentQuestion + 1} de {quizSession.totalQuestions}
                     </div>
-                    <div className="w-32 bg-enterprise-700 rounded-full h-2">
+                    <div className="w-24 bg-enterprise-700 rounded-full h-2">
                       <div 
                         className="bg-purple-500 h-2 rounded-full transition-all duration-300"
                         style={{ width: `${((quizSession.currentQuestion + 1) / quizSession.totalQuestions) * 100}%` }}
@@ -479,17 +480,17 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                 </div>
 
                 {/* Pregunta actual */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold text-white mb-6">
+                <div className="mb-4">
+                  <h3 className="text-base font-semibold text-white mb-4">
                     {quizSession.questions[quizSession.currentQuestion]?.question}
                   </h3>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {quizSession.questions[quizSession.currentQuestion]?.options.map((option, index) => (
                       <motion.button
                         key={index}
                         onClick={() => handleAnswerSelect(index)}
-                        className={`w-full p-4 rounded-lg border transition-all duration-200 text-left ${
+                        className={`w-full p-3 rounded-lg border transition-all duration-200 text-left ${
                           selectedAnswer === index
                             ? 'bg-purple-500/20 border-purple-500/50 text-purple-400'
                             : 'bg-enterprise-800/50 border-enterprise-700 text-slate-300 hover:bg-enterprise-700/50'
@@ -497,17 +498,17 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                        <div className="flex items-center gap-2">
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
                             selectedAnswer === index
                               ? 'border-purple-400 bg-purple-400'
                               : 'border-slate-500'
                           }`}>
                             {selectedAnswer === index && (
-                              <CheckCircle className="w-4 h-4 text-white" />
+                              <CheckCircle className="w-3 h-3 text-white" />
                             )}
                           </div>
-                          <span className="font-medium">{option}</span>
+                          <span className="font-medium text-sm">{option}</span>
                         </div>
                       </motion.button>
                     ))}
@@ -515,37 +516,37 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                 </div>
 
                 {/* Botón confirmar */}
-                <div className="flex justify-end">
+                <div className="flex justify-end mt-3">
                   <button
                     onClick={confirmAnswer}
                     disabled={selectedAnswer === null}
-                    className={`px-6 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 ${
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all duration-200 flex items-center gap-2 text-sm ${
                       selectedAnswer === null
                         ? 'bg-slate-600 text-slate-400 cursor-not-allowed'
                         : 'bg-purple-600 hover:bg-purple-700 text-white hover:scale-105'
                     }`}
                   >
                     {quizSession.currentQuestion + 1 === quizSession.totalQuestions ? 'Finalizar' : 'Siguiente'}
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3 h-3" />
                   </button>
                 </div>
               </motion.div>
             )}
 
-            {showResults && quizSession && (
+            {showResults && quizSession && !showErrorSummary && (
               <motion.div
                 key="results"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
+                className="text-center h-full flex flex-col"
               >
-                <div className="mb-6">
-                  <div className={`w-20 h-20 rounded-full mx-auto mb-4 flex items-center justify-center ${
+                <div className="mb-4 flex-shrink-0">
+                  <div className={`w-16 h-16 rounded-full mx-auto mb-3 flex items-center justify-center ${
                     getScorePercentage() >= 80 ? 'bg-green-500/20' : 'bg-yellow-500/20'
                   }`}>
-                    <Trophy className={`w-10 h-10 ${getScoreColor(getScorePercentage())}`} />
+                    <Trophy className={`w-8 h-8 ${getScoreColor(getScorePercentage())}`} />
                   </div>
-                  <h3 className="text-2xl font-bold text-white mb-2">
+                  <h3 className="text-xl font-bold text-white mb-2">
                     ¡Quiz Completado!
                   </h3>
                   <p className={`text-lg font-semibold ${getScoreColor(getScorePercentage())}`}>
@@ -557,21 +558,21 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                 </div>
 
                 {/* Estadísticas */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                  <div className="p-4 bg-enterprise-800/50 rounded-lg">
-                    <p className="text-2xl font-bold text-white">{getScorePercentage()}%</p>
+                <div className="grid grid-cols-3 gap-3 mb-4 flex-shrink-0">
+                  <div className="p-3 bg-enterprise-800/50 rounded-lg">
+                    <p className="text-xl font-bold text-white">{getScorePercentage()}%</p>
                     <p className="text-xs text-slate-400">Precisión</p>
                   </div>
-                  <div className="p-4 bg-enterprise-800/50 rounded-lg">
-                    <p className="text-2xl font-bold text-white">
+                  <div className="p-3 bg-enterprise-800/50 rounded-lg">
+                    <p className="text-xl font-bold text-white">
                       {quizSession.endTime && quizSession.startTime 
                         ? Math.round((quizSession.endTime.getTime() - quizSession.startTime.getTime()) / 1000 / 60)
                         : 0} min
                     </p>
                     <p className="text-xs text-slate-400">Tiempo</p>
                   </div>
-                  <div className="p-4 bg-enterprise-800/50 rounded-lg">
-                    <p className="text-2xl font-bold text-white">
+                  <div className="p-3 bg-enterprise-800/50 rounded-lg">
+                    <p className="text-xl font-bold text-white">
                       {quizSession.questions.filter((_, i) => quizSession.answers[i] === quizSession.questions[i].correctAnswer).length}
                     </p>
                     <p className="text-xs text-slate-400">Correctas</p>
@@ -579,10 +580,10 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                 </div>
 
                 {/* Botones de acción */}
-                <div className="flex gap-3 justify-center">
+                <div className="flex flex-wrap gap-3 justify-center flex-shrink-0">
                   <button
                     onClick={restartQuiz}
-                    className="px-6 py-2 rounded-lg bg-enterprise-700 hover:bg-enterprise-600 text-white font-semibold transition-colors"
+                    className="px-4 py-2 rounded-lg bg-enterprise-700 hover:bg-enterprise-600 text-white font-semibold transition-colors text-sm"
                   >
                     <RotateCcw className="w-4 h-4 inline mr-2" />
                     Nuevo Quiz
@@ -590,7 +591,7 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                   {getQuizErrors().length > 0 && (
                     <button
                       onClick={() => setShowErrorSummary(true)}
-                      className="px-6 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold transition-colors"
+                      className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold transition-colors text-sm"
                     >
                       <BookOpen className="w-4 h-4 inline mr-2" />
                       Ver Errores ({getQuizErrors().length})
@@ -598,7 +599,7 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                   )}
                   <button
                     onClick={sendReinforcementToChat}
-                    className="px-6 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-colors"
+                    className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-colors text-sm"
                   >
                     <Brain className="w-4 h-4 inline mr-2" />
                     Repasar Conceptos
@@ -612,61 +613,71 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                 key="error-summary"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center"
+                className="h-full flex flex-col"
               >
-                <div className="mb-6">
-                  <XCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">
-                    Resumen de Errores
+                {/* Header compacto */}
+                <div className="mb-3 flex-shrink-0 text-center">
+                  <h3 className="text-base font-bold text-white mb-1">
+                    Errores del Quiz
                   </h3>
-                  <p className="text-slate-400">
-                    Conceptos que necesitas reforzar
+                  <p className="text-slate-400 text-sm">
+                    {getQuizErrors().length} pregunta(s) incorrecta(s)
                   </p>
                 </div>
 
-                {/* Lista de errores */}
-                <div className="space-y-4 mb-6 max-h-96 overflow-y-auto">
-                  {getQuizErrors().map((error, index) => (
-                    <div key={index} className="p-4 bg-enterprise-800/50 rounded-lg border border-red-500/30">
-                      <h4 className="font-semibold text-white mb-2">
-                        Pregunta {index + 1}
-                      </h4>
-                      <p className="text-slate-300 mb-3">{error.question}</p>
-                      
-                      <div className="space-y-2 text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-red-400">❌ Tu respuesta:</span>
-                          <span className="text-slate-300">{error.userAnswer}</span>
+                {/* Lista de errores - Usa todo el espacio disponible */}
+                <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-red-500/50 scrollbar-track-transparent">
+                  <div className="space-y-3">
+                    {getQuizErrors().map((error, index) => (
+                      <div key={index} className="p-3 bg-enterprise-800/50 rounded-lg border border-red-500/30">
+                        <h4 className="font-semibold text-white mb-2 text-sm">
+                          Pregunta {index + 1}
+                        </h4>
+                        <p className="text-slate-300 mb-3 text-sm leading-relaxed">{error.question}</p>
+                        
+                        <div className="space-y-2 text-sm mb-3">
+                          <div className="flex items-start gap-2">
+                            <span className="text-red-400 flex-shrink-0">❌ Tu respuesta:</span>
+                            <span className="text-slate-300">{error.userAnswer}</span>
+                          </div>
+                          <div className="flex items-start gap-2">
+                            <span className="text-green-400 flex-shrink-0">✅ Respuesta correcta:</span>
+                            <span className="text-slate-300">{error.correctAnswer}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-green-400">✅ Respuesta correcta:</span>
-                          <span className="text-slate-300">{error.correctAnswer}</span>
+                        
+                        <div className="p-3 bg-enterprise-900/50 rounded border-l-4 border-blue-500">
+                          <p className="text-blue-300 text-sm leading-relaxed">
+                            <strong>Explicación:</strong> {error.explanation}
+                          </p>
                         </div>
                       </div>
-                      
-                      <div className="mt-3 p-3 bg-enterprise-900/50 rounded border-l-4 border-blue-500">
-                        <p className="text-blue-300 text-sm">
-                          <strong>Explicación:</strong> {error.explanation}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
 
-                {/* Botones de acción */}
-                <div className="flex gap-3 justify-center">
+                {/* Botones de acción fijos abajo */}
+                <div className="flex flex-wrap gap-3 justify-center mt-4 flex-shrink-0 pt-3 border-t border-enterprise-700">
+                  <button
+                    onClick={restartQuiz}
+                    className="px-4 py-2 rounded-lg bg-enterprise-700 hover:bg-enterprise-600 text-white font-semibold transition-colors text-sm"
+                  >
+                    <RotateCcw className="w-4 h-4 inline mr-2" />
+                    Nuevo Quiz
+                  </button>
                   <button
                     onClick={() => setShowErrorSummary(false)}
-                    className="px-6 py-2 rounded-lg bg-enterprise-700 hover:bg-enterprise-600 text-white font-semibold transition-colors"
+                    className="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold transition-colors text-sm"
                   >
-                    Volver a Resultados
+                    <BookOpen className="w-4 h-4 inline mr-2" />
+                    Ver Resultados
                   </button>
                   <button
                     onClick={sendReinforcementToChat}
-                    className="px-6 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-colors"
+                    className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold transition-colors text-sm"
                   >
                     <Brain className="w-4 h-4 inline mr-2" />
-                    Enviar Refuerzo al Chat
+                    Repasar Conceptos
                   </button>
                 </div>
               </motion.div>

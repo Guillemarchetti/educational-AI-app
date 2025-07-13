@@ -290,17 +290,7 @@ export function PdfViewer({ selectedFile, isSelectionMode = false, onImageSelect
       </header>
       
       <div className="flex-1 overflow-auto p-4 flex justify-center relative" ref={containerRef}>
-        {/* Indicador de modo selección discreto */}
-        {isSelectionMode && (
-          <div className="absolute top-6 left-4 z-50 animate-in fade-in duration-300">
-            <div className="bg-blue-600/90 text-white px-3 py-2 rounded-xl shadow-lg border border-blue-400/30 backdrop-blur-sm">
-              <div className="flex items-center gap-2">
-                <Square className="w-3 h-3 text-white" />
-                <span className="text-xs font-medium">Arrastre para seleccionar</span>
-              </div>
-            </div>
-          </div>
-        )}
+
         
         <div 
           className={`relative ${isSelectionMode ? 'cursor-crosshair' : ''}`} 
