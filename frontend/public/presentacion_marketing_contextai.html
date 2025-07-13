@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentación Marketing - Context AI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f1123 0%, #1a1c3b 100%);
+      color: #fff;
+    }
+    .slide {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      padding: 40px 20px 0 20px;
+      box-sizing: border-box;
+      text-align: center;
+      position: relative;
+    }
+    .slide.active {
+      display: flex;
+    }
+    .logo {
+      width: 220px;
+      margin-bottom: 32px;
+      margin-top: 16px;
+      border-radius: 32px;
+      background: none;
+      box-shadow: none;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .logo-corner {
+      width: 90px;
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      margin: 0;
+      border-radius: 24px;
+      background: none;
+      box-shadow: none;
+      z-index: 2;
+      display: block;
+    }
+    .title {
+      font-size: 2.8rem;
+      font-weight: bold;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+    .subtitle {
+      font-size: 1.4rem;
+      color: #00bcd4;
+      margin-bottom: 32px;
+    }
+    .content {
+      font-size: 1.2rem;
+      margin-bottom: 24px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .img-placeholder, .video-placeholder {
+      width: 340px;
+      height: 200px;
+      background: #23244a;
+      border: 2px dashed #00bcd4;
+      border-radius: 16px;
+      margin: 24px auto 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #00bcd4;
+      font-size: 1.1rem;
+    }
+    .nav-btns {
+      position: fixed;
+      bottom: 32px;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      z-index: 10;
+    }
+    .nav-btn {
+      background: #00bcd4;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 32px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .nav-btn:disabled {
+      background: #444a;
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    @media (max-width: 600px) {
+      .title { font-size: 2rem; }
+      .content { font-size: 1rem; }
+      .img-placeholder, .video-placeholder { width: 90vw; height: 120px; }
+      .logo { width: 110px; }
+      .logo-corner { width: 54px; top: 10px; left: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Slide 1: Portada -->
+  <div class="slide active">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo">
+    <div class="title">Context AI: Revoluciona tu aprendizaje</div>
+    <div class="subtitle">Inteligencia contextual para la educación del futuro</div>
+  </div>
+
+  <!-- Slide 2: ¿Qué es Context AI? -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">¿Qué es Context AI?</div>
+    <div class="content">
+      Plataforma de inteligencia contextual que replica la experiencia de un tutor personal experto, disponible 24/7, con capacidades que trascienden lo humano.<br>
+      <b>El primer sistema educativo que combina comprensión contextual profunda con adaptación personalizada en tiempo real.</b>
+    </div>
+    <div class="img-placeholder">[Espacio reservado para imagen conceptual]</div>
+  </div>
+
+  <!-- Slide 3: ¿Cómo funciona Context AI? -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">¿Cómo funciona Context AI?</div>
+    <div class="content">
+      <b>Basado en materiales educativos oficiales:</b> Context AI utiliza exclusivamente los materiales del sistema educativo oficial, asegurando que las respuestas sean precisas, alineadas al currículo y libres de alucinaciones.<br><br>
+      Comprende el contexto completo de tu aprendizaje.<br>
+      Analiza materiales educativos, imágenes, gráficos y conversaciones previas.<br>
+      Adapta sus respuestas a tu nivel, ritmo y estilo de aprendizaje.
+    </div>
+    <div class="img-placeholder">[Espacio reservado para diagrama de flujo]</div>
+  </div>
+
+  <!-- Slide 4: Beneficios para Estudiantes -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Tu tutor personal, siempre disponible</div>
+    <div class="content">
+      Explicaciones a medida.<br>
+      Práctica inteligente y seguimiento de progreso.<br>
+      Refuerzo personalizado y motivador.
+    </div>
+    <div class="img-placeholder">[Espacio reservado para imagen de estudiante]</div>
+  </div>
+
+  <!-- Slide 5: Beneficios para Docentes e Instituciones -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Potencia la educación, amplifica el impacto</div>
+    <div class="content">
+      Análisis detallado del progreso de los alumnos.<br>
+      Generación automática de materiales educativos.<br>
+      Escalabilidad y eficiencia operativa.
+    </div>
+    <div class="img-placeholder">[Espacio reservado para imagen de aula o dashboard]</div>
+  </div>
+
+  <!-- Slide 6: Diferenciadores Clave -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">¿Por qué Context AI es único?</div>
+    <div class="content">
+      Memoria de largo plazo y aprendizaje continuo.<br>
+      Integración total: chat, documentos, imágenes, evaluaciones.<br>
+      <b>Respuestas alineadas al currículo oficial, sin alucinaciones.</b><br>
+      Personalización profunda y democratización del acceso.
+    </div>
+    <div class="img-placeholder">[Espacio reservado para iconos o infografía]</div>
+  </div>
+
+  <!-- Slide 7: Arquitectura Inteligente -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Tecnología de vanguardia</div>
+    <div class="content">
+      Agentes especializados: Tutor, Evaluador, Creador de Contenido, Analista.<br>
+      Análisis multimodal avanzado (texto, imágenes, PDFs, diagramas).<br>
+      Adaptación dinámica en tiempo real.
+    </div>
+    <div class="img-placeholder">[Espacio reservado para esquema técnico]</div>
+  </div>
+
+  <!-- Slide 8: Impacto Social y Filosofía -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Educación como derecho universal</div>
+    <div class="content">
+      Democratización del conocimiento.<br>
+      Inclusión digital y desarrollo de talento.<br>
+      Preparación para el futuro.
+    </div>
+    <div class="img-placeholder">[Espacio reservado para imagen inspiradora]</div>
+  </div>
+
+  <!-- Slide 9: Video Demostrativo -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">¡Mira Context AI en acción!</div>
+    <div class="video-placeholder">[Espacio reservado para video demostrativo]</div>
+  </div>
+
+  <!-- Slide 10: Llamado a la acción -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Únete a la revolución educativa</div>
+    <div class="content">
+      Descubre cómo Context AI puede transformar tu aprendizaje o institución.<br>
+      <span style="color:#00bcd4;">Contáctanos para más información.</span>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="nav-btn" id="prevBtn">Anterior</button>
+    <button class="nav-btn" id="nextBtn">Siguiente</button>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let current = 0;
+    function showSlide(idx) {
+      slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+      document.getElementById('prevBtn').disabled = idx === 0;
+      document.getElementById('nextBtn').disabled = idx === slides.length - 1;
+    }
+    document.getElementById('prevBtn').onclick = () => {
+      if (current > 0) { current--; showSlide(current); }
+    };
+    document.getElementById('nextBtn').onclick = () => {
+      if (current < slides.length - 1) { current++; showSlide(current); }
+    };
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') document.getElementById('nextBtn').click();
+      if (e.key === 'ArrowLeft') document.getElementById('prevBtn').click();
+    });
+    // Touch support
+    let startX = null;
+    document.body.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) startX = e.touches[0].clientX;
+    });
+    document.body.addEventListener('touchend', e => {
+      if (startX !== null && e.changedTouches.length === 1) {
+        let dx = e.changedTouches[0].clientX - startX;
+        if (dx < -50) document.getElementById('nextBtn').click();
+        if (dx > 50) document.getElementById('prevBtn').click();
+      }
+      startX = null;
+    });
+  </script>
+</body>
+</html> 

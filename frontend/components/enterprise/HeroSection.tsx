@@ -190,9 +190,9 @@ export function HeroSection({
                 transition={{ delay: 0.4, duration: 0.8 }}
                 style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
               >
-                <span className="block -ml-8">EduAI</span>
+                <span className="block -ml-8">Context</span>
                 <span className="block ml-12 text-4xl md:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
-                  Hub
+                  AI
                 </span>
               </motion.h1>
 
@@ -422,7 +422,7 @@ export function HeroSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.6, duration: 0.6 }}
             >
-              Acerca de EduAI Hub
+              Acerca de Context AI
             </motion.h2>
             <motion.p 
               className="text-slate-300 text-sm md:text-base max-w-3xl leading-relaxed"

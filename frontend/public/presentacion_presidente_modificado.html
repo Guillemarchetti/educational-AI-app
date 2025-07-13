@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Agent AI - Revolución Educativa en Paraguay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Merriweather:wght@700&display=swap" rel="stylesheet">
+    <!-- Cambios de estilo global -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif; font-family: 'Merriweather', serif;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        .slide {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            width: 100vw;
+            padding: 0 2rem;
+            position: absolute;
+            top: 0; left: 0;
+            background: transparent;
+            opacity: 0;
+            transition: opacity 0.7s cubic-bezier(.4,0,.2,1), transform 0.7s cubic-bezier(.4,0,.2,1);
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            z-index: 10;
+            transform: translateY(0);
+            animation: fadeInUp 1s;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .gradient-title {
+            background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-fill-color: transparent;
+        }
+        .cta-btn {
+            background: linear-gradient(90deg, #2563eb 0%, #7c3aed 100%);
+            color: #fff;
+            font-weight: bold;
+            border-radius: 9999px;
+            padding: 1rem 2.5rem;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 24px 0 rgba(124,58,237,0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .cta-btn:hover {
+            transform: translateY(-4px) scale(1.04);
+            box-shadow: 0 8px 32px 0 rgba(37,99,235,0.18);
+        }
+        .section-img {
+            width: 100%;
+            max-width: 520px;
+            height: 320px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem 0;
+            font-size: 1.2rem;
+            color: #c7d2fe;
+            border: 2px dashed #7c3aed33;
+        }
+        .slide .stat {
+            font-size: 3rem;
+            font-weight: 800;
+            color: #fbbf24;
+            margin-bottom: 0.5rem;
+        }
+        .slide .stat-label {
+            font-size: 1.2rem;
+            color: #e0e7ef;
+            margin-bottom: 1.5rem;
+        }
+        .slide .feature-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2.5rem;
+            justify-content: center;
+            margin: 2rem 0;
+        }
+        .slide .feature-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 180px;
+            max-width: 220px;
+            text-align: center;
+        }
+        .slide .feature-icon {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 1rem;
+            color: #7c3aed;
+        }
+        .slide .benefit-section {
+            background: linear-gradient(90deg, #ede9fe 0%, #f3f4f6 100%);
+            color: #312e81;
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 2px 24px 0 rgba(124,58,237,0.08);
+        }
+        .slide .video-section {
+            background: linear-gradient(135deg, #312e81 0%, #2563eb 100%);
+            border-radius: 2rem;
+            padding: 2rem;
+            margin: 2rem 0;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+        .slide .final-cta {
+            background: #fff;
+            color: #2563eb;
+            border-radius: 2rem;
+            padding: 3rem 2rem;
+            margin: 2rem 0;
+            width: 100%;
+            max-width: 900px;
+            box-shadow: 0 2px 24px 0 rgba(37,99,235,0.08);
+            text-align: center;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .corporate-logo {
+            width: 60px;
+            height: 60px;
+        }
+        .fullscreen-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+    <!-- Branding & Logo -->
+    <div class="fixed top-0 left-0 z-50 flex items-center p-6">
+        <!-- Logo temporal ContextAI -->
+        <svg class="corporate-logo mr-3" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="32" cy="32" r="32" fill="#2563eb"/>
+            <text x="32" y="40" text-anchor="middle" font-size="28" fill="white" font-family="Inter, sans-serif">CAI</text>
+        </svg>
+        <span class="text-2xl font-extrabold text-[#2563eb] tracking-tight">ContextAI</span>
+    </div>
+    <!-- Fullscreen Button -->
+    <button class="fullscreen-btn bg-white/80 rounded-full p-2 shadow hover:bg-blue-100 transition" onclick="toggleFullscreen()" title="Pantalla completa">
+        <!-- Heroicon: Arrows Expand -->
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-7 h-7">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8.25V6a2.25 2.25 0 012.25-2.25h2.25M21 15.75V18a2.25 2.25 0 01-2.25 2.25h-2.25M3 8.25h4.5M3 8.25v4.5m0-4.5l5.25 5.25M21 15.75h-4.5M21 15.75v-4.5m0 4.5l-5.25-5.25" />
+        </svg>
+    </button>
+    <!-- Slides -->
+    <div id="slides-container" class="relative w-full h-full">
+        <!-- Slide 1: Portada -->
+        <section class="slide active bg-white">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <div class="mb-8">
+                    <!-- Logo temporal ContextAI grande -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 64 64" class="w-32 h-32 mb-4">
+                        <circle cx="32" cy="32" r="32" fill="#2563eb"/>
+                        <text x="32" y="44" text-anchor="middle" font-size="36" fill="white" font-family="Inter, sans-serif">CAI</text>
+                    </svg>
+                </div>
+                <h1 class="text-5xl font-extrabold text-[#2563eb] mb-4 text-center">ContextAI</h1>
+                <h2 class="text-2xl font-semibold text-gray-700 mb-8 text-center">Proyecto de asistentes de aprendizaje para la Educación Paraguaya</h2>
+                <div class="flex space-x-8 mt-4">
+                    <div class="flex flex-col items-center">
+                        <span class="text-3xl font-bold text-[#2563eb]">1.2M</span>
+                        <span class="text-gray-500">Estudiantes</span>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <span class="text-3xl font-bold text-[#2563eb]">24/7</span>
+                        <span class="text-gray-500">Disponible</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Slide 2: Crisis de las Tutorías -->
+        <section class="slide bg-[#f1f5f9]">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <h2 class="text-4xl font-bold text-[#dc2626] mb-4">REALIDAD ACTUAL EN PARAGUAY</h2>
+                <div class="text-xl text-[#dc2626] mb-8">Solo 15,000 estudiantes con tutorías (de 1.2M total)</div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Currency Dollar -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#dc2626" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75A6.75 6.75 0 1012 5.25a6.75 6.75 0 000 13.5z" />
+                        </svg>
+                        <span class="font-bold text-lg">Costo Promedio</span>
+                        <span class="text-2xl font-bold text-[#dc2626]">$50-100 USD/mes</span>
+                        <span class="text-gray-500">por estudiante</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Clock -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#f59e42" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                            <circle cx="12" cy="12" r="9" stroke="#f59e42" stroke-width="1.5" fill="none" />
+                        </svg>
+                        <span class="font-bold text-lg">Horarios Limitados</span>
+                        <span class="text-2xl font-bold text-[#f59e42]">2-3 horas</span>
+                        <span class="text-gray-500">por semana</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Globe Alt -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#fbbf24" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25M12 18.75V21M4.219 4.219l1.591 1.591M18.19 18.19l1.591 1.591M3 12h2.25M18.75 12H21M4.219 19.781l1.591-1.591M18.19 5.81l1.591-1.591" />
+                            <circle cx="12" cy="12" r="9" stroke="#fbbf24" stroke-width="1.5" fill="none" />
+                        </svg>
+                        <span class="font-bold text-lg">Acceso Desigual</span>
+                        <span class="text-2xl font-bold text-[#fbbf24]">1.25%</span>
+                        <span class="text-gray-500">de estudiantes</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl mt-8">
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: User Group -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#a78bfa" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M15 11a4 4 0 10-8 0 4 4 0 008 0zm6 8a2 2 0 01-2 2H5a2 2 0 01-2-2v-2a6 6 0 016-6h4a6 6 0 016 6v2z" />
+                        </svg>
+                        <span class="font-bold text-lg">Calidad Variable</span>
+                        <span class="text-[#a78bfa]">Depende del tutor disponible</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: X Circle -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#ec4899" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            <circle cx="12" cy="12" r="9" stroke="#ec4899" stroke-width="1.5" fill="none" />
+                        </svg>
+                        <span class="font-bold text-lg">Deserción</span>
+                        <span class="text-2xl font-bold text-[#ec4899]">60%</span>
+                        <span class="text-gray-500">abandona por costos</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Chat Bubble Left Ellipsis -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#6b7280" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12c0 4.556 4.03 8.25 9 8.25.978 0 1.926-.14 2.82-.4a.75.75 0 01.93.37l1.12 2.24a.75.75 0 001.36 0l1.12-2.24a.75.75 0 01.93-.37c.894.26 1.842.4 2.82.4 4.97 0 9-3.694 9-8.25S16.97 3.75 12 3.75 2.25 7.444 2.25 12z" />
+                        </svg>
+                        <span class="font-bold text-lg">Testimonio</span>
+                        <span class="italic text-gray-700">"Mi hijo necesita ayuda en matemáticas, pero no puedo pagar $80 por mes"</span>
+                        <span class="text-sm text-gray-400 mt-2">- Madre de familia, Asunción</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Slide 3: El Impacto en la Educación -->
+        <section class="slide bg-white">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <h2 class="text-4xl font-bold text-[#4f46e5] mb-4">📉 CONSECUENCIAS DEL PROBLEMA</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Chart Bar -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125H10.125a1.125 1.125 0 01-1.125-1.125v-8.25zM15 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125H16.125a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+                        </svg>
+                        <span class="font-bold text-lg">98.7% sin acceso</span>
+                        <span class="text-gray-600">1.2M estudiantes total</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Phone -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.625 6.75H9M3 19.5h18a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0021 4.5H3.75A2.25 2.25 0 001.5 6.75v12A2.25 2.25 0 003 19.5zm15-3V6.75A2.25 2.25 0 0015.75 4.5H8.25A2.25 2.25 0 006 6.75v12A2.25 2.25 0 008.25 21h7.5A2.25 2.25 0 0018 19.5z" />
+                        </svg>
+                        <span class="font-bold text-lg">Solo 15,000 estudiantes</span>
+                        <span class="text-gray-600">con tutorías telefónicas</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Trending Up -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125H10.125a1.125 1.125 0 01-1.125-1.125v-8.25zM15 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125H16.125a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+                        </svg>
+                        <span class="font-bold text-lg">70% mejora en matemáticas</span>
+                        <span class="text-gray-600">con tutorías (datos reales)</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Check Circle -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="font-bold text-lg">74% completan tutorías</span>
+                        <span class="text-gray-600">planificadas</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Map -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 21v-3M12 21v-9M15 21v-6M3 9a6 6 0 0112 0c0 5.25-4.25 9-9 9s-9-3.75-9-9z" />
+                        </svg>
+                        <span class="font-bold text-lg">Brecha digital</span>
+                        <span class="text-gray-600">limita acceso en zonas rurales</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Light Bulb -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.36-1.45.996-1.45 1.805v.75a2.25 2.25 0 01-1.003 1.871 4.493 4.493 0 00-2.006 2.41 6.723 6.723 0 00-.895 3.1 6.908 6.908 0 003.46 2.783 7.5 7.5 0 007.5-7.5v-.75c0-.809-.705-1.445-1.45-1.805a4.493 4.493 0 00-2.006-2.41 2.25 2.25 0 01-1.003-1.871v-.75c0-.809-.705-1.445-1.45-1.805z" />
+                        </svg>
+                        <span class="font-bold text-lg">Necesidad urgente</span>
+                        <span class="text-gray-600">de democratizar la educación</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Slide 4: Solución ContextAI -->
+        <section class="slide bg-white">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <h2 class="text-4xl font-bold text-[#06b6d4] mb-4">✅ TUTORÍA INTELIGENTE PARA TODOS</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-5xl">
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 pulse-glow">
+                        <!-- Heroicon: Robot -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#06b6d4" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.375 11.25h16.5c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H5.625c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                        </svg>
+                        <span class="font-bold text-lg">Tutor AI Personalizado</span>
+                        <span class="text-2xl font-bold text-[#06b6d4]">24/7</span>
+                        <span class="text-gray-600">disponible</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Device Phone Mobile -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#06b6d4" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H10.5v18z" />
+                        </svg>
+                        <span class="font-bold text-lg">Accesible</span>
+                        <span class="text-[#06b6d4]">Desde cualquier celular</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Adjustments -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#06b6d4" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 12h9.75M10.5 18h9.75" />
+                        </svg>
+                        <span class="font-bold text-lg">Adaptado al Nivel</span>
+                        <span class="text-[#06b6d4]">De cada estudiante</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6">
+                        <!-- Heroicon: Chart Bar -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#06b6d4" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125H10.125a1.125 1.125 0 01-1.125-1.125v-8.25zM15 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125H16.125a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+                        </svg>
+                        <span class="font-bold text-lg">Seguimiento Continuo</span>
+                        <span class="text-[#06b6d4]">Del progreso</span>
+                    </div>
+                </div>
+                <div class="mt-12 bg-white rounded-xl shadow p-8 border-l-4 border-[#06b6d4]">
+                    <div class="flex items-center space-x-4">
+                        <!-- Heroicon: Chat Bubble Left -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12c0 4.556 4.03 8.25 9 8.25.978 0 1.926-.14 2.82-.4a.75.75 0 01.93.37l1.12 2.24a.75.75 0 001.36 0l1.12-2.24a.75.75 0 01.93-.37c.894.26 1.842.4 2.82.4 4.97 0 9-3.694 9-8.25S16.97 3.75 12 3.75 2.25 7.444 2.25 12z" />
+                        </svg>
+                        <div>
+                            <p class="text-xl italic text-gray-700">"Ahora mi hija tiene tutoría cuando la necesita, no solo 2 horas por semana"</p>
+                            <p class="text-sm text-gray-500 mt-2">- Testimonio de usuario piloto</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Slide 4.5: Funcionalidades Principales -->
+        <section class="slide bg-white">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <h2 class="text-4xl font-bold text-[#4f46e5] mb-4">🚀 FUNCIONALIDADES REVOLUCIONARIAS</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 hover:scale-105 transition-transform">
+                        <!-- Heroicon: Chat Bubble Left -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12c0 4.556 4.03 8.25 9 8.25.978 0 1.926-.14 2.82-.4a.75.75 0 01.93.37l1.12 2.24a.75.75 0 001.36 0l1.12-2.24a.75.75 0 01.93-.37c.894.26 1.842.4 2.82.4 4.97 0 9-3.694 9-8.25S16.97 3.75 12 3.75 2.25 7.444 2.25 12z" />
+                        </svg>
+                        <span class="font-bold text-lg">Chat Inteligente</span>
+                        <span class="text-gray-600">Basado en contenidos oficiales del MEC</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 hover:scale-105 transition-transform">
+                        <!-- Heroicon: Photo -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.25-5.25h1.5L21 18V4.5c0-1.5-1.5-3-3-3H6c-1.5 0-3 1.5-3 3v13.5L9 12.75h1.5l5.25 5.25" />
+                        </svg>
+                        <span class="font-bold text-lg">Análisis de Imágenes</span>
+                        <span class="text-gray-600">IA analiza diagramas y fórmulas</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 hover:scale-105 transition-transform">
+                        <!-- Heroicon: Map -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 21v-3M12 21v-9M15 21v-6M3 9a6 6 0 0112 0c0 5.25-4.25 9-9 9s-9-3.75-9-9z" />
+                        </svg>
+                        <span class="font-bold text-lg">Mapa de Conocimiento</span>
+                        <span class="text-gray-600">Estructura visual del aprendizaje</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 hover:scale-105 transition-transform">
+                        <!-- Heroicon: Gamepad -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.375 11.25h16.5c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H5.625c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                        </svg>
+                        <span class="font-bold text-lg">Gamificación Avanzada</span>
+                        <span class="text-gray-600">Sistema de puntos y logros</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 hover:scale-105 transition-transform">
+                        <!-- Heroicon: Clock -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                            <circle cx="12" cy="12" r="9" stroke="#4f46e5" stroke-width="1.5" fill="none" />
+                        </svg>
+                        <span class="font-bold text-lg">Planes de Estudio</span>
+                        <span class="text-gray-600">Método Pomodoro inteligente</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 hover:scale-105 transition-transform">
+                        <!-- Heroicon: Chart Bar -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125H10.125a1.125 1.125 0 01-1.125-1.125v-8.25zM15 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125H16.125a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+                        </svg>
+                        <span class="font-bold text-lg">Dashboard Predictivo</span>
+                        <span class="text-gray-600">Análisis de progreso en tiempo real</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 hover:scale-105 transition-transform">
+                        <!-- Heroicon: User Group -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M15 11a4 4 0 10-8 0 4 4 0 008 0zm6 8a2 2 0 01-2 2H5a2 2 0 01-2-2v-2a6 6 0 016-6h4a6 6 0 016 6v2z" />
+                        </svg>
+                        <span class="font-bold text-lg">Personalización IA</span>
+                        <span class="text-gray-600">Se adapta al estado emocional</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 hover:scale-105 transition-transform">
+                        <!-- Heroicon: Users -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.623.372 9.36 9.36 0 004.123-.957m-12.499-3.862a9.38 9.38 0 01-2.623.372 9.36 9.36 0 01-4.123-.957m16.5 0a9.38 9.38 0 01-2.623.372 9.36 9.36 0 01-4.123-.957" />
+                        </svg>
+                        <span class="font-bold text-lg">Comunidad Educativa</span>
+                        <span class="text-gray-600">Mentores virtuales y colaboración</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Slide 4.6: Video Demo -->
+        <section class="slide bg-white">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <div class="mb-8">
+                    <!-- Heroicon: Video Camera -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-20 h-20 mb-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z" />
+                    </svg>
+                    <h2 class="text-4xl font-bold text-[#4f46e5] mb-4">ContextAI en acción</h2>
+                </div>
+                <div class="bg-gray-100 rounded-2xl p-8 border-2 border-gray-300 w-full max-w-4xl">
+                    <div class="aspect-video bg-gray-200 rounded-lg flex items-center justify-center">
+                        <div class="text-center">
+                            <!-- Heroicon: Play -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#4f46e5" class="w-16 h-16 mb-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+                            </svg>
+                            <p class="text-xl">Video institucional - 90 segundos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Slide 5: Beneficios Específicos para Paraguay -->
+        <section class="slide bg-white">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <h2 class="text-4xl font-bold text-[#2563eb] mb-4">🇵🇾 IMPACTO NACIONAL</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-5xl">
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 border border-white/30">
+                        <!-- Heroicon: Trending Up -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125H10.125a1.125 1.125 0 01-1.125-1.125v-8.25zM15 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125H16.125a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+                        </svg>
+                        <span class="font-bold text-lg">1.2M estudiantes</span>
+                        <span class="text-[#2563eb]">con acceso a tutoría de calidad</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 border border-white/30">
+                        <!-- Heroicon: Currency Dollar -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75A6.75 6.75 0 1012 5.25a6.75 6.75 0 000 13.5z" />
+                        </svg>
+                        <span class="font-bold text-lg">$600 USD</span>
+                        <span class="text-[#2563eb]">ahorro familiar por año</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 border border-white/30">
+                        <!-- Heroicon: Academic Cap -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 14.25L20.25 9M12 14.25l-8.25-5.25M12 14.25v6.75m8.25-12L12 3 3.75 9m16.5 0v6.75a2.25 2.25 0 01-1.007 1.874m-14.486 0A2.25 2.25 0 013.75 15.75V9" />
+                        </svg>
+                        <span class="font-bold text-lg">70% mejora</span>
+                        <span class="text-[#2563eb]">en matemáticas (datos reales)</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 border border-white/30">
+                        <!-- Heroicon: Building Office -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 21V5.25a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v15.75m19.5 0A2.25 2.25 0 0119.5 21H6.75A2.25 2.25 0 014.5 18.75V5.25A2.25 2.25 0 016.75 3H19.5A2.25 2.25 0 0121.75 5.25v15.75A2.25 2.25 0 0119.5 21z" />
+                        </svg>
+                        <span class="font-bold text-lg">100% consentimiento</span>
+                        <span class="text-[#2563eb]">familiar (datos del programa actual)</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 border border-white/30">
+                        <!-- Heroicon: Globe Alt -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25M12 18.75V21M4.219 4.219l1.591 1.591M18.19 18.19l1.591 1.591M3 12h2.25M18.75 12H21M4.219 19.781l1.591-1.591M18.19 5.81l1.591-1.591" />
+                            <circle cx="12" cy="12" r="9" stroke="#2563eb" stroke-width="1.5" fill="none" />
+                        </svg>
+                        <span class="font-bold text-lg">Democratización</span>
+                        <span class="text-[#2563eb]">de la educación de calidad</span>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-6 border border-white/30">
+                        <!-- Heroicon: Chart Bar -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v8.25c0 .621-.504 1.125-1.125 1.125H10.125a1.125 1.125 0 01-1.125-1.125v-8.25zM15 12.75c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125H16.125a1.125 1.125 0 01-1.125-1.125v-4.5z" />
+                        </svg>
+                        <span class="font-bold text-lg">95% tasa de finalización</span>
+                        <span class="text-[#2563eb]">vs 74% actual</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Slide 6: Implementación Estratégica -->
+        <section class="slide bg-white">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <h2 class="text-4xl font-bold text-[#06b6d4] mb-4">🚀 PLAN DE IMPLEMENTACIÓN</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-5xl">
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-8 border-l-4 border-[#06b6d4]">
+                        <div class="text-center">
+                            <!-- Heroicon: 1 -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="[#06b6d4]" class="text-[#06b6d4] w-16 h-16 mb-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                            </svg>
+                            <h3 class="text-2xl font-bold mb-4">Fase 1 (3 meses)</h3>
+                            <div class="text-3xl font-bold text-[#06b6d4] mb-2">15,000 estudiantes</div>
+                            <p class="text-gray-600">mismo alcance actual</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-8 border-l-4 border-[#06b6d4]">
+                        <div class="text-center">
+                            <!-- Heroicon: 2 -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="[#06b6d4]" class="text-[#06b6d4] w-16 h-16 mb-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                            </svg>
+                            <h3 class="text-2xl font-bold mb-4">Fase 2 (6 meses)</h3>
+                            <div class="text-3xl font-bold text-[#06b6d4] mb-2">500,000 estudiantes</div>
+                            <p class="text-gray-600">expansión masiva</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-xl shadow p-8 border-l-4 border-[#06b6d4]">
+                        <div class="text-center">
+                            <!-- Heroicon: 3 -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="[#06b6d4]" class="text-[#06b6d4] w-16 h-16 mb-4">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                            </svg>
+                            <h3 class="text-2xl font-bold mb-4">Fase 3 (12 meses)</h3>
+                            <div class="text-3xl font-bold text-[#06b6d4] mb-2">1.2M estudiantes</div>
+                            <p class="text-gray-600">todo el país</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-5xl">
+                    <div class="flex flex-col items-center bg-white rounded-lg p-4 text-center">
+                        <!-- Heroicon: Link -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-10 h-10 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25a2.25 2.25 0 00-2.25 2.25v10.5a2.25 2.25 0 002.25 2.25h10.5a2.25 2.25 0 002.25-2.25V8.25a2.25 2.25 0 00-2.25-2.25H13.5" />
+                        </svg>
+                        <p class="font-semibold">Integración con MEC</p>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-lg p-4 text-center">
+                        <!-- Heroicon: Device Phone Mobile -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-10 h-10 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H10.5v18z" />
+                        </svg>
+                        <p class="font-semibold">App móvil + web</p>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-lg p-4 text-center">
+                        <!-- Heroicon: User Group -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-10 h-10 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M15 11a4 4 0 10-8 0 4 4 0 008 0zm6 8a2 2 0 01-2 2H5a2 2 0 01-2-2v-2a6 6 0 016-6h4a6 6 0 016 6v2z" />
+                        </svg>
+                        <p class="font-semibold">Capacitación docente</p>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-lg p-4 text-center">
+                        <!-- Heroicon: Globe Alt -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-10 h-10 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25M12 18.75V21M4.219 4.219l1.591 1.591M18.19 18.19l1.591 1.591M3 12h2.25M18.75 12H21M4.219 19.781l1.591-1.591M18.19 5.81l1.591-1.591" />
+                            <circle cx="12" cy="12" r="9" stroke="#2563eb" stroke-width="1.5" fill="none" />
+                        </svg>
+                        <p class="font-semibold">Superar brecha digital</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Slide 7: Llamado a la Acción -->
+        <section class="slide bg-white">
+            <div class="flex flex-col items-center justify-center w-full h-full">
+                <div class="floating mb-8">
+                    <!-- Heroicon: Target -->
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-24 h-24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12V17.25z" />
+                    </svg>
+                </div>
+                <h2 class="text-6xl font-bold text-[#2563eb] mb-8">EL MOMENTO ES AHORA</h2>
+                <div class="bg-white/20 backdrop-blur-sm rounded-2xl p-8 mb-8 w-full max-w-2xl text-center">
+                    <p class="text-2xl italic mb-4">"La educación no debe ser un privilegio, sino un derecho"</p>
+                    <p class="text-lg">- Constitución Paraguaya</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 w-full max-w-5xl">
+                    <div class="flex flex-col items-center bg-white rounded-lg p-6">
+                        <!-- Heroicon: Flag -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3.75V12a9 9 0 009 9h1.5a3 3 0 003-3V12a9 9 0 00-9-9H3z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75V12a9 9 0 009 9h1.5a3 3 0 003-3V12a9 9 0 00-9-9H12z" />
+                        </svg>
+                        <h3 class="text-xl font-bold mb-2">Paraguay puede ser</h3>
+                        <p>el primer país en democratizar las tutorías</p>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-lg p-6">
+                        <!-- Heroicon: Globe Alt -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25M12 18.75V21M4.219 4.219l1.591 1.591M18.19 18.19l1.591 1.591M3 12h2.25M18.75 12H21M4.219 19.781l1.591-1.591M18.19 5.81l1.591-1.591" />
+                            <circle cx="12" cy="12" r="9" stroke="#2563eb" stroke-width="1.5" fill="none" />
+                        </svg>
+                        <h3 class="text-xl font-bold mb-2">Modelo exportable</h3>
+                        <p>a otros países</p>
+                    </div>
+                    <div class="flex flex-col items-center bg-white rounded-lg p-6">
+                        <!-- Heroicon: Trophy -->
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-12 h-12 mb-2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 9a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12V18.75z" />
+                        </svg>
+                        <h3 class="text-xl font-bold mb-2">Liderazgo regional</h3>
+                        <p>en innovación educativa</p>
+                    </div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-xl p-8 border-2 border-white/30 w-full max-w-2xl text-center">
+                    <h3 class="text-3xl font-bold mb-4">¿Listos para transformar la educación en Paraguay y liderar la innovación regional?</h3>
+                    <div class="flex justify-center space-x-4 mt-6 w-full max-w-md">
+                        <button class="bg-white text-[#2563eb] px-8 py-3 rounded-lg font-bold hover:bg-blue-100 transition-colors">
+                            <!-- Heroicon: Phone -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="[#2563eb]" class="w-6 h-6 mr-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.362-.74.527-1.2.417l-4.423-1.106c-.501-.125-.852-.575-.852-1.091V6.75z" />
+                            </svg>
+                            Contacto
+                        </button>
+                        <button class="bg-white text-[#2563eb] px-8 py-3 rounded-lg font-bold hover:bg-blue-100 transition-colors">
+                            <!-- Heroicon: Document Text -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="[#2563eb]" class="w-6 h-6 ml-2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3 3 0 00-3-3L8.25 3m5.25 0h-9L12 5.25m9 5.25v7.5a3 3 0 01-3 3h-7.5a3 3 0 01-3-3v-7.5a3 3 0 013-3h7.5a3 3 0 013 3z" />
+                            </svg>
+                            Próximos Pasos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <!-- Barra de progreso y controles -->
+    <div class="fixed bottom-0 left-0 w-full flex flex-col items-center z-50">
+        <div class="w-full max-w-2xl h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
+            <div id="progress-bar" class="progress-bar bg-[#2563eb] h-2 rounded-full" style="width: 0%"></div>
+        </div>
+        <div class="flex space-x-8 mb-8">
+            <button id="prev-btn" class="bg-white/90 px-8 py-3 rounded-lg font-bold text-[#2563eb] text-lg shadow hover:bg-blue-100 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center">
+                <!-- Heroicon: Chevron Left -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#2563eb" class="w-6 h-6 mr-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                Anterior
+            </button>
+            <button id="next-btn" class="bg-[#2563eb] text-white px-8 py-3 rounded-lg font-bold text-lg shadow hover:bg-blue-700 transition disabled:opacity-40 disabled:cursor-not-allowed flex items-center">
+                Siguiente
+                <!-- Heroicon: Chevron Right -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="w-6 h-6 ml-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    <!-- Slide Counter -->
+    <div class="fixed top-0 right-0 p-6 z-50 text-gray-500 text-lg font-semibold">
+        <span id="current-slide">1</span> / <span id="total-slides">7</span>
+    </div>
+    <!-- JS de navegación y transiciones -->
+    <script>
+    // Fullscreen
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    }
+    // Slides
+    document.addEventListener('DOMContentLoaded', function() {
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        document.getElementById('total-slides').textContent = totalSlides;
+        function showSlide(n, direction = 0) {
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'inactive-left', 'inactive-right');
+                slide.style.zIndex = 0;
+                if (i === n) {
+                    slide.classList.add('active');
+                    slide.style.zIndex = 10;
+                } else if (i < n) {
+                    slide.classList.add('inactive-left');
+                } else {
+                    slide.classList.add('inactive-right');
+                }
+            });
+            document.getElementById('current-slide').textContent = n + 1;
+            // Progress bar
+            const progress = ((n + 1) / totalSlides) * 100;
+            document.getElementById('progress-bar').style.width = progress + '%';
+            // Botones
+            document.getElementById('prev-btn').disabled = n === 0;
+            document.getElementById('next-btn').disabled = n === totalSlides - 1;
+        }
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                showSlide(currentSlide, 1);
+            }
+        }
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide, -1);
+            }
+        }
+        document.getElementById('next-btn').addEventListener('click', nextSlide);
+        document.getElementById('prev-btn').addEventListener('click', prevSlide);
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            }
+        });
+        // Touch/swipe
+        let touchStartX = 0;
+        let touchEndX = 0;
+        document.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        document.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) nextSlide();
+                else prevSlide();
+            }
+        });
+        showSlide(0);
+    });
+    </script>
+</body>
+</html> 
