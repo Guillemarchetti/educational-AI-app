@@ -13,7 +13,8 @@ class SmartPromptsService:
                 'Explica este concepto de manera clara y concisa',
                 '¿Puedes simplificar esta idea para que sea más fácil de entender?',
                 'Dame una explicación paso a paso de este tema',
-                '¿Cuál es la idea principal detrás de esto?'
+                '¿Cuál es la idea principal detrás de esto?',
+                'Ayúdame a entender mejor este concepto'
             ],
             'examples': [
                 'Dame 3 ejemplos prácticos de este tema',
@@ -40,10 +41,22 @@ class SmartPromptsService:
                 'Muéstrame una representación visual'
             ],
             'evaluation': [
+                'Evalúa mi comprensión de este concepto',
+                '¿Qué tan bien entiendo este tema?',
+                'Dame retroalimentación sobre mi aprendizaje',
+                '¿En qué áreas puedo mejorar mi comprensión?'
+            ],
+            'quiz': [
                 'Genera un quiz de 5 preguntas sobre esto',
-                'Pon a prueba mi conocimiento sobre este tema',
-                'Crea ejercicios para practicar esto',
-                'Evalúa mi comprensión de este concepto'
+                'Pon a prueba mi conocimiento con preguntas',
+                'Crea un test para evaluar mi comprensión',
+                'Dame ejercicios tipo quiz para practicar'
+            ],
+            'reinforcement': [
+                'Dame ejercicios prácticos para reforzar este concepto',
+                'Necesito más práctica con este tema',
+                'Ayúdame a consolidar mi aprendizaje con ejercicios',
+                'Dame actividades para reforzar lo que aprendí'
             ]
         }
         

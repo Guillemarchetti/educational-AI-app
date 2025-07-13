@@ -10,8 +10,9 @@ from .tutor_agent import TutorAgent
 from .evaluator_agent import EvaluatorAgent
 from .counselor_agent import CounselorAgent
 from .curriculum_agent import CurriculumPlannerAgent
-from .analytics_agent import AnalyticsAgent
 from .content_creator_agent import ContentCreatorAgent
+from .analytics_agent import AnalyticsAgent
+from .quiz_agent import QuizAgent
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,16 @@ class AgentManager:
         """Inicializar el gestor de agentes"""
         self.logger = logging.getLogger(self.__class__.__name__)
         
-        # Inicializar todos los agentes
-        self.agents = self._initialize_agents()
+        # Inicializar agentes especializados
+        self.agents = {
+            'tutor': TutorAgent(),
+            'evaluator': EvaluatorAgent(),
+            'counselor': CounselorAgent(),
+            'curriculum': CurriculumPlannerAgent(),
+            'content_creator': ContentCreatorAgent(),
+            'analytics': AnalyticsAgent(),
+            'quiz': QuizAgent(),  # Nuevo agente para quizzes
+        }
         
         # Configuración de routing
         self.routing_config = self._setup_routing_config()
@@ -169,7 +178,16 @@ class AgentManager:
             if agent_type and agent_type in self.agents:
                 selected_agent_id = agent_type
             else:
-                selected_agent_id = self._determine_best_agent(query)
+                # Verificar si es una solicitud del sistema de quiz
+                is_quiz_system = context.get('is_quiz_system', False)
+                if is_quiz_system:
+                    # Para el sistema de quiz, usar el Quiz Agent
+                    selected_agent_id = 'quiz'
+                    self.logger.info(f"Quiz system detected - routing to Quiz Agent")
+                else:
+                    # Para chat normal, usar el Tutor Agent
+                    selected_agent_id = 'tutor'
+                    self.logger.info(f"Chat system detected - routing to Tutor Agent")
             
             # Verificar que el agente existe
             if selected_agent_id not in self.agents:
@@ -181,7 +199,10 @@ class AgentManager:
             enriched_context = self._enrich_context(context, selected_agent_id)
             
             # Procesar consulta
-            response = agent.process_query(query, enriched_context)
+            if hasattr(agent, 'process_specialized_query'):
+                response = agent.process_specialized_query(query, enriched_context)
+            else:
+                response = agent.process_query(query, enriched_context)
             
             # Calcular tiempo de respuesta
             response_time = (datetime.now() - start_time).total_seconds()

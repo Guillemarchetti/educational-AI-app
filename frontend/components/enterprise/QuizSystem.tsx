@@ -51,8 +51,64 @@ export function QuizSystem({ context, onClose, onSendMessage, selectedFile }: Qu
   const [timeRemaining, setTimeRemaining] = useState<number>(0)
   const [showErrorSummary, setShowErrorSummary] = useState(false)
 
+  // Función para extraer título descriptivo del contexto
+  const extractContextTitle = (contextArray: string[]): string => {
+    if (contextArray.length === 0) return 'Sin contexto'
+    
+    // Buscar patrones específicos en el contexto
+    const contextString = contextArray.join(' ').toLowerCase()
+    
+    // Patrones para identificar temas específicos
+    const patterns = [
+      { keywords: ['centilitros', 'bidones', 'litros', 'capacidad'], title: 'Medidas de Volumen' },
+      { keywords: ['vacuna', 'dosis', 'ml', 'mililitros'], title: 'Cálculos de Dosis' },
+      { keywords: ['fracción', 'fracciones', 'numerador', 'denominador'], title: 'Fracciones Matemáticas' },
+      { keywords: ['ecuación', 'ecuaciones', 'álgebra', 'variable'], title: 'Ecuaciones Algebraicas' },
+      { keywords: ['geometría', 'triángulo', 'círculo', 'área', 'perímetro'], title: 'Geometría' },
+      { keywords: ['historia', 'histórico', 'época', 'siglo'], title: 'Historia' },
+      { keywords: ['ciencia', 'científico', 'experimento', 'laboratorio'], title: 'Ciencias' },
+      { keywords: ['literatura', 'poesía', 'novela', 'autor'], title: 'Literatura' },
+      { keywords: ['física', 'fuerza', 'energía', 'movimiento'], title: 'Física' },
+      { keywords: ['química', 'elemento', 'compuesto', 'reacción'], title: 'Química' },
+      { keywords: ['biología', 'célula', 'organismo', 'ecosistema'], title: 'Biología' },
+      { keywords: ['matemática', 'matemáticas', 'cálculo', 'número'], title: 'Matemáticas' },
+      { keywords: ['imagen', 'diagrama', 'gráfico', 'figura'], title: 'Análisis de Imágenes' },
+      { keywords: ['estructura', 'organización', 'jerarquía'], title: 'Estructura del Documento' },
+      { keywords: ['página', 'pág'], title: 'Contenido de Página' }
+    ]
+    
+    // Buscar el patrón que mejor coincida
+    for (const pattern of patterns) {
+      if (pattern.keywords.some(keyword => contextString.includes(keyword))) {
+        return pattern.title
+      }
+    }
+    
+    // Si no hay coincidencias específicas, extraer palabras clave del primer contexto
+    const firstContext = contextArray[0]
+    if (firstContext) {
+      // Buscar números de página o referencias específicas
+      const pageMatch = firstContext.match(/página\s*(\d+)/i)
+      if (pageMatch) {
+        return `Contenido de Página ${pageMatch[1]}`
+      }
+      
+      // Extraer palabras significativas (mayúsculas o después de puntos)
+      const words = firstContext.match(/[A-ZÁÉÍÓÚ][a-záéíóú]+/g) || []
+      if (words.length > 0) {
+        return `${words.slice(0, 2).join(' ')}`
+      }
+    }
+    
+    return 'Contenido del Documento'
+  }
+
   // Generar quiz basado en el contexto
   const generateQuiz = async () => {
+    console.log('🔍 DEBUG: context array =', context);
+    console.log('🔍 DEBUG: context length =', context.length);
+    console.log('🔍 DEBUG: context content =', context);
+    
     // Verificar si hay contexto agregado al chat
     if (context.length === 0) {
       alert('Por favor, agrega contexto al chat primero (selecciona texto o imágenes del documento)')
@@ -61,6 +117,8 @@ export function QuizSystem({ context, onClose, onSendMessage, selectedFile }: Qu
     
     // Usar solo el contexto agregado al chat
     const contextString = context.join('\n\n---\n\n');
+    console.log('🔍 DEBUG: contextString =', contextString);
+    console.log('🔍 DEBUG: contextString length =', contextString.length);
     await generateQuizFromContext(contextString);
   }
 
@@ -69,35 +127,40 @@ export function QuizSystem({ context, onClose, onSendMessage, selectedFile }: Qu
     setIsGenerating(true)
     
     try {
-      const prompt = `Basándote en el siguiente contexto específico del chat, genera un quiz de 5 preguntas con 4 opciones cada una. 
-      
-      IMPORTANTE: Solo usa el contexto proporcionado, no agregues información externa.
-      
-      Formato de respuesta JSON:
-      {
-        "questions": [
-          {
-            "question": "Pregunta específica sobre el contexto",
-            "options": ["Opción A", "Opción B", "Opción C", "Opción D"],
-            "correctAnswer": 0,
-            "explanation": "Explicación detallada de por qué es correcta basada en el contexto",
-            "difficulty": "easy"
-          }
-        ]
-      }
-      
-      Contexto del chat: ${contextString}
-      
-      Genera preguntas específicas que se enfoquen en los conceptos, detalles o elementos mencionados en el contexto. Las preguntas deben ser claras y las opciones deben ser plausibles pero con una respuesta correcta definitiva.`
+      const prompt = `Comenzar Quiz
 
+IMPORTANTE: Responde ÚNICAMENTE en formato JSON válido.
+
+Basándote ÚNICAMENTE en el siguiente contexto específico del chat, genera un quiz de 5 preguntas con 4 opciones cada una. 
+      
+REGLAS IMPORTANTES:
+- SOLO usa el contexto proporcionado, NO agregues información externa
+- Las preguntas DEBEN estar basadas específicamente en el contenido del contexto
+- Las opciones deben ser plausibles pero con una respuesta correcta definitiva
+- Las explicaciones deben referenciar específicamente el contexto proporcionado
+- RESPONDE ÚNICAMENTE EN FORMATO JSON, NO AGREGUES TEXTO ADICIONAL
+
+CONTEXTO ESPECÍFICO DEL CHAT:
+${contextString}
+
+Genera preguntas que se enfoquen específicamente en los conceptos, detalles, números, fechas, nombres, o elementos mencionados en el contexto proporcionado. NO uses información general, solo lo que está en el contexto.
+
+RESPONDE ÚNICAMENTE EN FORMATO JSON.`
+
+      const requestBody = {
+        message: prompt,
+        userId: 'demo-user',
+        explicit_context: contextString, // Cambiar de context a explicit_context
+        is_quiz_system: true, // Indicar que es para QuizSystem
+      };
+      
+      console.log('🔍 DEBUG: Request body =', requestBody);
+      console.log('🔍 DEBUG: explicit_context length =', contextString.length);
+      
       const response = await fetch('http://localhost:8000/api/agents/chat/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: prompt,
-          userId: 'demo-user',
-          context: contextString,
-        }),
+        body: JSON.stringify(requestBody),
       })
 
       if (!response.ok) {
@@ -105,19 +168,60 @@ export function QuizSystem({ context, onClose, onSendMessage, selectedFile }: Qu
       }
 
       const data = await response.json()
+      console.log('🔍 DEBUG: Response data =', data);
+      console.log('🔍 DEBUG: Response text =', data.response);
       
       // Intentar parsear la respuesta JSON
       let quizData
       try {
-        // Buscar JSON en la respuesta
-        const jsonMatch = data.response.match(/\{[\s\S]*\}/)
-        if (jsonMatch) {
-          quizData = JSON.parse(jsonMatch[0])
+        // Primero intentar parsear directamente la respuesta
+        if (data.response && typeof data.response === 'string') {
+          // Buscar JSON en la respuesta con regex más robusto
+          const jsonMatch = data.response.match(/\{[\s\S]*\}/)
+          console.log('🔍 DEBUG: JSON match =', jsonMatch);
+          
+          if (jsonMatch) {
+            quizData = JSON.parse(jsonMatch[0])
+            console.log('🔍 DEBUG: Parsed quiz data =', quizData);
+          } else {
+            // Si no hay JSON en la respuesta, intentar parsear la respuesta completa
+            try {
+              quizData = JSON.parse(data.response)
+              console.log('🔍 DEBUG: Direct parse successful =', quizData);
+            } catch (directParseError) {
+              console.log('🔍 DEBUG: Direct parse failed, trying to extract JSON');
+              // Intentar extraer JSON de cualquier parte de la respuesta
+              const jsonStart = data.response.indexOf('{')
+              const jsonEnd = data.response.lastIndexOf('}') + 1
+              
+              if (jsonStart !== -1 && jsonEnd > jsonStart) {
+                const jsonString = data.response.substring(jsonStart, jsonEnd)
+                quizData = JSON.parse(jsonString)
+                console.log('🔍 DEBUG: Extracted JSON successful =', quizData);
+              } else {
+                throw new Error('No se encontró JSON válido en la respuesta')
+              }
+            }
+          }
+          
+          // Normalizar el formato del quiz (puede venir como 'quiz' o 'questions')
+          if (quizData.quiz && !quizData.questions) {
+            quizData.questions = quizData.quiz.map((q: any) => ({
+              question: q.question,
+              options: q.options,
+              correctAnswer: typeof q.correct_answer === 'string' 
+                ? q.options.indexOf(q.correct_answer)
+                : q.correct_answer || q.correctAnswer,
+              explanation: q.explanation,
+              difficulty: q.difficulty || 'easy'
+            }))
+          }
         } else {
-          throw new Error('No se encontró JSON válido en la respuesta')
+          throw new Error('Respuesta inválida del servidor')
         }
       } catch (parseError) {
         console.error('Error parsing quiz JSON:', parseError)
+        console.log('🔍 DEBUG: Full response for debugging =', data.response);
         // Crear quiz de ejemplo si falla el parsing
         quizData = {
           questions: [
@@ -366,7 +470,9 @@ Por favor, ayúdame a entender mejor estos conceptos y dame ejercicios práctico
                           <BookOpen className="w-5 h-5 text-purple-400" />
                         </div>
                         <div className="flex-1">
-                          <h4 className="text-white font-semibold">Contexto Disponible</h4>
+                          <h4 className="text-white font-semibold">
+                            Quiz sobre: {extractContextTitle(context)}
+                          </h4>
                           <p className="text-slate-400 text-sm mb-2">{context.length} elemento(s) agregado(s)</p>
                           
                           {/* Mostrar tipos de contexto */}

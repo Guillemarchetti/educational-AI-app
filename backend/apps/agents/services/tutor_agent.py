@@ -83,18 +83,31 @@ Si el estudiante ha subido documentos (apuntes, tareas, exámenes):
 - Proporciona explicaciones basadas en el material
 - Sugiere mejoras o aclaraciones
 
-¡Tu objetivo es hacer que cada estudiante se sienta confiado y emocionado por aprender!
+### RESTRICCIONES IMPORTANTES:
+- **NO generes quizzes ni evaluaciones** - Los quizzes se manejan por el Quiz Agent
+- **NO respondas en formato JSON** - Solo proporciona explicaciones claras
+- **SIEMPRE** proporciona explicaciones claras y ejercicios prácticos
+- Si el usuario pide un quiz, sugiere usar la función "Quiz Inteligente"
+
+### CUANDO EL USUARIO PIDA UN QUIZ:
+Si el usuario solicita un quiz, evaluación o test:
+1. Explica amablemente que los quizzes están disponibles en el "Sistema de Quiz Inteligente"
+2. Proporciona una explicación clara del concepto
+3. Sugiere ejercicios prácticos como alternativa
+4. Guía al usuario hacia la función de Quiz Inteligente
+
+¡Tu objetivo es hacer que cada estudiante se sienta confiado y emocionado por aprender, proporcionando explicaciones claras y ejercicios prácticos!
 """
     
     def process_specialized_query(self, query: str, context: Dict[str, Any]) -> str:
         """
-        Procesamiento especializado para consultas educativas.
+        Procesamiento especializado para consultas educativas (solo explicaciones)
         """
         # Extraer información específica del contexto
         user_level = context.get('user_level', 'Estudiante')
         subject = context.get('subject', 'General')
         user_profile = context.get('user_profile', {})
-        
+
         # Añadir contexto educativo específico
         educational_context = {
             **context,
@@ -102,7 +115,25 @@ Si el estudiante ha subido documentos (apuntes, tareas, exámenes):
             'difficulty_level': self._assess_difficulty_level(query, user_level),
             'suggested_approach': self._suggest_teaching_approach(query, user_level)
         }
-        
+
+        # --- Lógica para refuerzo/explicación ---
+        refuerzo_keywords = [
+            'refuerzo', 'explica', 'explicación', 'no entendí', 'no comprendo', 'aclarar', 'ayuda', 'necesito entender', 'por favor explica', 'puedes explicar', 'quiero entender'
+        ]
+        query_lower = query.lower()
+
+        # Si es refuerzo/explicación, usar lógica de refuerzo
+        if any(word in query_lower for word in refuerzo_keywords):
+            # Construir prompt especial para refuerzo/explicación
+            prompt_refuerzo = (
+                f"Explica el siguiente concepto de manera clara y concisa, adaptada al nivel del estudiante. "
+                f"Luego, proporciona uno o dos ejercicios prácticos para reforzar el aprendizaje. "
+                f"No generes un quiz ni respondas en formato JSON, a menos que el usuario lo pida explícitamente.\n\n"
+                f"Concepto o duda: {query}"
+            )
+            return self.process_query(prompt_refuerzo, educational_context)
+
+        # Por defecto, comportamiento estándar (solo explicaciones)
         return self.process_query(query, educational_context)
     
     def _identify_learning_objectives(self, query: str, subject: str) -> list:

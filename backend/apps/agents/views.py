@@ -49,10 +49,12 @@ class AgentChatAPIView(APIView):
     def post(self, request):
         """Procesar consulta de usuario con agentes IA"""
         data = request.data
+        print("🔍 DEBUG: request.data =", data)
         user_id = data.get('userId', 'default-user')
         message = data.get('text') or data.get('message') or data.get('query')
         agent_type = data.get('agent_type')
-        explicit_context = data.get('context', None)
+        explicit_context = data.get('explicit_context') or data.get('context', None)
+        is_quiz_system = data.get('is_quiz_system', False)  # Nuevo parámetro
 
         if not message:
             return Response(
@@ -87,6 +89,7 @@ class AgentChatAPIView(APIView):
                 'user_profile': self._get_user_profile(user_id),
                 'session_metadata': memory.get_session_metadata(),
                 'explicit_context': explicit_context,
+                'is_quiz_system': is_quiz_system,
             }
 
             # Procesar consulta con Agent Manager
@@ -419,7 +422,7 @@ class ContentCreatorAPIView(APIView):
             user_id = data.get('userId', 'default-user')
             
             # Obtener contexto del frontend
-            explicit_context = data.get('context', '')
+            explicit_context = data.get('explicit_context', None)  # Cambiar de 'context' a 'explicit_context'
             structure_context = data.get('structure_context', '')
             
             # Si no hay concepto explícito, usar el mensaje como query

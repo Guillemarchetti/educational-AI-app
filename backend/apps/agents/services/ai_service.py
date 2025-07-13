@@ -198,6 +198,8 @@ El usuario ha seleccionado el siguiente texto del documento para que lo uses com
 {query}
 
 Por favor, responde como {self.get_agent_name()} considerando todo el contexto proporcionado.
+
+{'🚫 RESTRICCIÓN: En el chat normal está PROHIBIDO generar quizzes, evaluaciones o respuestas en formato JSON. Solo proporciona explicaciones claras y ejercicios prácticos.' if not context.get('is_quiz_system', False) else '✅ MODO QUIZ: Responde ÚNICAMENTE en formato JSON válido para generar el quiz.'}
 """
         
         return context_prompt

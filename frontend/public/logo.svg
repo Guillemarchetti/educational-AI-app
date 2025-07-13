@@ -1,0 +1,11 @@
+<svg width="400" height="120" viewBox="0 0 400 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="120" rx="32" fill="url(#bg)"/>
+  <text x="40" y="78" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="bold" fill="#fff">Context</text>
+  <text x="255" y="78" font-family="Segoe UI, Arial, sans-serif" font-size="64" font-weight="bold" fill="#00bcd4">AI</text>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="400" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f1123"/>
+      <stop offset="1" stop-color="#1a1c3b"/>
+    </linearGradient>
+  </defs>
+</svg>
