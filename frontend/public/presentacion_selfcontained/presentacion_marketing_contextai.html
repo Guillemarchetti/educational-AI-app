@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketing Presentation - Context AI</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #0f1123 0%, #1a1c3b 100%);
+      color: #fff;
+    }
+    .slide {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 0 8px;
+      box-sizing: border-box;
+      text-align: center;
+      position: relative;
+    }
+    .slide.active {
+      display: flex;
+    }
+    .logo {
+      width: 180px;
+      margin-bottom: 16px;
+      margin-top: 8px;
+      border-radius: 32px;
+      background: none;
+      box-shadow: none;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .logo-corner {
+      width: 64px;
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      margin: 0;
+      border-radius: 18px;
+      background: none;
+      box-shadow: none;
+      z-index: 2;
+      display: block;
+    }
+    .title {
+      font-size: 2.53rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #fff;
+      line-height: 1.25;
+    }
+    .subtitle {
+      font-size: 1.265rem;
+      color: #00bcd4;
+      margin-bottom: 16px;
+    }
+    .content {
+      font-size: 1.21rem;
+      margin-bottom: 12px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.7;
+    }
+    .img-placeholder, .video-placeholder {
+      width: 340px;
+      height: 200px;
+      background: #23244a;
+      border: 2px dashed #00bcd4;
+      border-radius: 16px;
+      margin: 24px auto 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #00bcd4;
+      font-size: 1.1rem;
+    }
+    .nav-btns {
+      position: static;
+      margin-top: 32px;
+      margin-bottom: 16px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      z-index: 10;
+    }
+    .nav-btn {
+      background: #00bcd4;
+      color: #fff;
+      border: none;
+      border-radius: 24px;
+      padding: 12px 32px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .nav-btn:disabled {
+      background: #444a;
+      color: #ccc;
+      cursor: not-allowed;
+    }
+    @media (max-width: 600px) {
+      .title { font-size: 2rem; }
+      .content { font-size: 1rem; }
+      .img-placeholder, .video-placeholder { width: 90vw; height: 120px; }
+      .logo { width: 110px; }
+      .logo-corner { width: 54px; top: 10px; left: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Slide 1: Portada -->
+  <div class="slide active">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo">
+    <div class="title">Context AI: Revolutionize Your Learning</div>
+    <div class="subtitle">Contextual intelligence for the future of education</div>
+  </div>
+
+  <!-- Slide 2: ¿Qué es Context AI? -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">What is Context AI?</div>
+    <div class="content">
+      Contextual intelligence platform that replicates the experience of a personal expert tutor, available 24/7.<br>
+      <b>The first educational system that combines deep contextual understanding with real-time personalized adaptation.</b>
+    </div>
+    <img src="interaccion-humana-con-el-asistente-virtual-de-inteligencia-artificial-faas.jpg" alt="Interacción humana con el asistente virtual de IA" style="width:391px; height:230px; border-radius:16px; margin:24px auto 0 auto; display:block; object-fit:cover; border:2px solid #00bcd4;" />
+  </div>
+
+  <!-- Slide 3: ¿Cómo funciona Context AI? -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">How does Context AI work?</div>
+    <div class="content">
+      Context AI uses only official educational system materials, ensuring that answers are accurate, curriculum-aligned, and free from hallucinations.<br><br>
+      Understands the full context of your learning.<br>
+      Analyzes educational materials, images, graphics, and previous conversations.<br>
+      Adapts its responses to your level, pace, and learning style.
+    </div>
+    <img src="el-estudiante-reflexiona-sobre-la-clase-y-la-ciencia.jpg" alt="Estudiante reflexionando sobre la clase y la ciencia" style="width:391px; height:230px; border-radius:16px; margin:24px auto 0 auto; display:block; object-fit:cover; border:2px solid #00bcd4;" />
+  </div>
+
+  <!-- Slide 4: Beneficios para Estudiantes -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Your personal tutor, always available</div>
+    <div class="content">
+      Tailored explanations.<br>
+      Smart practice and progress tracking.<br>
+      Personalized and motivating reinforcement.
+    </div>
+    <img src="representacion-digital-del-grafico-circular-contra-el-joven-senalando-algo-en-tablet-pc-con-otros.jpg" alt="Jóvenes señalando algo en tablet con gráficos digitales" style="width:391px; height:230px; border-radius:16px; margin:24px auto 0 auto; display:block; object-fit:cover; border:2px solid #00bcd4;" />
+  </div>
+
+  <!-- Slide 5: Beneficios para Docentes e Instituciones -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Empower education, amplify impact</div>
+    <div class="content">
+      Detailed analysis of student progress.<br>
+      Automatic generation of educational materials.<br>
+      Scalability and operational efficiency.
+    </div>
+    <img src="9b4d9751-1a55-4e7a-b00d-a7f8e35ccc51.jpg" alt="Beneficios para docentes e instituciones" style="width:391px; height:230px; border-radius:16px; margin:24px auto 0 auto; display:block; object-fit:cover; border:2px solid #00bcd4;" />
+  </div>
+
+  <!-- Slide 6: Diferenciadores Clave -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Why is Context AI unique?</div>
+    <div class="content">
+      Long-term memory and continuous learning.<br>
+      Total integration: chat, documents, images, assessments.<br>
+      <b>Curriculum-aligned answers, no hallucinations.</b><br>
+      Deep personalization and democratization of access.
+    </div>
+    <img src="3519403.jpg" alt="Diferenciadores clave - cerebro digital" style="width:391px; height:230px; border-radius:16px; margin:24px auto 0 auto; display:block; object-fit:cover; border:2px solid #00bcd4;" />
+  </div>
+
+  <!-- Slide 7: Arquitectura Inteligente -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Cutting-edge technology</div>
+    <div class="content">
+      Specialized agents: Tutor, Evaluator, Content Creator, Analyst.<br>
+      Advanced multimodal analysis (text, images, PDFs, diagrams).<br>
+      Real-time dynamic adaptation.
+    </div>
+    <img src="9105342.jpg" alt="Arquitectura inteligente - rostro digital" style="width:391px; height:230px; border-radius:16px; margin:24px auto 0 auto; display:block; object-fit:cover; border:2px solid #00bcd4;" />
+  </div>
+
+  <!-- Slide 8: Impacto Social y Filosofía -->
+  <!-- Slide eliminada por solicitud del usuario -->
+
+  <!-- Slide 9: Video Demostrativo -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">See Context AI in action!</div>
+    <video controls style="width:736px; height:414px; border-radius:16px; margin:24px auto 0 auto; display:block; border:2px solid #00bcd4; background:#23244a;">
+      <source src="videdemo.mp4" type="video/mp4">
+      <source src="videdemo.mov" type="video/quicktime">
+      Your browser does not support video playback.
+    </video>
+  </div>
+
+  <!-- Slide 10: Llamado a la acción -->
+  <div class="slide">
+    <img src="logo_context_AI.png" alt="Logo Context AI" class="logo-corner">
+    <div class="title">Join the educational revolution</div>
+    <div class="content">
+      Discover how Context AI can transform your learning or institution.<br>
+      <span style="color:#00bcd4;">Contact us for more information.</span>
+    </div>
+  </div>
+
+  <div class="nav-btns">
+    <button class="nav-btn" id="prevBtn">Previous</button>
+    <button class="nav-btn" id="nextBtn">Next</button>
+  </div>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    let current = 0;
+    function showSlide(idx) {
+      slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+      document.getElementById('prevBtn').disabled = idx === 0;
+      document.getElementById('nextBtn').disabled = idx === slides.length - 1;
+    }
+    document.getElementById('prevBtn').onclick = () => {
+      if (current > 0) { current--; showSlide(current); }
+    };
+    document.getElementById('nextBtn').onclick = () => {
+      if (current < slides.length - 1) { current++; showSlide(current); }
+    };
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight') document.getElementById('nextBtn').click();
+      if (e.key === 'ArrowLeft') document.getElementById('prevBtn').click();
+    });
+    // Touch support
+    let startX = null;
+    document.body.addEventListener('touchstart', e => {
+      if (e.touches.length === 1) startX = e.touches[0].clientX;
+    });
+    document.body.addEventListener('touchend', e => {
+      if (startX !== null && e.changedTouches.length === 1) {
+        let dx = e.changedTouches[0].clientX - startX;
+        if (dx < -50) document.getElementById('nextBtn').click();
+        if (dx > 50) document.getElementById('prevBtn').click();
+      }
+      startX = null;
+    });
+  </script>
+</body>
+</html> 
