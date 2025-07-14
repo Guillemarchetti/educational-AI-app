@@ -8,7 +8,7 @@ export function WelcomePage() {
         <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-xl mb-2">
           <Brain className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-2xl font-extrabold mb-1 tracking-tight text-center">AI Education</h1>
+        <h1 className="text-2xl font-extrabold mb-1 tracking-tight text-center">Context <span className="text-cyan-400">AI</span></h1>
         <p className="text-base text-slate-300 text-center max-w-lg">Plataforma inteligente para potenciar el aprendizaje con IA.</p>
       </div>
 

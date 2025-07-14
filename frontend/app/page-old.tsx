@@ -350,7 +350,7 @@ export default function MinisterioEducacionChat() {
                 <AcademicCapIconSolid className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-sm font-semibold text-[var(--edu-text-primary)]">MinEdu AI</h1>
+                <h1 className="text-sm font-semibold text-[var(--edu-text-primary)]">Context <span className="text-cyan-400">AI</span></h1>
                 <p className="text-xs text-[var(--edu-text-muted)]">Asistente Educativo</p>
               </div>
             </div>
@@ -639,7 +639,7 @@ export default function MinisterioEducacionChat() {
                       <span>{message.length}/2000</span>
                     </div>
                     <button className="flex items-center space-x-2 px-3 py-1.5 bg-[var(--edu-bg-tertiary)] hover:bg-[var(--edu-bg-secondary)] rounded-lg transition-all duration-200 text-sm">
-                      <span>MinEdu AI</span>
+                      <span>Context <span className="text-cyan-400">AI</span></span>
                       <ChevronDownIcon className="w-4 h-4" />
                     </button>
                     <button
@@ -654,7 +654,7 @@ export default function MinisterioEducacionChat() {
               </div>
               
               <div className="flex items-center justify-center mt-4 text-xs text-[var(--edu-text-dimmed)]">
-                <p>MinEdu AI puede cometer errores. Verifica la información importante con tus docentes.</p>
+                <p>Context AI puede cometer errores. Verifica la información importante con tus docentes.</p>
               </div>
             </div>
           </div>

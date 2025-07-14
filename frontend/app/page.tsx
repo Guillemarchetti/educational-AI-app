@@ -19,6 +19,7 @@ import { WelcomePage } from '@/components/enterprise/WelcomePage'
 import { HeroSection } from '@/components/enterprise/HeroSection'
 import { ProgressTracker } from '@/components/enterprise/ProgressTracker'
 import { PomodoroSession, PomodoroStats } from '@/components/enterprise/pomodoro'
+import { ContextSearch } from '@/components/enterprise/ContextSearch'
 
 const PdfViewer = dynamic(() => import('@/components/enterprise/PdfViewer').then(mod => mod.PdfViewer), {
   ssr: false,
@@ -596,25 +597,20 @@ export default function EnterpriseChatPage() {
 
       case 'search':
         return (
-          <div className="h-full w-full bg-enterprise-900 flex items-center justify-center">
-            <div className="text-center space-y-4">
-              <div className="w-16 h-16 mx-auto bg-green-500/20 rounded-2xl flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-white">Buscador Web</h2>
-              <p className="text-slate-400 text-lg">Contenido interactivo basado en el contexto</p>
-              <div className="bg-enterprise-800/30 rounded-lg p-6 border border-enterprise-700/50 max-w-md">
-                <p className="text-slate-300 text-sm leading-relaxed">
-                  🔍 <strong>En construcción</strong> 🔍
-                </p>
-                <p className="text-slate-400 text-xs mt-2">
-                  Próximamente: Búsqueda inteligente en la web, contenido interactivo relacionado con el chat y contexto cargado.
-                </p>
-              </div>
-            </div>
-          </div>
+          <ContextSearch
+            contextText={contextText}
+            onRemoveContext={handleRemoveContext}
+            isDraggingOver={isDraggingOver}
+            setIsDraggingOver={setIsDraggingOver}
+            onFileDrop={handleFileDrop}
+            isExtracting={isExtracting}
+            selectedFile={selectedFile}
+            onSendWelcomeMessage={sendWelcomeMessage}
+            messages={messages}
+            setMessages={setMessages}
+            showProgress={showProgress}
+            onToggleProgress={handleToggleProgress}
+          />
         );
       
       case 'documents':

@@ -50,6 +50,7 @@ interface ChatInterfaceProps {
   onHideImageSelector?: () => void;
   showProgress?: boolean;
   onToggleProgress?: () => void;
+  hideHeaderIcons?: boolean;
 }
 
 export function ChatInterface({ 
@@ -74,6 +75,7 @@ export function ChatInterface({
   onHideImageSelector,
   showProgress: externalShowProgress,
   onToggleProgress: externalOnToggleProgress,
+  hideHeaderIcons = false,
 }: ChatInterfaceProps) {
   const [internalMessages, setInternalMessages] = useState<Message[]>([])
   
@@ -346,16 +348,16 @@ export function ChatInterface({
         </div>
       )}
       <ChatHeader 
-        onToggleQuiz={() => setShowQuiz(!showQuiz)}
-        onToggleSmartPrompts={() => setShowSmartPrompts(!showSmartPrompts)}
-        onToggleImageSelector={() => {
+        onToggleQuiz={hideHeaderIcons ? undefined : () => setShowQuiz(!showQuiz)}
+        onToggleSmartPrompts={hideHeaderIcons ? undefined : () => setShowSmartPrompts(!showSmartPrompts)}
+        onToggleImageSelector={hideHeaderIcons ? undefined : () => {
           setShowImageSelector(!showImageSelector)
           // Solo activar modo de selección si se está mostrando el selector y hay archivo
           if (!showImageSelector && selectedFile && onToggleImageSelection) {
             onToggleImageSelection()
           }
         }}
-        onClearContext={clearPersistentContext}
+        onClearContext={hideHeaderIcons ? undefined : clearPersistentContext}
       />
       
       {/* Mostrar contexto si hay alguno */}

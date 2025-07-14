@@ -107,17 +107,17 @@ export function HeroSection({
       <div className="relative z-10 container mx-auto px-6 py-4 max-w-7xl h-full flex flex-col justify-between">
         {/* Header */}
         <motion.header 
-          className="flex justify-between items-center mb-12"
+          className="flex justify-between items-center mb-6"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.6 }}
         >
           {/* Logo */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
+            <div className="w-12 h-12 flex items-center justify-center">
+              <img src="/logo.jpg" alt="Context AI" className="w-12 h-12 object-cover" />
             </div>
-            <span className="text-xl font-bold text-white">EduAI Hub</span>
+                            <span className="text-xl font-bold text-white">Context <span className="text-cyan-400">AI</span></span>
           </div>
 
           {/* Navigation */}
@@ -184,21 +184,21 @@ export function HeroSection({
             >
                             {/* Main Title */}
               <motion.h1 
-                className="text-5xl md:text-6xl lg:text-7xl font-black bg-gradient-to-r from-white via-blue-100 via-purple-100 to-cyan-100 bg-clip-text text-transparent leading-tight mb-4"
+                className="text-5xl md:text-6xl lg:text-7xl font-black leading-tight mb-8 flex items-baseline justify-center gap-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4, duration: 0.8 }}
                 style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
               >
-                <span className="block -ml-8">EduAI</span>
-                <span className="block ml-12 text-4xl md:text-5xl lg:text-6xl font-extrabold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
-                  Hub
+                <span className="bg-gradient-to-r from-white via-blue-100 via-purple-100 to-cyan-100 bg-clip-text text-transparent">Context</span>
+                <span className="text-6xl md:text-7xl lg:text-8xl font-extrabold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                  AI
                 </span>
               </motion.h1>
 
               {/* Subtitle */}
               <motion.p 
-                className="text-xl md:text-2xl lg:text-3xl text-slate-200 mb-4 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-semibold"
+                className="text-xl md:text-2xl lg:text-3xl text-slate-200 mb-6 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-semibold"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
@@ -212,7 +212,7 @@ export function HeroSection({
 
               {/* Description */}
               <motion.p 
-                className="text-base md:text-lg text-slate-400 mb-5 max-w-xl mx-auto lg:mx-0 leading-relaxed"
+                className="text-base md:text-lg text-slate-400 mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.8 }}
@@ -321,7 +321,7 @@ export function HeroSection({
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.4, duration: 0.6 }}
               >
-                Descubre cómo EduAI Hub revoluciona tu experiencia de aprendizaje con herramientas 
+                                  Descubre cómo Context AI revoluciona tu experiencia de aprendizaje con herramientas 
                 inteligentes diseñadas para hacer el estudio más efectivo, entretenido y organizado.
               </motion.p>
             </div>
@@ -422,7 +422,7 @@ export function HeroSection({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 2.6, duration: 0.6 }}
             >
-              Acerca de EduAI Hub
+                                  Acerca de Context AI
             </motion.h2>
             <motion.p 
               className="text-slate-300 text-sm md:text-base max-w-3xl leading-relaxed"
@@ -498,10 +498,10 @@ export function HeroSection({
             {/* Brand Section */}
             <div>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 via-purple-600 to-cyan-600 flex items-center justify-center">
-                  <GraduationCap className="w-4 h-4 text-white" />
+                <div className="w-10 h-10 flex items-center justify-center">
+                  <img src="/logo.jpg" alt="Context AI" className="w-10 h-10 object-cover" />
                 </div>
-                <span className="text-lg font-bold text-white">EduAI Hub</span>
+                <span className="text-lg font-bold text-white">Context <span className="text-cyan-400">AI</span></span>
               </div>
               <p className="text-slate-400 text-sm leading-relaxed max-w-lg">
                 Transformando la educación a través de la inteligencia artificial. 
@@ -569,7 +569,7 @@ export function HeroSection({
           {/* Copyright */}
           <div className="border-t border-slate-700/30 pt-3 text-center flex items-center justify-center">
             <p className="text-slate-500 text-xs">
-              2025 EduAI Hub. Todos los derechos reservados.
+                                2025 Context AI. Todos los derechos reservados.
             </p>
           </div>
         </motion.footer>

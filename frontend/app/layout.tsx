@@ -26,12 +26,12 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'EduAI Hub - Centro de Recursos Educativos con IA',
+  title: 'Context AI - Centro de Recursos Educativos con IA',
   description: 'El centro de recursos educativos más avanzado, potenciado por inteligencia artificial para transformar la experiencia de aprendizaje',
   keywords: ['educación', 'inteligencia artificial', 'aprendizaje', 'recursos educativos', 'IA educativa', 'plataforma educativa'],
-  authors: [{ name: 'EduAI Hub' }],
-  creator: 'EduAI Hub',
-  publisher: 'EduAI Hub',
+  authors: [{ name: 'Context AI' }],
+  creator: 'Context AI',
+  publisher: 'Context AI',
   robots: {
     index: true,
     follow: true,
@@ -46,24 +46,24 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'es_ES',
-    url: 'https://eduaihub.com',
-    title: 'EduAI Hub - Centro de Recursos Educativos con IA',
+    url: 'https://contextai.com',
+    title: 'Context AI - Centro de Recursos Educativos con IA',
     description: 'El centro de recursos educativos más avanzado, potenciado por inteligencia artificial para transformar la experiencia de aprendizaje',
-    siteName: 'EduAI Hub',
+    siteName: 'Context AI',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'EduAI Hub Platform',
+        alt: 'Context AI Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'EduAI Hub - Centro de Recursos Educativos con IA',
+    title: 'Context AI - Centro de Recursos Educativos con IA',
     description: 'El centro de recursos educativos más avanzado, potenciado por inteligencia artificial',
-    creator: '@EduAIHub',
+    creator: '@ContextAI',
     images: ['/twitter-image.jpg'],
   },
   icons: {
