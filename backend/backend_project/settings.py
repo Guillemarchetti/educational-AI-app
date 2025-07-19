@@ -19,7 +19,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-default-key-change-in-prod
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.railway.app').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Para servir archivos estáticos
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'authentication.middleware.DisableCSRFMiddleware',  # Custom CSRF middleware
@@ -74,12 +75,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend_project.wsgi.application'
 
 # Database
+import dj_database_url
+
+# Default SQLite para desarrollo local
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# PostgreSQL para producción (Railway)
+if os.getenv('DATABASE_URL'):
+    DATABASES['default'] = dj_database_url.parse(os.getenv('DATABASE_URL'))
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
